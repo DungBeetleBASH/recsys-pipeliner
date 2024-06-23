@@ -1,0 +1,3 @@
+
+class SagemakerSessionException(Exception):
+    pass
