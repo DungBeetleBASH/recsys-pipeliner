@@ -6,7 +6,7 @@ from pipeliner.exceptions import SagemakerSessionException
 
 
 def create_pipeline_session(
-    bucket: str, region="eu-west-1", local=False, local_code=False
+    bucket: str | None = None, region="eu-west-1", local=False, local_code=False
 ) -> Session:
     try:
         if local:
@@ -15,6 +15,7 @@ def create_pipeline_session(
             session.config = {"local": {"local_code": local_code}}
         else:
             boto_session = boto3.Session(region_name=region)
+            print("boto_session", boto_session)
             sagemaker_client = boto_session.client("sagemaker")
 
             session = PipelineSession(
