@@ -14,7 +14,6 @@ def create_pipeline_session(
             session.config = {"local": {"local_code": local_code}}
         else:
             boto_session = boto3.Session(region_name=region)
-            print("boto_session", boto_session)
             sagemaker_client = boto_session.client("sagemaker")
 
             session = PipelineSession(
