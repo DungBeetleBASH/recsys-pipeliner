@@ -1,5 +1,5 @@
 import pytest
-from pipeliner.factory import PipelineFactory
+from pipeliner.sagemaker.pipeline import PipelineFactory
 
 
 def test_pipeline_factory():

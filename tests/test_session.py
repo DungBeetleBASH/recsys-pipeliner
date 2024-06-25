@@ -1,8 +1,7 @@
 import pytest
 from sagemaker.workflow.pipeline_context import LocalPipelineSession, PipelineSession
-
-# from pipeliner.exceptions import SagemakerSessionException
-from pipeliner.session import create_pipeline_session, SagemakerSessionException
+from pipeliner.exceptions import SagemakerSessionException
+from pipeliner.sagemaker.session import create_pipeline_session
 
 
 def test_create_pipeline_session(fx_boto3_session):
