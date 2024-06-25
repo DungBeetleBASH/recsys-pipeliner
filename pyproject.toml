@@ -17,7 +17,7 @@ version = { attr = "pipeliner.__VERSION__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["tests"]
+exclude = ["tests", "notebooks"]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
