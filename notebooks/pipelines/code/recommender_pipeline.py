@@ -30,7 +30,6 @@ class RecommenderPipeline(SagemakerPipelineFactory):
             version="1.2-1",
         )
 
-        # Create a ScriptProcessor and add code / run parameters
         processor = ScriptProcessor(
             image_uri=image_uri,
             command=["python3"],
@@ -43,7 +42,7 @@ class RecommenderPipeline(SagemakerPipelineFactory):
         processing_step = ProcessingStep(
             name="processing-example",
             step_args=processor.run(
-                code="pipelines/sources/example_pipeline/evaluate.py",
+                code="pipelines/code/transform.py",
             ),
         )
 
