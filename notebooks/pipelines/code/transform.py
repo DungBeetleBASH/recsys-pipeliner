@@ -17,7 +17,7 @@ if __name__ == "__main__":
     pd.read_csv(f"{base_dir}/{data_path}", dtype=data_types)
 
     
-    transformer = Pipeline(
+    transformer = SKPipeline(
         [
             ("user_item", UserItemMatrixTransformer()),
             ("similarity", SimilarityTransformer(kind=kind, metric=metric)),

@@ -40,7 +40,7 @@ class RecommenderPipeline(SagemakerPipelineFactory):
         )
 
         processing_step = ProcessingStep(
-            name="processing-example",
+            name="user-item-transformer",
             step_args=processor.run(
                 code="pipelines/code/transform.py",
             ),
