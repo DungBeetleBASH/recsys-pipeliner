@@ -23,6 +23,6 @@ if __name__ == "__main__":
         ]
     )
 
-    similarity_matrix = pipe.transform(user_item_ratings)
+    similarity_matrix = transformer.transform(user_item_ratings)
 
     similarity_matrix.to_csv(f"{base_dir}/user_item_similarity_matrix.csv", header=True, index=False)

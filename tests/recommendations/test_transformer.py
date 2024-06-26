@@ -54,17 +54,23 @@ def test_SimilarityTransformer_not_implemented_error(
 
 
 @pytest.mark.parametrize(
-    "kind, metric, expected_shape",
+    "kind, metric, normalise, expected_shape",
     [
-        ("user", "cosine", (10, 10)),
-        ("item", "cosine", (44, 44)),
+        ("user", "cosine", False, (10, 10)),
+        ("user", "cosine", True, (10, 10)),
+        ("item", "cosine", False, (44, 44)),
     ],
 )
-def test_SimilarityTransformer(fx_user_item_ratings, kind, metric, expected_shape):
+def test_SimilarityTransformer(
+    fx_user_item_ratings, kind, metric, normalise, expected_shape
+):
     pipe = Pipeline(
         [
             ("user_item", UserItemMatrixTransformer()),
-            ("similarity", SimilarityTransformer(kind=kind, metric=metric)),
+            (
+                "similarity",
+                SimilarityTransformer(kind=kind, metric=metric, normalise=normalise),
+            ),
         ]
     )
 

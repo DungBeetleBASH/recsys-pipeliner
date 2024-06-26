@@ -45,13 +45,14 @@ class SimilarityTransformer(BaseEstimator, TransformerMixin):
     user-user or item-item similarity.
     """
 
-    def __init__(self, kind="user", metric="cosine"):
+    def __init__(self, kind="user", metric="cosine", normalise=False):
         if kind not in ["user", "item"]:
             raise ValueError("kind must be 'user' or 'item'")
         if metric not in ["cosine", "dot", "euclidean"]:
             raise ValueError("metric must be 'cosine', 'dot', or 'euclidean'")
         self.kind = kind
         self.metric = metric
+        self.normalise = normalise
 
     def fit(self, X, y=None):
         return self
@@ -62,10 +63,13 @@ class SimilarityTransformer(BaseEstimator, TransformerMixin):
             matrix = X.T
 
         if self.metric == "cosine":
-            return pd.DataFrame(
+            df = pd.DataFrame(
                 cosine_similarity(matrix), index=matrix.index, columns=matrix.index
             )
         else:
-            raise NotImplementedError(
-                "Only cosine similarity and distance are currently supported"
-            )
+            raise NotImplementedError("Only cosine similarity is currently supported")
+
+        if self.normalise:
+            df = (df - df.min()) / (df.max() - df.min())
+
+        return df
