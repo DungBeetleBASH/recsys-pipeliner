@@ -22,7 +22,7 @@ class ItemRecommender(BaseEstimator):
         """Fits the recommender to the given data.
 
         Args:
-          X (pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]):
+          X (pd.DataFrame | Sequence[pd.DataFrame]):
             Single DataFrame with similarity matrix
             or Sequence of (similarity matrix, user/item matrix)
         """
@@ -38,32 +38,26 @@ class ItemRecommender(BaseEstimator):
 
     def _recommend(self, item: str | Sequence[str]):
         if isinstance(item, str):
-            item_recommendations = (
-                self.similarity_matrix[
-                    self.similarity_matrix[item] > self.item_similarity_threshold
-                ][item]
-                .drop(item, errors="ignore")
-                .sort_values(ascending=False)
-            )
-            return np.array(item_recommendations.head(self.n).index)
+            item_id = item
+            exclusions = [item]
         elif isinstance(item, Sequence):
             user_id, item_id = item[0], item[1]
 
             single_user_matrix = self.user_item_matrix.loc[user_id]
-            user_rated_items = single_user_matrix[single_user_matrix > 0].sort_values(
-                ascending=False
-            )
+            user_rated_items = single_user_matrix[single_user_matrix > 0]
 
-            item_recommendations = (
-                self.similarity_matrix[
-                    self.similarity_matrix[item_id] > self.item_similarity_threshold
-                ][item_id]
-                .drop([item_id] + user_rated_items.index, errors="ignore")
-                .sort_values(ascending=False)
-            )
-            return np.array(item_recommendations.head(self.n).index)
+            exclusions = [item_id] + user_rated_items.index
         else:
             return np.array([])
+
+        item_recommendations = (
+            self.similarity_matrix[
+                self.similarity_matrix[item_id] > self.item_similarity_threshold
+            ][item_id]
+            .drop(exclusions, errors="ignore")
+            .sort_values(ascending=False)
+        )
+        return np.array(item_recommendations.head(self.n).index)
 
     def predict(self, X: Sequence[str] | Sequence[Sequence[str]]):
         """Predicts n recommendations
