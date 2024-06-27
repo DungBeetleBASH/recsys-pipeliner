@@ -46,7 +46,7 @@ class ItemRecommender(BaseEstimator):
             single_user_matrix = self.user_item_matrix.loc[user_id]
             user_rated_items = single_user_matrix[single_user_matrix > 0]
 
-            exclusions = [item_id] + user_rated_items.index
+            exclusions = [item_id] + user_rated_items.index.to_list()
         else:
             return np.array([])
 
