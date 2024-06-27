@@ -3,7 +3,6 @@ from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
-from sklearn.pipeline import Pipeline
 
 
 @pytest.mark.parametrize(
@@ -40,17 +39,11 @@ def test_SimilarityTransformer_error(kind, metric):
     "kind, metric",
     [("user", "euclidean"), ("user", "dot")],
 )
-def test_SimilarityTransformer_not_implemented_error(
-    fx_user_item_ratings, kind, metric
-):
-    pipe = Pipeline(
-        [
-            ("user_item", UserItemMatrixTransformer()),
-            ("similarity", SimilarityTransformer(kind=kind, metric=metric)),
-        ]
-    )
+def test_SimilarityTransformer_not_implemented_error(fx_user_item_matrix, kind, metric):
+    transformer = SimilarityTransformer(kind=kind, metric=metric)
+
     with pytest.raises(NotImplementedError):
-        pipe.transform(fx_user_item_ratings)
+        transformer.transform(fx_user_item_matrix)
 
 
 @pytest.mark.parametrize(
@@ -62,18 +55,9 @@ def test_SimilarityTransformer_not_implemented_error(
     ],
 )
 def test_SimilarityTransformer(
-    fx_user_item_ratings, kind, metric, normalise, expected_shape
+    fx_user_item_matrix, kind, metric, normalise, expected_shape
 ):
-    pipe = Pipeline(
-        [
-            ("user_item", UserItemMatrixTransformer()),
-            (
-                "similarity",
-                SimilarityTransformer(kind=kind, metric=metric, normalise=normalise),
-            ),
-        ]
-    )
-
-    similarity_matrix = pipe.transform(fx_user_item_ratings)
+    transformer = SimilarityTransformer(kind=kind, metric=metric, normalise=normalise)
+    similarity_matrix = transformer.transform(fx_user_item_matrix)
 
     assert similarity_matrix.shape == expected_shape
