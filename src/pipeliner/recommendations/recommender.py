@@ -32,30 +32,14 @@ from sklearn.multioutput import MultiOutputClassifier
 #         pass
 
 
-class SimilarityRecommender(MultiOutputClassifier):
-    """Recommender for similar items based on the `SimilarityTransformer`.
+class ItemBasedRecommender(BaseEstimator):
+    """Item-based collaborative filtering recommender."""
 
-    The goal of this recommender is to recommend similar items to the items that are already given (item-item recommender).
+    user_item_matrix: pd.DataFrame
+    similarity_matrix: pd.DataFrame
 
-    Args:
-      num_items (int): Number of items that should be estimated (if None output all items)
-      sort (str): Defines the function used to aggregate items from the user_item matrix (if provided) (potential values are: 'sum', 'mean', 'count')
-      ascending (bool): Defines if values should be sorted ascending or descending
-    """
-
-    def __init__(self, num_items=None, sort=None, ascending=False):
-        self.num_items = num_items if num_items is not None else -1
-        self.ascending = ascending
-
-        # check sort value
-        if sort is not None and sort not in ["sum", "mean", "count"]:
-            raise ValueError("Unkown value for sort: {}".format(sort))
-        self.sort = sort
-
-        # init matricies
-        self.sim_mat = None
-        self.user_item = None
-        self.sort_mat = None
+    def __init__(self, n=None):
+        self.n = n
 
     def fit(self, X, y=None, sample_weight=None):
         """Fits the recommender to the given data.
