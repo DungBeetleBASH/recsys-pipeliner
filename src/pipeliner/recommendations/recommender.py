@@ -4,7 +4,7 @@ from sklearn.base import BaseEstimator
 from collections.abc import Sequence
 
 
-class ItemRecommender(BaseEstimator):
+class ItemBasedRecommender(BaseEstimator):
     """Item-based collaborative filtering recommender."""
 
     n: int
@@ -20,7 +20,7 @@ class ItemRecommender(BaseEstimator):
         """Fits the recommender to the given data.
 
         Args:
-          X (pd.DataFrame | tuple[pd.DataFrame]):
+          X (pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]):
             Single DataFrame with similarity matrix
             or tuple of (similarity matrix, user/item matrix)
         """
@@ -30,9 +30,7 @@ class ItemRecommender(BaseEstimator):
             self.similarity_matrix = X[0]
             self.user_item_matrix = X[1]
         else:
-            raise ValueError(
-                "Input should be a DataFrame or a tuple of (DataFrame, DataFrame)"
-            )
+            raise ValueError("Input should be DataFrame or (DataFrame, DataFrame)")
 
         return self
 
@@ -49,7 +47,7 @@ class ItemRecommender(BaseEstimator):
         elif isinstance(item, tuple):
             item_id, user_id = item[0], item[1]
         else:
-            raise ValueError("Input items should be str or tuple of (str, str)")
+            raise ValueError("Input items should be str or (str, str)")
 
         exclusions = self._get_exclusions(item_id, user_id)
 
@@ -68,7 +66,7 @@ class ItemRecommender(BaseEstimator):
         rated by the user will be excluded from the recommendations.
 
         Args:
-          X (Sequence): List of item_ids or list of (user_id, item_id) tuples
+          X (Sequence): List of item_id or (user_id, item_id)
 
         Returns:
           np.array of shape (X.shape[0], n)

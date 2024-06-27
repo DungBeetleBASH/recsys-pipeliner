@@ -1,5 +1,5 @@
 import pytest
-from pipeliner.recommendations.recommender import ItemRecommender
+from pipeliner.recommendations.recommender import ItemBasedRecommender
 
 
 @pytest.mark.parametrize(
@@ -12,7 +12,7 @@ from pipeliner.recommendations.recommender import ItemRecommender
         ([], (0,)),
     ],
 )
-def test_ItemRecommender(
+def test_ItemBasedRecommender(
     fx_item_similarity_matrix, fx_user_item_matrix, input, output_shape
 ):
     X = (
@@ -20,17 +20,17 @@ def test_ItemRecommender(
         if isinstance(input, str)
         else (fx_item_similarity_matrix, fx_user_item_matrix)
     )
-    item_recommender = ItemRecommender().fit(X)
+    item_recommender = ItemBasedRecommender().fit(X)
     predictions = item_recommender.predict(input)
     assert predictions.shape == output_shape
 
 
-def test_ItemRecommender_fit_error():
+def test_ItemBasedRecommender_fit_error():
     with pytest.raises(ValueError):
-        ItemRecommender().fit("cat")
+        ItemBasedRecommender().fit("cat")
 
 
-def test_ItemRecommender_predict_error(fx_item_similarity_matrix):
-    item_recommender = ItemRecommender().fit(fx_item_similarity_matrix)
+def test_ItemBasedRecommender_predict_error(fx_item_similarity_matrix):
+    item_recommender = ItemBasedRecommender().fit(fx_item_similarity_matrix)
     with pytest.raises(ValueError):
         item_recommender.predict([1.3])
