@@ -10,13 +10,13 @@ class ItemRecommender(BaseEstimator):
     """Item-based collaborative filtering recommender."""
 
     n: int
+    threshold: float
     similarity_matrix: pd.DataFrame
     user_item_matrix: pd.DataFrame
-    item_similarity_threshold: float
 
-    def __init__(self, n=5, item_similarity_threshold=0.1):
+    def __init__(self, n=5, threshold=0.1):
         self.n = n
-        self.item_similarity_threshold = item_similarity_threshold
+        self.threshold = threshold
 
     def fit(self, X: pd.DataFrame | Sequence[pd.DataFrame], y=None):
         """Fits the recommender to the given data.
@@ -51,9 +51,9 @@ class ItemRecommender(BaseEstimator):
             return np.array([])
 
         item_recommendations = (
-            self.similarity_matrix[
-                self.similarity_matrix[item_id] > self.item_similarity_threshold
-            ][item_id]
+            self.similarity_matrix[self.similarity_matrix[item_id] > self.threshold][
+                item_id
+            ]
             .drop(exclusions, errors="ignore")
             .sort_values(ascending=False)
         )

@@ -21,7 +21,7 @@ exclude = ["tests", "notebooks"]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
-addopts = ["--cov=src", "--cov-report=html", "-s"]
+addopts = ["--cov=src", "--cov-report=html"]
 
 [tool.coverage.run]
 branch = true
