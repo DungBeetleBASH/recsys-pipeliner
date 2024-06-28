@@ -66,7 +66,7 @@ class ItemBasedRecommender(BaseEstimator):
         rated by the user will be excluded from the recommendations.
 
         Args:
-          X (Sequence): List of item_id or (user_id, item_id)
+          X (Sequence): List of item_id or (item_id, user_id)
 
         Returns:
           np.array of shape (X.shape[0], n)
