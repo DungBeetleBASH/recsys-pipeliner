@@ -121,6 +121,8 @@ class UserBasedRecommender(BaseEstimator):
         return user_rated_items.index.to_list()
 
     def _get_recommendations(self, user_id: str) -> np.array:
+        if not isinstance(user_id, str):
+            raise ValueError("Input items should be str")
         exclusions = self._get_exclusions(user_id)
         similar_users = self._get_similar_users(user_id)
         matrix = self.user_item_matrix.T[similar_users.head(self.n_users).index]
