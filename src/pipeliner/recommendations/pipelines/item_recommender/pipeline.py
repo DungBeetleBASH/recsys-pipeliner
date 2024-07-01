@@ -39,16 +39,29 @@ class RecommenderPipeline(SagemakerPipelineFactory):
             sagemaker_session=session,
         )
 
-        processing_step = ProcessingStep(
-            name="user-item-transformer",
+        user_item_matrix_step = ProcessingStep(
+            name="user_item_matrix_transformer",
             step_args=processor.run(
-                code="pipelines/code/transform.py",
+                code="pipelines/code/user_item_matrix_transformer.py",
             ),
+        )
+
+        item_similarity_matrix_step = ProcessingStep(
+            name="similarity_matrix_transformer",
+            step_args=processor.run(
+                code="pipelines/code/similarity_matrix_transformer.py",
+            ),  
+            job_arguments=[  
+                "--kind", "item"  
+            ],
         )
 
         return Pipeline(
             name=name,
-            steps=[processing_step],
+            steps=[
+                user_item_matrix_step, 
+                item_similarity_matrix_step
+            ],
             sagemaker_session=session,
             parameters=[instance_type],
         )
