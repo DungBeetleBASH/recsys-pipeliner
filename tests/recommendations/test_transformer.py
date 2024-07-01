@@ -3,15 +3,13 @@ from sklearn.utils.estimator_checks import parametrize_with_checks
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
-    TemplateTransformer,
 )
 
 
 @parametrize_with_checks(
     [
-        # UserItemMatrixTransformer(),
-        # SimilarityTransformer(),
-        TemplateTransformer(),
+        UserItemMatrixTransformer(),
+        SimilarityTransformer(),
     ],
 )
 def test_estimators(estimator, check):
