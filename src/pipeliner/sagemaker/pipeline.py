@@ -7,6 +7,8 @@ from sagemaker.workflow.pipeline import Pipeline
 class PipelineFactory(BaseModel):
     """Base class for all pipeline factories."""
 
+    local: bool = False
+
     @abstractmethod
     def create(
         self,

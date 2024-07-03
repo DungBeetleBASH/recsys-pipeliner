@@ -6,12 +6,10 @@ from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.sklearn.estimator import SKLearn
 from sagemaker.workflow.steps import CacheConfig, ProcessingStep, TrainingStep
 
-from pipeliner.sagemaker import PipelineFactory
+from pipeliner.sagemaker.pipeline import PipelineFactory
 
 
 class RecommenderPipeline(PipelineFactory):
-    local: bool
-
     def create(
         self,
         role: str,
@@ -33,7 +31,7 @@ class RecommenderPipeline(PipelineFactory):
 
         cache_config = CacheConfig(
             enable_caching=True,
-            expire_after="P30d" # 30 days
+            expire_after="P30d",  # 30 days
         )
 
         processor = ScriptProcessor(
@@ -56,10 +54,8 @@ class RecommenderPipeline(PipelineFactory):
             name="similarity_matrix_transformer",
             step_args=processor.run(
                 code="pipelines/code/similarity_matrix_transformer.py",
-            ),  
-            job_arguments=[  
-                "--kind", "item"  
-            ],
+            ),
+            job_arguments=["--kind", "item"],
         )
 
         sklearn_estimator = SKLearn(
@@ -74,23 +70,12 @@ class RecommenderPipeline(PipelineFactory):
         )
 
         training_step = TrainingStep(
-            name="Train",
-            estimator=sklearn_estimator,
-            cache_config=cache_config
+            name="Train", estimator=sklearn_estimator, cache_config=cache_config
         )
 
         return Pipeline(
             name=name,
-            steps=[
-                user_item_matrix_step, 
-                item_similarity_matrix_step,
-                training_step
-            ],
+            steps=[user_item_matrix_step, item_similarity_matrix_step, training_step],
             sagemaker_session=session,
             parameters=[instance_type],
         )
-
-session = LocalPipelineSession()
-pipeline = RecommenderPipeline(role="local", name="recommender", session=session)
-
-pipeline.start()
