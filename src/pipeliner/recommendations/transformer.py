@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin, _fit_context
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -33,7 +33,6 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
         self.agg = agg
         self.binary = binary
 
-    @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y=None):
         return self
 
@@ -43,12 +42,6 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
             return matrix.notnull().astype(int)
         else:
             return matrix.fillna(0)
-
-    def _more_tags(self):
-        return {
-            "X_types": [],
-            "preserves_dtype": [pd.DataFrame],
-        }
 
 
 class SimilarityTransformer(TransformerMixin, BaseEstimator):
@@ -60,12 +53,6 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
     user-user or item-item similarity.
     """
 
-    _parameter_constraints = {
-        "kind": [str],
-        "metric": [str],
-        "normalise": [bool],
-    }
-
     def __init__(self, kind="user", metric="cosine", normalise=False):
         if kind not in ["user", "item"]:
             raise ValueError("kind must be 'user' or 'item'")
@@ -75,7 +62,6 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
         self.metric = metric
         self.normalise = normalise
 
-    @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y=None):
         return self
 
@@ -95,9 +81,3 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
             df = (df - df.min()) / (df.max() - df.min())
 
         return df
-
-    def _more_tags(self):
-        return {
-            "X_types": [],
-            "preserves_dtype": [pd.DataFrame],
-        }

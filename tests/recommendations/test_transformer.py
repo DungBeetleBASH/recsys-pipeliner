@@ -1,20 +1,8 @@
 import pytest
-
-# from sklearn.utils.estimator_checks import parametrize_with_checks
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
-
-
-# @parametrize_with_checks(
-#     [
-#         UserItemMatrixTransformer(),
-#         SimilarityTransformer(),
-#     ],
-# )
-# def test_estimators(estimator, check):
-#     check(estimator)
 
 
 @pytest.mark.parametrize(
