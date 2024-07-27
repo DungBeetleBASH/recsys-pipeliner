@@ -8,7 +8,7 @@ def test_create_pipeline_session(fx_boto3_session):
     session = create_pipeline_session("test-bucket")
 
     assert session.__class__ == PipelineSession
-    assert fx_boto3_session.called_once()
+    fx_boto3_session.return_value.client.assert_called()
 
 
 @pytest.mark.parametrize(
@@ -26,11 +26,10 @@ def test_create_pipeline_session_local(fx_boto3_session, local, local_code, expe
     session = create_pipeline_session(**args)
 
     assert session.__class__ == expected
-    assert fx_boto3_session.not_called()
 
 
 def test_create_pipeline_session_error(fx_boto3_session):
-    fx_boto3_session.client.side_effect = Exception("error")
+    fx_boto3_session.return_value.client.side_effect = Exception("error")
 
     with pytest.raises(SagemakerSessionException):
         create_pipeline_session("test-bucket")
