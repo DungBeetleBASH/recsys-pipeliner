@@ -16,14 +16,6 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     :param binary (bool): If True, user/item interactions are converted to binary values in the user/item output matrix
     """
 
-    _parameter_constraints = {
-        "user": [str],
-        "item": [str],
-        "rating": [str],
-        "agg": [str],
-        "normalise": [bool],
-    }
-
     def __init__(
         self, user="user_id", item="item_id", rating="rating", agg="max", binary=False
     ):

@@ -16,7 +16,7 @@ class ItemBasedRecommender(BaseEstimator):
         self.n = n
         self.threshold = threshold
 
-    def fit(self, X: pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame], y=None):
+    def fit(self, X, y=None):
         """Fits the recommender to the given data.
 
         Args:
@@ -34,14 +34,14 @@ class ItemBasedRecommender(BaseEstimator):
 
         return self
 
-    def _get_exclusions(self, item_id: str, user_id: str | None) -> list[str]:
+    def _get_exclusions(self, item_id: str, user_id: str):
         if user_id is None:
             return [item_id]
         single_user_matrix = self.user_item_matrix.loc[user_id]
         user_rated_items = single_user_matrix[single_user_matrix > 0]
         return [item_id] + user_rated_items.index.to_list()
 
-    def _get_recommendations(self, item: str | tuple[str, str]) -> np.array:
+    def _get_recommendations(self, item) -> np.array:
         if isinstance(item, str):
             item_id, user_id = item, None
         elif isinstance(item, tuple):
@@ -60,7 +60,7 @@ class ItemBasedRecommender(BaseEstimator):
         )
         return np.array(item_recommendations.head(self.n).index)
 
-    def predict(self, X: Sequence[str] | Sequence[tuple[str, str]]) -> np.array:
+    def predict(self, X) -> np.array:
         """Predicts n item recommendations for each item_id provided
         If tuples of (user_id, item_id) are provided, items previously
         rated by the user will be excluded from the recommendations.
@@ -91,7 +91,7 @@ class UserBasedRecommender(BaseEstimator):
         self.n_users = n_users
         self.threshold = threshold
 
-    def fit(self, X: tuple[pd.DataFrame, pd.DataFrame], y=None):
+    def fit(self, X, y=None):
         """Fits the recommender to the given data.
 
         Args:
@@ -115,7 +115,7 @@ class UserBasedRecommender(BaseEstimator):
             .sort_values(ascending=False)
         )
 
-    def _get_exclusions(self, user_id: str) -> list[str]:
+    def _get_exclusions(self, user_id: str):
         single_user_matrix = self.user_item_matrix.loc[user_id]
         user_rated_items = single_user_matrix[single_user_matrix > 0]
         return user_rated_items.index.to_list()
@@ -135,7 +135,7 @@ class UserBasedRecommender(BaseEstimator):
 
         return np.array(user_recommendations.head(self.n).index)
 
-    def predict(self, X: Sequence[str]) -> np.array:
+    def predict(self, X) -> np.array:
         """Predicts n item recommendations for each user_id provided.
 
         Args:
