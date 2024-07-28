@@ -1,4 +1,3 @@
-
 import argparse
 import os
 import numpy as np
@@ -86,13 +85,13 @@ class UserBasedRecommender(BaseEstimator):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_data_dir", type=str, default=os.environ.get("SM_OUTPUT_DATA_DIR"))
+    parser.add_argument(
+        "--output_data_dir", type=str, default=os.environ.get("SM_OUTPUT_DATA_DIR")
+    )
     parser.add_argument("--model_dir", type=str, default=os.environ.get("SM_MODEL_DIR"))
     parser.add_argument("--train", type=str, default=os.environ.get("SM_CHANNEL_TRAIN"))
     parser.add_argument("--input", type=str, default=os.environ.get("SM_INPUT_DIR"))
     parser.add_argument("--output", type=str, default=os.environ.get("SM_OUTPUT_DIR"))
-
-    
 
     args = parser.parse_args()
 
@@ -101,16 +100,17 @@ if __name__ == "__main__":
     logging.info(f"SM_CHANNEL_TRAIN: {args.train}")
     logging.info(f"SM_INPUT_DIR: {args.input}")
     logging.info(f"SM_OUTPUT_DIR: {args.output}")
-    
-    base_dir = "/opt/ml"
-    
-    logging.info(os.listdir(base_dir))
-    logging.info(os.listdir(args.input))
-    logging.info(os.listdir(f"{args.input}/data"))
 
-    user_item_matrix = pd.read_csv(f"{args.input}/data/user_item_matrix/user_item_matrix.csv", dtype=np.float64)
-    similarity_matrix = pd.read_csv(f"{args.input}/data/similarity_matrix/user_similarity_matrix.csv", dtype=np.float64)
-    
+    base_dir = "/opt/ml"
+
+    user_item_matrix = pd.read_csv(
+        f"{args.input}/data/user_item_matrix/user_item_matrix.csv", dtype=np.float64
+    )
+    similarity_matrix = pd.read_csv(
+        f"{args.input}/data/similarity_matrix/user_similarity_matrix.csv",
+        dtype=np.float64,
+    )
+
     rec = UserBasedRecommender(5, 5, 0.1).fit((similarity_matrix, user_item_matrix))
 
     joblib.dump(rec, os.path.join(args.model_dir, "rec.joblib"))
