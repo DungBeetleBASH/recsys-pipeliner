@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 import joblib
-from collections.abc import Sequence
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -85,21 +84,13 @@ class UserBasedRecommender(BaseEstimator):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--output_data_dir", type=str, default=os.environ.get("SM_OUTPUT_DATA_DIR")
-    )
     parser.add_argument("--model_dir", type=str, default=os.environ.get("SM_MODEL_DIR"))
-    parser.add_argument("--train", type=str, default=os.environ.get("SM_CHANNEL_TRAIN"))
     parser.add_argument("--input", type=str, default=os.environ.get("SM_INPUT_DIR"))
-    parser.add_argument("--output", type=str, default=os.environ.get("SM_OUTPUT_DIR"))
 
     args = parser.parse_args()
 
-    logging.info(f"SM_OUTPUT_DATA_DIR: {args.output_data_dir}")
     logging.info(f"SM_MODEL_DIR: {args.model_dir}")
-    logging.info(f"SM_CHANNEL_TRAIN: {args.train}")
     logging.info(f"SM_INPUT_DIR: {args.input}")
-    logging.info(f"SM_OUTPUT_DIR: {args.output}")
 
     base_dir = "/opt/ml"
 
