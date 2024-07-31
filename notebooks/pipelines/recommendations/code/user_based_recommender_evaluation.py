@@ -9,6 +9,7 @@ import pandas as pd
 import math
 import logging
 import glob
+from pipeliner.recommendations.recommender import UserBasedRecommender
 
 
 from sklearn.metrics import mean_squared_error
@@ -28,17 +29,14 @@ if __name__ == "__main__":
 
     model_path = "/opt/ml/processing/model/model.tar.gz"
     with tarfile.open(model_path) as tar:
-        logging.info([i.name for i in tar.getmembers()])
         tar.extractall(path="/opt/ml/models")
-
-    logging.info(os.listdir("/opt/ml/models"))
 
     try:
         model = joblib.load("/opt/ml/models/rec.joblib")
     except Exception as e:
         logging.info(e)
 
-    preds = model.predict(["U1001"])
+    preds = model.predict(["U000253"])
     logging.info(f"preds: {preds}")
 
     test_path = "/opt/ml/processing/test/test.csv"

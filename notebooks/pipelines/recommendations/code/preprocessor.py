@@ -108,13 +108,13 @@ if __name__ == "__main__":
     user_item_matrix.to_csv(
         f"{base_dir}/output/user_item_matrix/user_item_matrix.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     train_user_item_matrix.to_csv(
         f"{base_dir}/output/train_user_item_matrix/user_item_matrix.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     user_similarity_matrix = create_similarity_matrix(
@@ -128,13 +128,13 @@ if __name__ == "__main__":
     user_similarity_matrix.to_csv(
         f"{base_dir}/output/user_similarity_matrix/user_similarity_matrix.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     train_user_similarity_matrix.to_csv(
         f"{base_dir}/output/train_user_similarity_matrix/user_similarity_matrix.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     item_similarity_matrix = create_similarity_matrix(
@@ -148,23 +148,23 @@ if __name__ == "__main__":
     item_similarity_matrix.to_csv(
         f"{base_dir}/output/item_similarity_matrix/item_similarity_matrix.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     train_item_similarity_matrix.to_csv(
         f"{base_dir}/output/train_item_similarity_matrix/item_similarity_matrix.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     test_data.to_csv(
         f"{base_dir}/output/test/test.csv",
         header=True,
-        index=False,
+        index=True,
     )
 
     excluded_data.to_csv(
         f"{base_dir}/output/excluded/excluded.csv",
         header=True,
-        index=False,
+        index=True,
     )
