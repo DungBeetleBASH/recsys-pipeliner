@@ -60,7 +60,7 @@ def train_test_split(df):
     train_data_ratings_df["rating"] = 1 + np.log10(train_data_ratings_df["rating"])
     train_data_ratings_df["rating"] = (
         train_data_ratings_df["rating"] / train_data_ratings_df["rating"].max()
-    ).round(2)
+    )
 
     all_data_ratings_df = (
         df[["user_id", "item_id", "count"]]
@@ -72,7 +72,7 @@ def train_test_split(df):
     all_data_ratings_df["rating"] = 1 + np.log10(all_data_ratings_df["rating"])
     all_data_ratings_df["rating"] = (
         all_data_ratings_df["rating"] / all_data_ratings_df["rating"].max()
-    ).round(2)
+    )
 
     return train_data_ratings_df, test_data_df, excluded_data_df, all_data_ratings_df
 
@@ -124,6 +124,8 @@ if __name__ == "__main__":
     train_user_similarity_matrix = create_similarity_matrix(
         train_user_item_matrix, kind="user", metric="cosine"
     )
+
+    print(train_user_similarity_matrix.iloc[:10, :10])
 
     user_similarity_matrix.to_csv(
         f"{base_dir}/output/user_similarity_matrix/user_similarity_matrix.csv",

@@ -107,11 +107,10 @@ class UserBasedRecommender(BaseEstimator):
 
     def _get_similar_users(self, user_id: str) -> pd.Series:
         return (
-            self.similarity_matrix[self.similarity_matrix[user_id] > self.threshold][
-                user_id
-            ]
+            self.similarity_matrix[user_id]
             .drop(user_id, errors="ignore")
             .sort_values(ascending=False)
+            .head(self.n_users)
         )
 
     def _get_exclusions(self, user_id: str):
@@ -124,13 +123,17 @@ class UserBasedRecommender(BaseEstimator):
             raise ValueError("Input items should be str")
         exclusions = self._get_exclusions(user_id)
         similar_users = self._get_similar_users(user_id)
-        matrix = self.user_item_matrix.T[similar_users.head(self.n_users).index]
+        matrix = self.user_item_matrix.T[similar_users.index]
+
+        print("exclusions", exclusions)
+        print("similar_users", similar_users)
 
         user_recommendations = (
             matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
             .max(axis=1)
             .sort_values(ascending=False)
         )
+        print("user_recommendations", user_recommendations)
 
         return np.array(user_recommendations.head(self.n).index)
 
