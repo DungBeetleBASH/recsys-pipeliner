@@ -53,7 +53,7 @@ def train_test_split(df):
     train_data_ratings_df = (
         train_data_df[["user_id", "item_id", "count"]]
         .groupby(["user_id", "item_id"])
-        .sum()
+        .agg({"count": np.sum})
         .reset_index()
         .rename(columns={"count": "rating"})
     )
@@ -65,7 +65,7 @@ def train_test_split(df):
     all_data_ratings_df = (
         df[["user_id", "item_id", "count"]]
         .groupby(["user_id", "item_id"])
-        .sum()
+        .agg({"count": np.sum})
         .reset_index()
         .rename(columns={"count": "rating"})
     )

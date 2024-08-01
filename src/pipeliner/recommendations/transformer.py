@@ -17,7 +17,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     """
 
     def __init__(
-        self, user="user_id", item="item_id", rating="rating", agg="max", binary=False
+        self, user="user_id", item="item_id", rating="rating", agg="sum", binary=False
     ):
         self.user = user
         self.item = item
