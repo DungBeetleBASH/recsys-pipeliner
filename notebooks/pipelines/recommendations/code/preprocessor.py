@@ -11,56 +11,57 @@ logging.basicConfig(level=logging.INFO)
 
 def train_test_split(df):
     user_id_value_counts = df.user_id.value_counts()
+    item_id_value_counts = df.item_id.value_counts()
 
-    user_id_multiple_interaction = (
-        user_id_value_counts[user_id_value_counts > 1]
+    user_id_one_interaction = (
+        user_id_value_counts[user_id_value_counts == 1]
         .index.to_series()
         .reset_index(drop=True)
     )
-    train_test_users = set(user_id_multiple_interaction)
-
-    train_test_interactions_df = df[df.user_id.isin(train_test_users)].sort_values(
-        by=["user_id", "date"]
+    item_id_one_interaction = (
+        item_id_value_counts[item_id_value_counts == 1]
+        .index.to_series()
+        .reset_index(drop=True)
     )
 
+    filtered_ratings = df[
+        ~df.user_id.isin(user_id_one_interaction)
+        & ~df.item_id.isin(item_id_one_interaction)
+    ]
+
+    filtered_user_id_value_counts = filtered_ratings.user_id.value_counts()
+    filtered_user_id_one_interaction = (
+        filtered_user_id_value_counts[filtered_user_id_value_counts == 1]
+        .index.to_series()
+        .reset_index(drop=True)
+    )
+
+    test_train_data_df = filtered_ratings[
+        ~filtered_ratings.user_id.isin(filtered_user_id_one_interaction)
+    ].sort_values(by="date", ascending=True)
+
     test_data_df = (
-        train_test_interactions_df.reset_index()
+        test_train_data_df.reset_index()
         .groupby(["user_id"], as_index=False)
         .last()
         .set_index("index")
-    )[["user_id", "item_id"]]
-    test_data_df.index.names = [None]
+        .sort_index()
+    )[["user_id", "company_id"]]
+    test_data.index.names = [None]
 
-    train_data_df = train_test_interactions_df[
-        (
-            train_test_interactions_df[["user_id", "item_id"]]
-            .merge(
-                test_data_df.drop_duplicates(),
-                on=["user_id", "item_id"],
-                how="left",
-                indicator=True,
-            )
-            ._merge
-            == "left_only"
-        ).values
-    ]
-
-    train_test_indices = test_data_df.index.union(train_data_df.index)
-    excluded_data_df = train_test_interactions_df.loc[
-        ~train_test_interactions_df.index.isin(train_test_indices)
-    ]
-
-    train_data_ratings_df = (
-        train_data_df[["user_id", "item_id", "count"]]
-        .groupby(["user_id", "item_id"])
-        .agg({"count": np.sum})
+    train_data_df = (
+        test_train_data_df[~test_train_data_df.index.isin(test_data.index)]
+        .groupby(["user_id", "company_id"])
+        .agg({"count": "sum"})
         .reset_index()
         .rename(columns={"count": "rating"})
     )
-    train_data_ratings_df["rating"] = 1 + np.log10(train_data_ratings_df["rating"])
-    train_data_ratings_df["rating"] = (
-        train_data_ratings_df["rating"] / train_data_ratings_df["rating"].max()
-    )
+
+    train_test_indices = test_data_df.index.union(train_data_df.index)
+    excluded_data_df = df.loc[~test_train_data_df.index.isin(train_test_indices)]
+
+    train_data_df["rating"] = 1 + np.log10(train_data_df["rating"])
+    train_data_df["rating"] = train_data_df["rating"] / train_data_df["rating"].max()
 
     all_data_ratings_df = (
         df[["user_id", "item_id", "count"]]
@@ -74,7 +75,7 @@ def train_test_split(df):
         all_data_ratings_df["rating"] / all_data_ratings_df["rating"].max()
     )
 
-    return train_data_ratings_df, test_data_df, excluded_data_df, all_data_ratings_df
+    return train_data_df, test_data_df, excluded_data_df, all_data_ratings_df
 
 
 def create_user_item_matrix(df):
