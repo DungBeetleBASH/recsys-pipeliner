@@ -1,6 +1,5 @@
 import argparse
 import os
-import numpy as np
 import pandas as pd
 import joblib
 import logging
@@ -19,17 +18,15 @@ if __name__ == "__main__":
     logging.info(f"SM_MODEL_DIR: {args.model_dir}")
     logging.info(f"SM_INPUT_DIR: {args.input}")
 
-    base_dir = "/opt/ml"
-
     user_item_matrix = pd.read_csv(
         f"{args.input}/data/user_item_matrix/user_item_matrix.csv",
         index_col="user_id",
     )
     similarity_matrix = pd.read_csv(
-        f"{args.input}/data/similarity_matrix/user_similarity_matrix.csv",
+        f"{args.input}/data/user_similarity_matrix/user_similarity_matrix.csv",
         index_col="user_id",
     )
 
-    rec = UserBasedRecommender(5, 5, 0.001).fit((similarity_matrix, user_item_matrix))
+    rec = UserBasedRecommender(5, 5).fit((similarity_matrix, user_item_matrix))
 
     joblib.dump(rec, os.path.join(args.model_dir, "rec.joblib"))

@@ -53,7 +53,7 @@ class RecommenderPipeline(PipelineFactory):
         item_similarity_matrix_step = ProcessingStep(
             name="similarity_matrix_transformer",
             step_args=processor.run(
-                code="pipelines/code/similarity_matrix_transformer.py",
+                code="pipelines/code/user_similarity_matrix_transformer.py",
             ),
             job_arguments=["--kind", "item"],
         )

@@ -46,36 +46,24 @@ def train_test_split(df):
         .last()
         .set_index("index")
         .sort_index()
-    )[["user_id", "company_id"]]
-    test_data.index.names = [None]
+    )[["user_id", "item_id"]]
+    test_data_df.index.names = [None]
 
     train_data_df = (
-        test_train_data_df[~test_train_data_df.index.isin(test_data.index)]
-        .groupby(["user_id", "company_id"])
+        test_train_data_df[~test_train_data_df.index.isin(test_data_df.index)]
+        .groupby(["user_id", "item_id"])
         .agg({"count": "sum"})
         .reset_index()
         .rename(columns={"count": "rating"})
     )
 
     train_test_indices = test_data_df.index.union(train_data_df.index)
-    excluded_data_df = df.loc[~test_train_data_df.index.isin(train_test_indices)]
+    excluded_data_df = df.loc[~df.index.isin(train_test_indices)]
 
     train_data_df["rating"] = 1 + np.log10(train_data_df["rating"])
     train_data_df["rating"] = train_data_df["rating"] / train_data_df["rating"].max()
 
-    all_data_ratings_df = (
-        df[["user_id", "item_id", "count"]]
-        .groupby(["user_id", "item_id"])
-        .agg({"count": np.sum})
-        .reset_index()
-        .rename(columns={"count": "rating"})
-    )
-    all_data_ratings_df["rating"] = 1 + np.log10(all_data_ratings_df["rating"])
-    all_data_ratings_df["rating"] = (
-        all_data_ratings_df["rating"] / all_data_ratings_df["rating"].max()
-    )
-
-    return train_data_df, test_data_df, excluded_data_df, all_data_ratings_df
+    return train_data_df, test_data_df, excluded_data_df
 
 
 def create_user_item_matrix(df):
@@ -99,63 +87,34 @@ if __name__ == "__main__":
         engine="python",
     )
 
-    train_ratings, test_data, excluded_data, all_ratings = train_test_split(
+    train_ratings, test_data, excluded_data = train_test_split(
         user_item_interactions_df
     )
 
-    user_item_matrix = create_user_item_matrix(all_ratings)
     train_user_item_matrix = create_user_item_matrix(train_ratings)
 
-    user_item_matrix.to_csv(
+    train_user_item_matrix.to_csv(
         f"{base_dir}/output/user_item_matrix/user_item_matrix.csv",
         header=True,
         index=True,
-    )
-
-    train_user_item_matrix.to_csv(
-        f"{base_dir}/output/train_user_item_matrix/user_item_matrix.csv",
-        header=True,
-        index=True,
-    )
-
-    user_similarity_matrix = create_similarity_matrix(
-        user_item_matrix, kind="user", metric="cosine"
     )
 
     train_user_similarity_matrix = create_similarity_matrix(
         train_user_item_matrix, kind="user", metric="cosine"
     )
 
-    print(train_user_similarity_matrix.iloc[:10, :10])
-
-    user_similarity_matrix.to_csv(
+    train_user_similarity_matrix.to_csv(
         f"{base_dir}/output/user_similarity_matrix/user_similarity_matrix.csv",
         header=True,
         index=True,
-    )
-
-    train_user_similarity_matrix.to_csv(
-        f"{base_dir}/output/train_user_similarity_matrix/user_similarity_matrix.csv",
-        header=True,
-        index=True,
-    )
-
-    item_similarity_matrix = create_similarity_matrix(
-        user_item_matrix, kind="item", metric="cosine"
     )
 
     train_item_similarity_matrix = create_similarity_matrix(
         train_user_item_matrix, kind="item", metric="cosine"
     )
 
-    item_similarity_matrix.to_csv(
-        f"{base_dir}/output/item_similarity_matrix/item_similarity_matrix.csv",
-        header=True,
-        index=True,
-    )
-
     train_item_similarity_matrix.to_csv(
-        f"{base_dir}/output/train_item_similarity_matrix/item_similarity_matrix.csv",
+        f"{base_dir}/output/item_similarity_matrix/item_similarity_matrix.csv",
         header=True,
         index=True,
     )

@@ -1,19 +1,23 @@
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    mean_squared_error,
+)
 
 
 class ItemBasedRecommender(BaseEstimator):
     """Item-based collaborative filtering recommender."""
 
     n: int
-    threshold: float
     similarity_matrix: pd.DataFrame
     user_item_matrix: pd.DataFrame
 
-    def __init__(self, n=5, threshold=0.1):
+    def __init__(self, n=5):
         self.n = n
-        self.threshold = threshold
 
     def fit(self, X, y=None):
         """Fits the recommender to the given data.
@@ -51,9 +55,7 @@ class ItemBasedRecommender(BaseEstimator):
         exclusions = self._get_exclusions(item_id, user_id)
 
         item_recommendations = (
-            self.similarity_matrix[self.similarity_matrix[item_id] > self.threshold][
-                item_id
-            ]
+            self.similarity_matrix[item_id]
             .drop(exclusions, errors="ignore")
             .sort_values(ascending=False)
         )
@@ -81,14 +83,12 @@ class UserBasedRecommender(BaseEstimator):
 
     n: int
     n_users: int
-    threshold: float
     similarity_matrix: pd.DataFrame
     user_item_matrix: pd.DataFrame
 
-    def __init__(self, n=5, n_users=5, threshold=0.1):
+    def __init__(self, n=5, n_users=5):
         self.n = n
         self.n_users = n_users
-        self.threshold = threshold
 
     def fit(self, X, y=None):
         """Fits the recommender to the given data.
@@ -146,7 +146,13 @@ class UserBasedRecommender(BaseEstimator):
         Returns:
           np.array of shape (X.shape[0], n)
         """
-        return np.array([self._get_recommendations(item) for item in X])
+        return np.array([self._get_recommendations(user_id) for user_id in X])
+
+    def score(self, y_preds, y_test):
+        ones = np.ones(y_preds.shape[0])
+        scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
+        mse = mean_squared_error(ones, scores)
+        return mse
 
     # def predict_proba(self, X):
     #     raise NotImplementedError("predict_proba not implemented yet")
