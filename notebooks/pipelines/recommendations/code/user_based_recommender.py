@@ -27,6 +27,6 @@ if __name__ == "__main__":
         index_col="user_id",
     )
 
-    rec = UserBasedRecommender(5, 5).fit((similarity_matrix, user_item_matrix))
+    rec = UserBasedRecommender(10, 10).fit((similarity_matrix, user_item_matrix))
 
     joblib.dump(rec, os.path.join(args.model_dir, "rec.joblib"))

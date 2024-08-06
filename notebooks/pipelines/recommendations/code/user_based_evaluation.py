@@ -53,13 +53,13 @@ if __name__ == "__main__":
     print("y_true", y_true.shape)
     print("predictions", predictions.shape)
 
-    mse = model.score(predictions, y_true)
+    accuracy = model.score(predictions, y_true)
 
-    print(f"mse: {mse}")
+    print(f"accuracy: {accuracy}")
 
     report_dict = {
         "regression_metrics": {
-            "mse": {"value": mse},
+            "accuracy": {"value": accuracy},
         },
     }
 

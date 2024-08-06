@@ -123,17 +123,15 @@ class UserBasedRecommender(BaseEstimator):
             raise ValueError("Input items should be str")
         exclusions = self._get_exclusions(user_id)
         similar_users = self._get_similar_users(user_id)
+        print("similar_users", similar_users.head(1))
         matrix = self.user_item_matrix.T[similar_users.index]
-
-        print("exclusions", exclusions)
-        print("similar_users", similar_users)
 
         user_recommendations = (
             matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
             .max(axis=1)
             .sort_values(ascending=False)
         )
-        print("user_recommendations", user_recommendations)
+        print("user_recommendations", user_recommendations.head(1))
 
         return np.array(user_recommendations.head(self.n).index)
 
@@ -146,13 +144,20 @@ class UserBasedRecommender(BaseEstimator):
         Returns:
           np.array of shape (X.shape[0], n)
         """
+        matrix = np.round(self.similarity_matrix, decimals=1)
+        matrix_df = pd.DataFrame(
+            matrix,
+            columns=self.similarity_matrix.columns,
+            index=self.similarity_matrix.index,
+        )
+        print(matrix_df.stack().dropna().value_counts())
+        print("shapes", self.similarity_matrix.shape, matrix_df.shape)
         return np.array([self._get_recommendations(user_id) for user_id in X])
 
     def score(self, y_preds, y_test):
-        ones = np.ones(y_preds.shape[0])
         scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
-        mse = mean_squared_error(ones, scores)
-        return mse
+        accuracy = np.mean(scores)
+        return accuracy
 
     # def predict_proba(self, X):
     #     raise NotImplementedError("predict_proba not implemented yet")
