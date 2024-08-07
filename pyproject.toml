@@ -10,7 +10,13 @@ requires-python = ">= 3.11"
 dependencies = ["pydantic", "sagemaker", "boto3", "scikit-learn"]
 
 [project.optional-dependencies]
-testing = ["pytest", "pytest-cov", "pytest-mock", "sagemaker[local]"]
+testing = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "sagemaker[local]",
+    "matplotlib",
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "pipeliner.__VERSION__" }
