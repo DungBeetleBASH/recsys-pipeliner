@@ -7,7 +7,7 @@ name = "pipeliner"
 dynamic = ["version"]
 requires-python = ">= 3.11"
 
-dependencies = ["pydantic", "sagemaker", "boto3", "scikit-learn"]
+dependencies = ["pydantic", "sagemaker", "boto3", "scikit-learn", "torch"]
 
 [project.optional-dependencies]
 testing = [

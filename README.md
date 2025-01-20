@@ -10,4 +10,4 @@ Learning to build recommender systems.
   - [Train and deploy scikit-learn recommender using Sagemaker pipelines](./notebooks/sagemaker_pipelines.ipynb)
 - Alternative approaches
   - [SVD for dimensionality reduction](./notebooks/svd_recommender.ipynb)
-  - [PyTorch collaborative filtering](./notebooks/pytorch_collaborative_filtering.ipynb)
+  - [PyTorch collaborative filtering](./notebooks/matrix-factorization-pytorch.ipynb)
