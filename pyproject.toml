@@ -16,6 +16,7 @@ testing = [
     "pytest-mock",
     "sagemaker[local]",
     "matplotlib",
+    "seaborn",
 ]
 
 [tool.setuptools.dynamic]
