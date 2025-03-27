@@ -35,7 +35,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
         if self.binary:
             return matrix.notnull().astype(int)
         else:
-            return matrix.fillna(0)
+            return matrix.fillna(0.0).astype(np.float32)
 
 
 class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
@@ -73,7 +73,7 @@ class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
             matrix = np.zeros(matrix_shape, dtype=np.float32)
             matrix[user_pos, item_pos] = X[:, 2]
 
-        return matrix
+        return matrix.astype(np.float32)
 
 
 class SimilarityTransformer(TransformerMixin, BaseEstimator):
@@ -115,7 +115,7 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
         if self.normalise:
             df = (df - df.min()) / (df.max() - df.min()).round(self.round)
 
-        return df
+        return df.astype(np.float32)
 
 
 class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
@@ -146,4 +146,4 @@ class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
                 self.round
             )
 
-        return matrix
+        return matrix.astype(np.float32)
