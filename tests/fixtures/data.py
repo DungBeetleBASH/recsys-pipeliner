@@ -5,6 +5,8 @@ import numpy as np
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
+    UserItemMatrixTransformerNP,
+    SimilarityTransformerNP,
 )
 
 
@@ -26,6 +28,18 @@ def fx_user_item_ratings_np():
 @pytest.fixture
 def fx_user_item_matrix(fx_user_item_ratings):
     yield UserItemMatrixTransformer().transform(fx_user_item_ratings)
+
+
+@pytest.fixture
+def fx_user_item_matrix_np(fx_user_item_ratings_np):
+    user_item_ratings = fx_user_item_ratings_np["ratings"]
+    yield UserItemMatrixTransformerNP().transform(user_item_ratings)
+
+
+@pytest.fixture
+def fx_user_item_matrix_sp(fx_user_item_ratings_np):
+    user_item_ratings = fx_user_item_ratings_np["ratings"]
+    yield UserItemMatrixTransformerNP(sparse=True).transform(user_item_ratings)
 
 
 @pytest.fixture

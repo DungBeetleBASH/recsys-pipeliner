@@ -116,3 +116,34 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
             df = (df - df.min()) / (df.max() - df.min()).round(self.round)
 
         return df
+
+
+class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
+    """
+    This class is a custom scikit-learn transformer
+    that accepts a numpy ndarray user/item matrix.
+    It can be used to calculate user-user or item-item similarity.
+    """
+
+    def __init__(self, metric="cosine", round=6, normalise=False):
+        if metric not in ["cosine", "dot", "euclidean"]:
+            raise ValueError("metric must be 'cosine', 'dot', or 'euclidean'")
+        self.metric = metric
+        self.normalise = normalise
+        self.round = round
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X: np.ndarray | sp.csr_matrix) -> np.ndarray | sp.csr_matrix:
+        if self.metric == "cosine":
+            matrix = cosine_similarity(X)
+        else:
+            raise NotImplementedError("Only cosine similarity is currently supported")
+
+        if self.normalise:
+            matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min()).round(
+                self.round
+            )
+
+        return matrix

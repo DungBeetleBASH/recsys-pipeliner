@@ -3,6 +3,7 @@ from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
     UserItemMatrixTransformerNP,
+    SimilarityTransformerNP,
 )
 
 
@@ -83,5 +84,41 @@ def test_SimilarityTransformer(
 ):
     transformer = SimilarityTransformer(kind=kind, metric=metric, normalise=normalise)
     similarity_matrix = transformer.transform(fx_user_item_matrix)
+
+    assert similarity_matrix.shape == expected_shape
+
+
+@pytest.mark.parametrize(
+    "kind, metric, normalise, expected_shape",
+    [
+        ("user", "cosine", False, (10, 10)),
+        ("user", "cosine", True, (10, 10)),
+        ("item", "cosine", False, (44, 44)),
+    ],
+)
+def test_SimilarityTransformerNP(
+    fx_user_item_matrix_np, kind, metric, normalise, expected_shape
+):
+    user_item_matrix = (
+        fx_user_item_matrix_np if kind == "user" else fx_user_item_matrix_np.T
+    )
+    transformer = SimilarityTransformerNP(metric=metric, normalise=normalise)
+    similarity_matrix = transformer.transform(user_item_matrix)
+
+    assert similarity_matrix.shape == expected_shape
+
+
+@pytest.mark.parametrize(
+    "normalise, expected_shape",
+    [
+        (False, (10, 10)),
+        (True, (10, 10)),
+    ],
+)
+def test_SimilarityTransformerNP_sparse(
+    fx_user_item_matrix_sp, normalise, expected_shape
+):
+    transformer = SimilarityTransformerNP(normalise=normalise)
+    similarity_matrix = transformer.transform(fx_user_item_matrix_sp)
 
     assert similarity_matrix.shape == expected_shape
