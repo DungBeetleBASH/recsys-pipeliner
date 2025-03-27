@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import scipy.sparse as sp
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -34,6 +36,44 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
             return matrix.notnull().astype(int)
         else:
             return matrix.fillna(0)
+
+
+class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
+    """
+    This class is a custom scikit-learn transformer
+    that accepts a numpy ndarray of user/item ratings
+    with 3 columns, user, item, and rating,
+    and returns a user/item matrix.
+
+    The input array should not include duplicates user/item pairs.
+
+    :param sparse (bool): If True, return a sparse matrix
+    """
+
+    def __init__(self, sparse=False):
+        self.sparse = sparse
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X: np.ndarray) -> np.ndarray | sp.csr_matrix:
+        users, user_pos = np.unique(X[:, 0], return_inverse=True)
+        items, item_pos = np.unique(X[:, 1], return_inverse=True)
+        matrix_shape = (len(users), len(items))
+
+        assert len(X) == len(
+            np.unique(X[:, 0:2], axis=0)
+        ), "Duplicate user/item pairs found"
+
+        if self.sparse:
+            matrix = sp.csr_matrix(
+                (X[:, 2], (user_pos, item_pos)), shape=matrix_shape, dtype=np.float32
+            )
+        else:
+            matrix = np.zeros(matrix_shape, dtype=np.float32)
+            matrix[user_pos, item_pos] = X[:, 2]
+
+        return matrix
 
 
 class SimilarityTransformer(TransformerMixin, BaseEstimator):

@@ -2,6 +2,7 @@ import pytest
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
+    UserItemMatrixTransformerNP,
 )
 
 
@@ -16,12 +17,35 @@ def test_empty_fit(fx_user_item_ratings, transformer):
 
 
 @pytest.mark.parametrize(
+    "transformer",
+    [UserItemMatrixTransformerNP],
+)
+def test_empty_fit_np(fx_user_item_ratings_np, transformer):
+    user_item_ratings = fx_user_item_ratings_np["ratings"]
+    tf = transformer()
+
+    assert tf.fit(user_item_ratings) == tf
+
+
+@pytest.mark.parametrize(
     "binary",
     [True, False],
 )
 def test_UserItemMatrixTransformer(fx_user_item_ratings, binary):
     tf = UserItemMatrixTransformer(binary=binary)
     user_item_matrix = tf.transform(fx_user_item_ratings)
+
+    assert user_item_matrix.shape == (10, 44)
+
+
+@pytest.mark.parametrize(
+    "sparse",
+    [True, False],
+)
+def test_UserItemMatrixTransformerNP(fx_user_item_ratings_np, sparse):
+    user_item_ratings = fx_user_item_ratings_np["ratings"]
+    tf = UserItemMatrixTransformerNP(sparse=sparse)
+    user_item_matrix = tf.transform(user_item_ratings)
 
     assert user_item_matrix.shape == (10, 44)
 

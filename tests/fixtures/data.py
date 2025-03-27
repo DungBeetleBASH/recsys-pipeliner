@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import numpy as np
 
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
@@ -12,6 +13,13 @@ def fx_user_item_ratings():
     yield pd.read_csv(
         "tests/test_data/user_item_ratings.csv",
         dtype={"user_id": str, "item_id": str},
+    )
+
+
+@pytest.fixture
+def fx_user_item_ratings_np():
+    yield np.load(
+        "tests/test_data/user_item_ratings.npz",
     )
 
 
