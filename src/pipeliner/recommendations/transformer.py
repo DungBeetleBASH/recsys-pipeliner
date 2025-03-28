@@ -127,14 +127,16 @@ class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
         metric (str): Similarity metric to use ('cosine', 'dot', or 'euclidean')
         round (int): Number of decimal places to round results
         normalise (bool): Whether to normalize the similarity scores
+        sparse (bool): If True, return a sparse matrix
     """
 
-    def __init__(self, metric="cosine", round=6, normalise=False):
+    def __init__(self, metric="cosine", round=6, normalise=False, sparse=False):
         if metric not in ["cosine", "dot", "euclidean"]:
             raise ValueError("metric must be 'cosine', 'dot', or 'euclidean'")
         self.metric = metric
         self.normalise = normalise
         self.round = round
+        self.sparse = sparse
 
     def fit(self, X, y=None):
         return self
@@ -144,6 +146,9 @@ class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
             matrix = cosine_similarity(X)
         else:
             raise NotImplementedError("Only cosine similarity is currently supported")
+
+        if self.sparse:
+            matrix = sp.csr_matrix(matrix)
 
         if self.normalise:
             matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min()).round(

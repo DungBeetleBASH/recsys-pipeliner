@@ -52,7 +52,9 @@ def test_UserItemMatrixTransformerNP(fx_user_item_ratings_np, sparse):
     assert user_item_matrix.shape == (10, 44)
 
 
-def test_UserItemMatrixTransformer_equality(fx_user_item_ratings, fx_user_item_ratings_np):
+def test_UserItemMatrixTransformer_equality(
+    fx_user_item_ratings, fx_user_item_ratings_np
+):
     # Create matrix using pandas transformer
     tf_pandas = UserItemMatrixTransformer()
     matrix_pandas = tf_pandas.transform(fx_user_item_ratings).to_numpy()
@@ -120,13 +122,19 @@ def test_SimilarityTransformer(
     ],
 )
 def test_SimilarityTransformerNP(
-    fx_user_item_matrix_np, fx_user_item_matrix_sp, kind, metric, normalise, expected_shape, sparse
+    fx_user_item_matrix_np,
+    fx_user_item_matrix_sp,
+    kind,
+    metric,
+    normalise,
+    expected_shape,
+    sparse,
 ):
     # Select appropriate input matrix based on sparse parameter
     input_matrix = fx_user_item_matrix_sp if sparse else fx_user_item_matrix_np
     if kind == "item":
         input_matrix = input_matrix.T
-    
+
     transformer = SimilarityTransformerNP(metric=metric, normalise=normalise)
     similarity_matrix = transformer.transform(input_matrix)
 
@@ -134,34 +142,58 @@ def test_SimilarityTransformerNP(
 
 
 @pytest.mark.parametrize(
-    "kind, normalise",
+    "kind, normalise, sparse_input, sparse_output",
     [
-        ("user", False),
-        ("user", True),
-        ("item", False),
-        ("item", True),
+        ("user", False, False, False),
+        ("user", True, False, False),
+        ("item", False, False, False),
+        ("item", True, False, False),
+        ("user", False, True, False),
+        ("user", True, True, False),
+        ("item", False, True, False),
+        ("item", True, True, False),
+        ("user", False, False, True),
+        ("user", True, False, True),
+        ("item", False, False, True),
+        ("item", True, False, True),
+        ("user", False, True, True),
+        ("user", True, True, True),
+        ("item", False, True, True),
     ],
 )
-def test_SimilarityTransformer_equality(fx_user_item_matrix, fx_user_item_matrix_np, fx_user_item_matrix_sp, kind, normalise):
-    user_item_matrix_np = fx_user_item_matrix_np
-    user_item_matrix_sp = fx_user_item_matrix_sp
+def test_SimilarityTransformer_equality(
+    fx_user_item_matrix,
+    fx_user_item_matrix_np,
+    fx_user_item_matrix_sp,
+    kind,
+    normalise,
+    sparse_input,
+    sparse_output,
+):
+    user_item_matrix_pd = fx_user_item_matrix
+    if sparse_input:
+        user_item_matrix_np = fx_user_item_matrix_sp
+    else:
+        user_item_matrix_np = fx_user_item_matrix_np
+    if kind == "item":
+        user_item_matrix_np = user_item_matrix_np.T
+
+    # Create transformers
+    tf_pd = SimilarityTransformer(kind=kind, metric="cosine", normalise=normalise)
+    tf_np = SimilarityTransformerNP(
+        metric="cosine", normalise=normalise, sparse=sparse_output
+    )
 
     # Create similarity matrix using pandas transformer
-    tf_pandas = SimilarityTransformer(kind=kind, metric="cosine", normalise=normalise)
-    matrix_pandas = tf_pandas.transform(fx_user_item_matrix).to_numpy()
-    
-    if kind == "item":
-        user_item_matrix_np = fx_user_item_matrix_np.T
-        user_item_matrix_sp = fx_user_item_matrix_sp.T
+    similarity_matrix_pd = tf_pd.transform(user_item_matrix_pd).to_numpy()
 
-    # Create similarity matrix using numpy transformer (dense)
-    tf_numpy = SimilarityTransformerNP(metric="cosine", normalise=normalise)
-    matrix_numpy = tf_numpy.transform(user_item_matrix_np)
+    # Create similarity matrix using numpy transformer
+    similarity_matrix_np = tf_np.transform(user_item_matrix_np)
 
-    # Create similarity matrix using numpy transformer (sparse)
-    matrix_sparse = tf_numpy.transform(user_item_matrix_sp)
+    if sparse_output:
+        similarity_matrix_np = similarity_matrix_np.toarray()
 
     # Assert matrices are equal
-    np.testing.assert_array_almost_equal(matrix_pandas, matrix_numpy, decimal=6)
-    np.testing.assert_array_almost_equal(matrix_pandas, matrix_sparse, decimal=6)
-    np.testing.assert_array_almost_equal(matrix_numpy, matrix_sparse, decimal=6)
+    np.testing.assert_array_almost_equal(
+        similarity_matrix_pd, similarity_matrix_np, decimal=6
+    )
