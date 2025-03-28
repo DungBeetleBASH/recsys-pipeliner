@@ -31,18 +31,6 @@ def fx_user_item_matrix(fx_user_item_ratings):
 
 
 @pytest.fixture
-def fx_user_item_matrix_np(fx_user_item_ratings_np):
-    user_item_ratings = fx_user_item_ratings_np["ratings"]
-    yield UserItemMatrixTransformerNP().transform(user_item_ratings)
-
-
-@pytest.fixture
-def fx_user_item_matrix_sp(fx_user_item_ratings_np):
-    user_item_ratings = fx_user_item_ratings_np["ratings"]
-    yield UserItemMatrixTransformerNP(sparse=True).transform(user_item_ratings)
-
-
-@pytest.fixture
 def fx_user_similarity_matrix(fx_user_item_matrix):
     yield SimilarityTransformer(kind="user", metric="cosine", normalise=True).transform(
         fx_user_item_matrix
@@ -54,3 +42,19 @@ def fx_item_similarity_matrix(fx_user_item_matrix):
     yield SimilarityTransformer(kind="item", metric="cosine", normalise=True).transform(
         fx_user_item_matrix
     )
+
+
+@pytest.fixture
+def fx_user_item_matrix_np(fx_user_item_ratings_np):
+    user_item_ratings = fx_user_item_ratings_np["ratings"]
+    yield UserItemMatrixTransformerNP().transform(user_item_ratings)
+
+
+@pytest.fixture
+def fx_user_similarity_matrix_np(fx_user_item_matrix_np):
+    yield SimilarityTransformerNP().transform(fx_user_item_matrix_np)
+
+
+@pytest.fixture
+def fx_item_similarity_matrix_np(fx_user_item_matrix_np):
+    yield SimilarityTransformerNP().transform(fx_user_item_matrix_np)
