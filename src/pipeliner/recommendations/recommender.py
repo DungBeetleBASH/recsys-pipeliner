@@ -10,7 +10,11 @@ from sklearn.metrics import (
 
 
 class ItemBasedRecommender(BaseEstimator):
-    """Item-based collaborative filtering recommender."""
+    """Item-based collaborative filtering recommender.
+
+    Args:
+        n (int): Number of recommendations to generate for each item.
+    """
 
     n: int
     similarity_matrix: pd.DataFrame
@@ -23,9 +27,12 @@ class ItemBasedRecommender(BaseEstimator):
         """Fits the recommender to the given data.
 
         Args:
-          X (pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]):
-            Single DataFrame with similarity matrix
-            or tuple of (similarity matrix, user/item matrix)
+            X (pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]):
+                Single DataFrame with similarity matrix
+                or tuple of (similarity matrix, user/item matrix)
+
+        Returns:
+            self: Returns the instance itself.
         """
         if isinstance(X, pd.DataFrame):
             self.similarity_matrix = X
@@ -79,7 +86,12 @@ class ItemBasedRecommender(BaseEstimator):
 
 
 class UserBasedRecommender(BaseEstimator):
-    """User-based collaborative filtering recommender."""
+    """User-based collaborative filtering recommender.
+
+    Args:
+        n (int): Number of recommendations to generate for each user
+        n_users (int): Number of similar users to consider for recommendations
+    """
 
     n: int
     n_users: int
@@ -94,8 +106,14 @@ class UserBasedRecommender(BaseEstimator):
         """Fits the recommender to the given data.
 
         Args:
-          X (tuple[pd.DataFrame, pd.DataFrame]):
-            tuple of (similarity matrix, user/item matrix)
+            X (tuple[pd.DataFrame, pd.DataFrame]):
+                tuple of (similarity matrix, user/item matrix)
+
+        Returns:
+            self: Returns the instance itself.
+
+        Raises:
+            ValueError: If input is not a tuple of DataFrames
         """
         if isinstance(X, tuple):
             self.similarity_matrix = X[0]
@@ -155,6 +173,15 @@ class UserBasedRecommender(BaseEstimator):
         return np.array([self._get_recommendations(user_id) for user_id in X])
 
     def score(self, y_preds, y_test):
+        """Calculates the accuracy score of the recommender.
+
+        Args:
+            y_preds: Predicted recommendations
+            y_test: Ground truth recommendations
+
+        Returns:
+            float: Accuracy score between 0 and 1
+        """
         scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
         accuracy = np.mean(scores)
         return accuracy

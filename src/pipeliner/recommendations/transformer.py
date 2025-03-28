@@ -6,16 +6,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
-    """
-    This class is a custom scikit-learn transformer
-    that accepts a pandas dataframe of user/item interactions
+    """A custom scikit-learn transformer that accepts a pandas dataframe of user/item interactions
     and returns a user/item matrix.
 
-    :param user (str): Column name for user id
-    :param item (str): Column name for item id
-    :param rating (float): Column name for user/item rating
-    :param agg (str): Panadas aggregation function to use when combining duplicate user/item interactions
-    :param binary (bool): If True, user/item interactions are converted to binary values in the user/item output matrix
+    Args:
+        user (str): Column name for user id
+        item (str): Column name for item id
+        rating (float): Column name for user/item rating
+        agg (str): Panadas aggregation function to use when combining duplicate user/item interactions
+        binary (bool): If True, user/item interactions are converted to binary values in the user/item output matrix
     """
 
     def __init__(
@@ -39,15 +38,13 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
 
 
 class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
-    """
-    This class is a custom scikit-learn transformer
-    that accepts a numpy ndarray of user/item ratings
-    with 3 columns, user, item, and rating,
-    and returns a user/item matrix.
+    """A custom scikit-learn transformer that accepts a numpy ndarray of user/item ratings
+    with 3 columns, user, item, and rating, and returns a user/item matrix.
 
     The input array should not include duplicates user/item pairs.
 
-    :param sparse (bool): If True, return a sparse matrix
+    Args:
+        sparse (bool): If True, return a sparse matrix
     """
 
     def __init__(self, sparse=False):
@@ -77,12 +74,16 @@ class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
 
 
 class SimilarityTransformer(TransformerMixin, BaseEstimator):
-    """
-    This class is a custom scikit-learn transformer
-    that accepts a user/item matrix where user ids are
-    the index and item ids are the columns and returns
-    a similarity matrix. It can be used to calculate
-    user-user or item-item similarity.
+    """A custom scikit-learn transformer that accepts a user/item matrix where user ids are
+    the index and item ids are the columns and returns a similarity matrix.
+
+    It can be used to calculate user-user or item-item similarity.
+
+    Args:
+        kind (str): Either 'user' or 'item' to specify similarity type
+        metric (str): Similarity metric to use ('cosine', 'dot', or 'euclidean')
+        round (int): Number of decimal places to round results
+        normalise (bool): Whether to normalize the similarity scores
     """
 
     def __init__(self, kind="user", metric="cosine", round=6, normalise=False):
@@ -119,10 +120,13 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
 
 
 class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
-    """
-    This class is a custom scikit-learn transformer
-    that accepts a numpy ndarray user/item matrix.
+    """A custom scikit-learn transformer that accepts a numpy ndarray user/item matrix.
     It can be used to calculate user-user or item-item similarity.
+
+    Args:
+        metric (str): Similarity metric to use ('cosine', 'dot', or 'euclidean')
+        round (int): Number of decimal places to round results
+        normalise (bool): Whether to normalize the similarity scores
     """
 
     def __init__(self, metric="cosine", round=6, normalise=False):

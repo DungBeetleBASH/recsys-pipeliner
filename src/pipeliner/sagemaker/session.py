@@ -8,6 +8,20 @@ from pipeliner.exceptions import SagemakerSessionException
 def create_pipeline_session(
     bucket: str | None = None, region="eu-west-1", local=False, local_code=False
 ) -> Session:
+    """Creates a SageMaker pipeline session.
+
+    Args:
+        bucket (str | None): S3 bucket to use for pipeline artifacts
+        region (str): AWS region to use for SageMaker resources
+        local (bool): Whether to create a local pipeline session
+        local_code (bool): Whether to use local code in local mode
+
+    Returns:
+        Session: A SageMaker pipeline session
+
+    Raises:
+        SagemakerSessionException: If there is an error creating the session
+    """
     try:
         if local:
             session = LocalPipelineSession()
