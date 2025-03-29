@@ -188,3 +188,56 @@ class UserBasedRecommender(BaseEstimator):
 
     # def predict_proba(self, X):
     #     raise NotImplementedError("predict_proba not implemented yet")
+
+
+class SimilarityRecommender(BaseEstimator):
+    """Similarity recommender.
+
+    Args:
+        n (int): Number of recommendations to generate.
+    """
+
+    n: int
+    similarity_matrix: pd.DataFrame
+
+    def __init__(self, n=5):
+        self.n = n
+
+    def fit(self, X, y=None):
+        """Fits the recommender to the given data.
+
+        Args:
+            X pd.DataFrame:
+                similarity matrix
+
+        Returns:
+            self: Returns the instance itself.
+        """
+        if isinstance(X, pd.DataFrame):
+            self.similarity_matrix = X
+        else:
+            raise ValueError("Input should be DataFrame or (DataFrame, DataFrame)")
+
+        return self
+
+    def _get_recommendations(self, item_id) -> np.array:
+        item_recommendations = (
+            self.similarity_matrix[item_id]
+            .drop([item_id], errors="ignore")
+            .sort_values(ascending=False)
+        )
+        return item_recommendations[item_recommendations > 0].index[:self.n].to_numpy()
+
+    def predict(self, X) -> np.array:
+        """Predicts n item recommendations for each item_id provided
+
+        Args:
+          X (Sequence): List of item_id
+
+        Returns:
+          np.array of shape (X.shape[0], n)
+        """
+        return np.vectorize(self._get_recommendations)(X)
+
+    # def predict_proba(self, X):
+    #     raise NotImplementedError("predict_proba not implemented yet")
