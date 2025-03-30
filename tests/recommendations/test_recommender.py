@@ -1,7 +1,9 @@
 import pytest
+import numpy as np
 from pipeliner.recommendations.recommender import (
     ItemBasedRecommender,
     UserBasedRecommender,
+    SimilarityRecommender,
 )
 
 
@@ -69,3 +71,28 @@ def test_UserBasedRecommender_predict_error(
     rec = UserBasedRecommender().fit(X)
     with pytest.raises(ValueError):
         rec.predict([1.3])
+
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        (["I00001"], ['I00002', 'I00006', 'I00003', 'I00005']),
+        (["I00002"], ['I00001', 'I00003', 'I00004', 'I00006']),
+        (["I00003"], ['I00002', 'I00004', 'I00001', 'I00005']),
+        (["I00004"], ['I00003', 'I00005', 'I00002', 'I00006']),
+        (["I00005"], ['I00006', 'I00004', 'I00001', 'I00003']),
+        (["I00006"], ['I00001', 'I00005', 'I00002', 'I00004']),
+    ],
+)
+def test_SimilarityRecommender(
+    fx_item_similarity_matrix_toy, input, expected
+):
+    rec = SimilarityRecommender(5).fit(fx_item_similarity_matrix_toy)
+    predictions = rec.predict(input)[0]
+    np.testing.assert_array_equal(predictions, np.array(expected))  
+
+
+def test_SimilarityRecommender_fit_error():
+    with pytest.raises(ValueError, match="Input should be DataFrame"):
+        SimilarityRecommender().fit("cat")

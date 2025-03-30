@@ -141,7 +141,6 @@ class UserBasedRecommender(BaseEstimator):
             raise ValueError("Input items should be str")
         exclusions = self._get_exclusions(user_id)
         similar_users = self._get_similar_users(user_id)
-        print("similar_users", similar_users.head(1))
         matrix = self.user_item_matrix.T[similar_users.index]
 
         user_recommendations = (
@@ -149,7 +148,6 @@ class UserBasedRecommender(BaseEstimator):
             .max(axis=1)
             .sort_values(ascending=False)
         )
-        print("user_recommendations", user_recommendations.head(1))
 
         return np.array(user_recommendations.head(self.n).index)
 
@@ -168,8 +166,6 @@ class UserBasedRecommender(BaseEstimator):
             columns=self.similarity_matrix.columns,
             index=self.similarity_matrix.index,
         )
-        print(matrix_df.stack().dropna().value_counts())
-        print("shapes", self.similarity_matrix.shape, matrix_df.shape)
         return np.array([self._get_recommendations(user_id) for user_id in X])
 
     def score(self, y_preds, y_test):
@@ -216,7 +212,7 @@ class SimilarityRecommender(BaseEstimator):
         if isinstance(X, pd.DataFrame):
             self.similarity_matrix = X
         else:
-            raise ValueError("Input should be DataFrame or (DataFrame, DataFrame)")
+            raise ValueError("Input should be DataFrame")
 
         return self
 

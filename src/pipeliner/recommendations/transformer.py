@@ -33,7 +33,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     def transform(self, X: pd.DataFrame):
         matrix = X.groupby([self.user, self.item])[self.rating].agg(self.agg).unstack()
         if self.binary:
-            return matrix.notnull().astype(int)
+            return (matrix >= 0.5).astype(np.int32)
         else:
             return matrix.fillna(0.0).astype(np.float32)
 
