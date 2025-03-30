@@ -19,6 +19,42 @@ def fx_user_item_ratings():
 
 
 @pytest.fixture
+def fx_user_item_ratings_toy():
+    yield pd.read_csv(
+        "tests/test_data/user_item_ratings_toy.csv",
+        dtype={"user_id": str, "item_id": str, "rating": np.float32},
+        header=0,
+    )
+
+
+@pytest.fixture
+def fx_user_item_matrix_toy():
+    yield pd.read_csv(
+        "tests/test_data/user_item_matrix_toy.csv",
+        header=0,
+        index_col=['user_id'],
+    ).astype(np.float32)
+
+
+@pytest.fixture
+def fx_item_similarity_matrix_toy():
+    yield pd.read_csv(
+        "tests/test_data/item_similarity_matrix_toy.csv",
+        header=0,
+        index_col=['item_id'],
+    ).astype(np.float32)
+
+
+@pytest.fixture
+def fx_user_similarity_matrix_toy():
+    yield pd.read_csv(
+        "tests/test_data/user_similarity_matrix_toy.csv",
+        header=0,
+        index_col=['user_id'],
+    ).astype(np.float32)
+
+
+@pytest.fixture
 def fx_user_item_ratings_np():
     yield np.load(
         "tests/test_data/user_item_ratings.npz",
