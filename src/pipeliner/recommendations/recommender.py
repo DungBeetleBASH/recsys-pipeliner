@@ -223,7 +223,7 @@ class SimilarityRecommender(BaseEstimator):
             .drop([item_id], errors="ignore")
             .sort_values(ascending=False)
         )
-        return item_recommendations[item_recommendations > 0].index[:self.n].to_numpy()
+        return item_recommendations[item_recommendations > 0].index[: self.n].to_numpy()
 
     def predict(self, X) -> np.array:
         """Predicts n item recommendations for each item_id provided
@@ -234,11 +234,13 @@ class SimilarityRecommender(BaseEstimator):
         Returns:
           np.array of shape (X.shape[0], n)
         """
-        return np.vectorize(self._get_recommendations)(X)
+        return np.stack(np.vectorize(self._get_recommendations)(X))
 
-    # def predict_proba(self, X):
-    #     raise NotImplementedError("predict_proba not implemented yet")
+    def _get_probabilities(self, item_id) -> np.array:
+        return self.similarity_matrix[item_id].to_numpy().astype(np.float32).round(6)
 
+    def predict_proba(self, X):
+        return np.array([self._get_probabilities(item_id) for item_id in X])
 
 
 class SimilarityRecommenderNP(BaseEstimator):
@@ -277,7 +279,7 @@ class SimilarityRecommenderNP(BaseEstimator):
             .drop([item_id], errors="ignore")
             .sort_values(ascending=False)
         )
-        return item_recommendations[item_recommendations > 0].index[:self.n].to_numpy()
+        return item_recommendations[item_recommendations > 0].index[: self.n].to_numpy()
 
     def predict(self, X) -> np.array:
         """Predicts n item recommendations for each item_id provided
@@ -290,5 +292,5 @@ class SimilarityRecommenderNP(BaseEstimator):
         """
         return np.vectorize(self._get_recommendations)(X)
 
-    # def predict_proba(self, X):
-    #     raise NotImplementedError("predict_proba not implemented yet")
+    def predict_proba(self, X):
+        return self.similarity_matrix[X]
