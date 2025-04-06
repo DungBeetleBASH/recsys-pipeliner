@@ -221,7 +221,7 @@ class SimilarityRecommender(BaseEstimator):
         item_recommendations = (
             self.similarity_matrix[item_id]
             .drop([item_id], errors="ignore")
-            .sort_values(ascending=False)
+            .sort_values(ascending=False, kind="stable")
         )
         return item_recommendations[item_recommendations > 0].index[: self.n].to_numpy()
 
@@ -276,7 +276,7 @@ class SimilarityRecommenderNP(BaseEstimator):
     def _get_recommendations(self, item_id) -> np.array:
         item_similarity = self.similarity_matrix[item_id].toarray()
         mask = (item_similarity > 0) * (np.arange(item_similarity.size) != item_id)
-        sorter = np.argsort(1 - item_similarity)
+        sorter = np.argsort(1 - item_similarity, kind="stable")
         sorted_mask = mask[0, sorter]
         results = sorter[sorted_mask]
         return results[: self.n]

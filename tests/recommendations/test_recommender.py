@@ -1,9 +1,12 @@
 import pytest
 import numpy as np
+import scipy.sparse as sp
+from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
     ItemBasedRecommender,
     UserBasedRecommender,
     SimilarityRecommender,
+    SimilarityRecommenderNP,
 )
 
 
@@ -81,7 +84,7 @@ def test_UserBasedRecommender_predict_error(
         (["I00002"], ['I00001', 'I00003', 'I00004', 'I00006']),
         (["I00003"], ['I00002', 'I00004', 'I00001', 'I00005']),
         (["I00004"], ['I00003', 'I00005', 'I00002', 'I00006']),
-        (["I00005"], ['I00006', 'I00004', 'I00001', 'I00003']),
+        (["I00005"], ['I00004', 'I00006', 'I00001', 'I00003']),
         (["I00006"], ['I00001', 'I00005', 'I00002', 'I00004']),
     ],
 )
@@ -96,3 +99,35 @@ def test_SimilarityRecommender(
 def test_SimilarityRecommender_fit_error():
     with pytest.raises(ValueError, match="Input should be DataFrame"):
         SimilarityRecommender().fit("cat")
+
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        (["I00001"], ['I00002', 'I00006', 'I00003', 'I00005']),
+        (["I00002"], ['I00001', 'I00003', 'I00004', 'I00006']),
+        (["I00003"], ['I00002', 'I00004', 'I00001', 'I00005']),
+        (["I00004"], ['I00003', 'I00005', 'I00002', 'I00006']),
+        (["I00005"], ['I00004', 'I00006', 'I00001', 'I00003']),
+        (["I00006"], ['I00001', 'I00005', 'I00002', 'I00004']),
+    ],
+)
+def test_SimilarityRecommenderNP(
+    fx_item_similarity_matrix_toy, input, expected
+):
+    item_ids = fx_item_similarity_matrix_toy.index.to_numpy()
+    item_encoder = LabelEncoder()
+    item_ids_encoded = item_encoder.fit_transform(item_ids)
+    item_similarity_matrix_np = fx_item_similarity_matrix_toy.to_numpy()
+    item_similarity_matrix_np_sparse = sp.csr_matrix(item_similarity_matrix_np)
+
+    rec = SimilarityRecommenderNP(5).fit(item_similarity_matrix_np_sparse)
+    predictions = rec.predict(item_encoder.transform(input))[0]
+    predictions_decoded = item_encoder.inverse_transform(predictions)
+    np.testing.assert_array_equal(predictions_decoded, np.array(expected))   
+
+
+def test_SimilarityRecommenderNP_fit_error():
+    with pytest.raises(ValueError, match="Input should be scipy.sparse.spmatrix"):
+        SimilarityRecommenderNP().fit("cat")
