@@ -125,7 +125,7 @@ def test_SimilarityRecommenderNP(
     rec = SimilarityRecommenderNP(5).fit(item_similarity_matrix_np_sparse)
     predictions = rec.predict(item_encoder.transform(input))[0]
     predictions_decoded = item_encoder.inverse_transform(predictions)
-    np.testing.assert_array_equal(predictions_decoded, np.array(expected))   
+    np.testing.assert_array_equal(predictions_decoded, expected)   
 
 
 def test_SimilarityRecommenderNP_fit_error():
