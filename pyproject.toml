@@ -12,7 +12,6 @@ dependencies = [
     "sagemaker",
     "boto3",
     "scikit-learn",
-    "torch",
     "scipy",
     "numpy",
 ]
@@ -28,6 +27,7 @@ jupyter = [
     "seaborn",
     "matspy",
     "sagemaker[local]",
+    "torch",
 ]
 
 [tool.setuptools.dynamic]
