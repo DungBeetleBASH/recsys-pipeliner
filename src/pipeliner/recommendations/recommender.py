@@ -161,12 +161,6 @@ class UserBasedRecommender(BaseEstimator):
         Returns:
           np.array of shape (X.shape[0], n)
         """
-        matrix = np.round(self.similarity_matrix, decimals=1)
-        matrix_df = pd.DataFrame(
-            matrix,
-            columns=self.similarity_matrix.columns,
-            index=self.similarity_matrix.index,
-        )
         return np.array([self._get_recommendations(user_id) for user_id in X])
 
     def score(self, y_preds, y_test):
@@ -180,6 +174,8 @@ class UserBasedRecommender(BaseEstimator):
             float: Accuracy score between 0 and 1
         """
         scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
+        if len(scores) == 0:
+            return np.nan
         accuracy = np.mean(scores)
         return accuracy
 

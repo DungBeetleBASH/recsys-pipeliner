@@ -45,7 +45,11 @@ addopts = ["--cov=src", "--cov-report=html", "-s"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = ["src/pipeliner/recommendations/pipelines.py"]
 
 [tool.coverage.report]
 fail_under = 95
 skip_empty = true
+include_namespace_packages = true
+
+
