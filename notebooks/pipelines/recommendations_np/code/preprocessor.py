@@ -18,7 +18,7 @@ if __name__ == "__main__":
     data_types = {"user_id": str, "item_id": str, "rating": np.float32}
 
     df = pd.read_csv(
-        f"{base_dir}/data/user_item_interactions.csv.gz",
+        f"{base_dir}/input/data/user_item_interactions.csv.gz",
         compression="gzip",
         dtype=data_types,
         parse_dates=["date"],
