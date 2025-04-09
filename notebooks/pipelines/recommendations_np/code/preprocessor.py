@@ -1,100 +1,57 @@
 import numpy as np
 import pandas as pd
+import scipy as sp
 import logging
+import joblib
 from pipeliner.recommendations.transformer import (
-    UserItemMatrixTransformer,
-    SimilarityTransformer,
+    UserItemMatrixTransformerNP,
+    SimilarityTransformerNP,
 )
+from pipeliner.recommendations.encoder import encode_labels
+from pipeliner.recommendations.utils import train_test_split
 
 logging.basicConfig(level=logging.INFO)
-
-
-def train_test_split(df):
-    MIN_USER_RATINGS = 5
-
-    user_id_value_counts = df.user_id.value_counts()
-
-    excluded_users = (
-        user_id_value_counts[user_id_value_counts < MIN_USER_RATINGS]
-        .index.to_series()
-        .reset_index(drop=True)
-    )
-
-    excluded_data_df = df[
-        df.user_id.isin(excluded_users)
-    ]
-
-    test_train_data_df = df[
-        ~df.user_id.isin(excluded_users)
-    ].sort_values(by="date", ascending=True)
-
-    test_data_df = (
-        test_train_data_df.reset_index()
-        .groupby(["user_id"], as_index=False)
-        .last()
-        .set_index("index")
-        .sort_index()
-    )[["user_id", "item_id"]]
-    test_data_df.index.names = [None]
-
-    train_data_df = (
-        test_train_data_df[~test_train_data_df.index.isin(test_data_df.index)]
-        .groupby(["user_id", "item_id"])
-        .agg({"count": "sum"})
-        .reset_index()
-        .rename(columns={"count": "rating"})
-    )
-
-    train_data_df["rating"] = 1 + np.log10(train_data_df["rating"])
-    train_data_df["rating"] = train_data_df["rating"] / train_data_df["rating"].max()
-
-    return train_data_df, test_data_df, excluded_data_df
-
-
-def create_user_item_matrix(df):
-    transformer = UserItemMatrixTransformer()
-    return transformer.transform(df)
-
-
-def create_similarity_matrix(df, kind="user", metric="cosine"):
-    transformer = SimilarityTransformer(kind=kind, metric=metric)
-    return transformer.transform(df)
 
 
 if __name__ == "__main__":
     base_dir = "/opt/ml/processing"
     data_types = {"user_id": str, "item_id": str, "rating": np.float32}
 
-    user_item_interactions_df = pd.read_csv(
+    df = pd.read_csv(
         f"{base_dir}/data/user_item_interactions.csv.gz",
         compression="gzip",
         dtype=data_types,
+        parse_dates=["date"],
     )
 
-    train_data, test_data = train_test_split(
-        user_item_interactions_df
+    df, user_encoder, item_encoder = encode_labels(df)
+
+    train_data, test_data = train_test_split(df)
+
+    user_item_ratings = train_data.to_numpy()
+
+    user_item_matrix_transformer = UserItemMatrixTransformerNP()
+    user_item_matrix = user_item_matrix_transformer.transform(user_item_ratings)
+
+    item_similarity_transformer = SimilarityTransformerNP()
+    item_similarity_matrix = item_similarity_transformer.transform(user_item_matrix.T)
+
+    joblib.dump(user_encoder, f"{base_dir}/output/user_encoder/user_encoder.joblib")
+    joblib.dump(item_encoder, f"{base_dir}/output/item_encoder/item_encoder.joblib")
+
+    np.savez(
+        f"{base_dir}/output/test_data/test_data.npz",
+        test_data=test_data.to_numpy(),
     )
 
-    train_user_item_matrix = create_user_item_matrix(train_data)
-
-    train_user_item_matrix.to_csv(
-        f"{base_dir}/output/user_item_matrix/user_item_matrix.csv",
-        header=True,
-        index=True,
+    sp.sparse.save_npz(
+        f"{base_dir}/output/user_item_matrix/user_item_matrix.npz",
+        user_item_matrix,
+        compressed=True,
     )
 
-    train_item_similarity_matrix = create_similarity_matrix(
-        train_user_item_matrix, kind="item", metric="cosine"
-    )
-
-    train_item_similarity_matrix.to_csv(
-        f"{base_dir}/output/item_similarity_matrix/item_similarity_matrix.csv",
-        header=True,
-        index=True,
-    )
-
-    test_data.to_csv(
-        f"{base_dir}/output/test/test.csv",
-        header=True,
-        index=True,
+    sp.sparse.save_npz(
+        f"{base_dir}/output/item_similarity_matrix/item_similarity_matrix.npz",
+        item_similarity_matrix,
+        compressed=True,
     )

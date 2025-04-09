@@ -8,12 +8,13 @@ dynamic = ["version"]
 requires-python = ">= 3.11"
 
 dependencies = [
+    "boto3",
+    "numpy",
+    "pandas",
     "pydantic",
     "sagemaker",
-    "boto3",
     "scikit-learn",
     "scipy",
-    "numpy",
 ]
 
 [project.optional-dependencies]
@@ -24,9 +25,9 @@ testing = [
 ]
 jupyter = [
     "matplotlib",
-    "seaborn",
     "matspy",
     "sagemaker[local]",
+    "seaborn",
     "torch",
 ]
 
