@@ -29,6 +29,23 @@ if __name__ == "__main__":
     parser.add_argument("--input", type=str, default=os.environ.get("SM_INPUT_DIR"))
 
     args = parser.parse_args()
+    
+    print("files under: /opt/ml/")
+    for p in os.listdir("/opt/ml/"):
+        print(p)
+    
+    print("files under: /opt/ml/models/")
+    for p in os.listdir("/opt/ml/models/"):
+        print(p)
+    
+    print("files under: /opt/ml/input/")
+    for p in os.listdir("/opt/ml/input/"):
+        print(p)
+    
+    print("files under: /opt/ml/processing/")
+    for p in os.listdir("/opt/ml/processing/"):
+        print(p)
+        
 
     try:
         model = joblib.load("/opt/ml/models/rec.joblib")
@@ -58,7 +75,7 @@ if __name__ == "__main__":
         },
     }
 
-    output_dir = "/opt/ml/processing/evaluation"
+    output_dir = "/opt/ml/outputs/evaluation"
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     evaluation_path = f"{output_dir}/evaluation.json"
