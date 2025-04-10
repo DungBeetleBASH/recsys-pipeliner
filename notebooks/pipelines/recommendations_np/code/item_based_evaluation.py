@@ -30,12 +30,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    base_path = "/opt/ml/"
-    for p in os.listdir("/opt/ml/"):
-        if os.path.isdir(f"/opt/ml/{p}"):
-            print(f"/opt/ml/{p}")
-            for p2 in os.listdir(f"/opt/ml/{p}"):
-                print(f"/opt/ml/{p}/{p2}")
+    logging.info(f"args: {args}")
+
+    for p in os.listdir("/opt/ml/processing"):
+        print(f"/opt/ml/processing/{p}")
+        if os.path.isdir(f"/opt/ml/processing/{p}"):
+            for p2 in os.listdir(f"/opt/ml/processing/{p}"):
+                print(f"/opt/ml/processing/{p}/{p2}")
         print("")
 
 
