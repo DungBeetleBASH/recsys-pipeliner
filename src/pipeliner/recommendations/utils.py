@@ -1,3 +1,4 @@
+from __future__ import annotations # required for sagemaker local mode
 import pandas as pd
 import numpy as np
 
