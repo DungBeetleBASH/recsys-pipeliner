@@ -29,26 +29,18 @@ if __name__ == "__main__":
     parser.add_argument("--input", type=str, default=os.environ.get("SM_INPUT_DIR"))
 
     args = parser.parse_args()
-    
-    print("files under: /opt/ml/")
+
+    base_path = "/opt/ml/"
     for p in os.listdir("/opt/ml/"):
-        print(p)
-    
-    print("files under: /opt/ml/models/")
-    for p in os.listdir("/opt/ml/models/"):
-        print(p)
-    
-    print("files under: /opt/ml/input/")
-    for p in os.listdir("/opt/ml/input/"):
-        print(p)
-    
-    print("files under: /opt/ml/processing/")
-    for p in os.listdir("/opt/ml/processing/"):
-        print(p)
-        
+        if os.path.isdir(f"/opt/ml/{p}"):
+            print(f"/opt/ml/{p}")
+            for p2 in os.listdir(f"/opt/ml/{p}"):
+                print(f"/opt/ml/{p}/{p2}")
+        print("")
+
 
     try:
-        model = joblib.load("/opt/ml/models/rec.joblib")
+        model = joblib.load("/opt/ml/processing/models/rec.joblib")
     except Exception as e:
         logging.info(e)
 
@@ -75,7 +67,7 @@ if __name__ == "__main__":
         },
     }
 
-    output_dir = "/opt/ml/outputs/evaluation"
+    output_dir = "/opt/ml/processing/evaluation"
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     evaluation_path = f"{output_dir}/evaluation.json"
