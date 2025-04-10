@@ -25,30 +25,25 @@ logging.basicConfig(level=logging.INFO)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--model",
-        type=str,
-        default=os.environ.get("SM_INPUT_MODEL"),
-    )
+    parser.add_argument("--model", type=str, default=os.environ.get("SM_INPUT_MODEL"))
+    parser.add_argument("--input", type=str, default=os.environ.get("SM_INPUT_DIR"))
 
     args = parser.parse_args()
-
-    model_path = "/opt/ml/processing/model/model.tar.gz"
-    with tarfile.open(model_path) as tar:
-        tar.extractall(path="/opt/ml/models")
 
     try:
         model = joblib.load("/opt/ml/models/rec.joblib")
     except Exception as e:
         logging.info(e)
 
-    test_path = "/opt/ml/processing/test/test.csv"
-    test_df = pd.read_csv(
-        test_path, dtype={"user_id": str, "item_id": str}, engine="python"
+    test_data = np.load(
+        f"{args.input}/data/test_data/test_data.npz"
     )
+    print("test_data", test_data.shape)
 
-    y_true = test_df.item_id.to_numpy()
-    predictions = model.predict(test_df.user_id)
+    items = test_data[:, 0]
+    y_true = test_data[:, 1]
+
+    predictions = model.predict(items)
 
     print("y_true", y_true.shape)
     print("predictions", predictions.shape)

@@ -1,9 +1,10 @@
 import argparse
 import os
 import pandas as pd
+import scipy as sp
 import joblib
 import logging
-from pipeliner.recommendations.recommender import ItemBasedRecommender
+from pipeliner.recommendations.recommender import SimilarityRecommenderNP
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,15 +19,10 @@ if __name__ == "__main__":
     logging.info(f"SM_MODEL_DIR: {args.model_dir}")
     logging.info(f"SM_INPUT_DIR: {args.input}")
 
-    user_item_matrix = pd.read_csv(
-        f"{args.input}/data/user_item_matrix/user_item_matrix.csv",
-        index_col="user_id",
-    )
-    similarity_matrix = pd.read_csv(
-        f"{args.input}/data/item_similarity_matrix/item_similarity_matrix.csv",
-        index_col="item_id",
+    item_similarity_matrix = sp.sparse.load_npz(
+        f"{args.input}/data/item_similarity_matrix/item_similarity_matrix.npz"
     )
 
-    rec = ItemBasedRecommender(5, 5).fit((similarity_matrix, user_item_matrix))
+    rec = SimilarityRecommenderNP(5).fit(item_similarity_matrix)
 
     joblib.dump(rec, os.path.join(args.model_dir, "rec.joblib"))
