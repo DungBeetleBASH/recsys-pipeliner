@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.info(f"args: {args}")
+    print(f"args: {args}")
 
     for p in os.listdir("/opt/ml/processing"):
         print(f"/opt/ml/processing/{p}")
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         logging.info(e)
 
     test_data = np.load(
-        f"{args.input}/data/test_data/test_data.npz"
+        "/opt/ml/processing/test_data/test_data.npz"
     )
     print("test_data", test_data.shape)
 
