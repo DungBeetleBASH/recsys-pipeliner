@@ -15,8 +15,11 @@ logger.addHandler(logging.StreamHandler())
 
 
 def accuracy_score(predictions, y_true):
-    results = (y_true[..., None] == predictions).any(1)
-    return results.astype(np.float32).mean().round(5)
+    scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_true, predictions)])
+    if len(scores) == 0:
+        return np.nan
+    accuracy = np.mean(scores)
+    return accuracy
 
 
 if __name__ == "__main__":
@@ -44,12 +47,9 @@ if __name__ == "__main__":
     print("items", items.shape)
     print("y_true", y_true.shape)
 
-    print("items[0]", items[0])
-    print("y_true[0]", y_true[0])
-
     predictions = model.predict(items)
 
-    print("predictions", predictions.shape)
+    print("predictions", len(predictions))
 
     accuracy = accuracy_score(predictions, y_true)
 
