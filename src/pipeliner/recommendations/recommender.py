@@ -286,7 +286,7 @@ class SimilarityRecommenderNP(BaseEstimator):
         Returns:
           np.array of shape (X.shape[0], n)
         """
-        [self._get_recommendations(item_id) for item_id in X]
+        return [self._get_recommendations(item_id) for item_id in X]
 
     def predict_proba(self, X):
         return self.similarity_matrix[X]
