@@ -1,5 +1,7 @@
+from __future__ import annotations # required for sagemaker local mode
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+
 
 
 def encode_labels(
