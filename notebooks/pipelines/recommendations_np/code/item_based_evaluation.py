@@ -9,56 +9,49 @@ import numpy as np
 import logging
 
 
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    mean_squared_error,
-)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 
-def score_predictions(y_true, predictions):
-    return np.array([1.0 if t in p else 0.0 for t, p in zip(y_true, predictions)])
+def accuracy_score(predictions, y_true):
+    results = (y_true[..., None] == predictions).any(1)
+    return results.astype(np.float32).mean().round(5)
 
-
-logging.basicConfig(level=logging.INFO)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default=os.environ.get("SM_INPUT_MODEL"))
-    parser.add_argument("--input", type=str, default=os.environ.get("SM_INPUT_DIR"))
-
-    args = parser.parse_args()
-
-    print(f"args: {args}")
-
-    for p in os.listdir("/opt/ml/processing"):
-        print(f"/opt/ml/processing/{p}")
-        if os.path.isdir(f"/opt/ml/processing/{p}"):
-            for p2 in os.listdir(f"/opt/ml/processing/{p}"):
-                print(f"/opt/ml/processing/{p}/{p2}")
-        print("")
-
+    model_path = "/opt/ml/processing/model/model.tar.gz"
+    accuracy = np.nan
 
     try:
-        model = joblib.load("/opt/ml/processing/models/rec.joblib")
+        with tarfile.open(model_path) as tar:
+            tar.extract("rec.joblib")
+
+        model = joblib.load("rec.joblib")
+
+        test_data = np.load(
+            "/opt/ml/processing/test_data/test_data.npz"
+        )["test_data"]
+
     except Exception as e:
         logging.info(e)
 
-    test_data = np.load(
-        "/opt/ml/processing/test_data/test_data.npz"
-    )
     print("test_data", test_data.shape)
 
-    items = test_data[:, 0]
-    y_true = test_data[:, 1]
+    items = test_data[:100, 0]
+    y_true = test_data[:100, 1]
+
+    print("items", items.shape)
+    print("y_true", y_true.shape)
+
+    print("items[0]", items[0])
+    print("y_true[0]", y_true[0])
 
     predictions = model.predict(items)
 
-    print("y_true", y_true.shape)
     print("predictions", predictions.shape)
 
-    accuracy = model.score(predictions, y_true)
+    accuracy = accuracy_score(predictions, y_true)
 
     print(f"accuracy: {accuracy}")
 

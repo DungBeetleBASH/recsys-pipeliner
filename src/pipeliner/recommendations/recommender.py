@@ -269,7 +269,7 @@ class SimilarityRecommenderNP(BaseEstimator):
 
         return self
 
-    def _get_recommendations(self, item_id) -> np.array:
+    def _get_recommendations(self, item_id) -> list:
         item_similarity = self.similarity_matrix[item_id].toarray()
         mask = (item_similarity > 0) * (np.arange(item_similarity.size) != item_id)
         sorter = np.argsort(1 - item_similarity, kind="stable")
@@ -286,7 +286,7 @@ class SimilarityRecommenderNP(BaseEstimator):
         Returns:
           np.array of shape (X.shape[0], n)
         """
-        return np.array([self._get_recommendations(item_id) for item_id in X])
+        [self._get_recommendations(item_id) for item_id in X]
 
     def predict_proba(self, X):
         return self.similarity_matrix[X]
