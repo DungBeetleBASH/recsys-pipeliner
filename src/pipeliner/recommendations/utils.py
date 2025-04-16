@@ -4,7 +4,11 @@ import numpy as np
 
 
 def train_test_split(
-    df: pd.DataFrame, min_user_ratings=5, interaction_cap=5
+    df: pd.DataFrame,
+    min_user_ratings=5,
+    interaction_cap=5,
+    test_sample_size=1,
+    test_sample_strategy="tail"
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     MIN_USER_RATINGS = min_user_ratings
     INTERACTION_CAP = interaction_cap

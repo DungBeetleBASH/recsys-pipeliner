@@ -18,7 +18,7 @@ def accuracy_score(predictions, y_true):
     scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_true, predictions)])
     if len(scores) == 0:
         return np.nan
-    accuracy = np.mean(scores)
+    accuracy = np.round(np.mean(scores), 6)
     return accuracy
 
 
@@ -41,8 +41,8 @@ if __name__ == "__main__":
 
     print("test_data", test_data.shape)
 
-    items = test_data[:100, 0]
-    y_true = test_data[:100, 1]
+    items = test_data[:, 0]
+    y_true = test_data[:, 1]
 
     print("items", items.shape)
     print("y_true", y_true.shape)
@@ -56,8 +56,11 @@ if __name__ == "__main__":
     print(f"accuracy: {accuracy}")
 
     report_dict = {
-        "regression_metrics": {
-            "accuracy": {"value": accuracy},
+        "binary_classification_metrics": {
+            "accuracy": {
+                "value": accuracy,
+                "standard_deviation": "NaN"
+            },
         },
     }
 
