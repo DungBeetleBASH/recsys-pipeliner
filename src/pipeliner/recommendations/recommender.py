@@ -277,7 +277,7 @@ class SimilarityRecommender(BaseEstimator):
           X (Sequence): List of item_id
 
         Returns:
-          list of np.array of shape (n,)
+          list of np.array
         """
         return [self._get_recommendations(item_id) for item_id in X]
 
