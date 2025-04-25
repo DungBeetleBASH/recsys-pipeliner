@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator
+from pipeliner.recommendations.transformer import (
+    SimilarityTransformer,
+)
 
 
 class ItemBasedRecommenderPandas(BaseEstimator):
@@ -193,82 +196,83 @@ class UserBasedRecommender(BaseEstimator):
     def __init__(self, n=5, n_users=5):
         self.n = n
         self.n_users = n_users
+        self.similarity_transformer = SimilarityTransformer()
 
     def fit(self, X, y=None):
         """Fits the recommender to the given data.
 
         Args:
-            X (tuple[sp.spmatrix, sp.spmatrix]):
-                tuple of (similarity matrix, user/item matrix)
+            X sp.spmatrix:
+                user/item matrix
 
         Returns:
             self: Returns the instance itself.
 
         Raises:
-            ValueError: If input is not a tuple of DataFrames
+            ValueError: If input is not a scipy.sparse.spmatrix
         """
-        if isinstance(X, tuple):
-            self.similarity_matrix = X[0]
-            self.user_item_matrix = X[1]
+        if isinstance(X, sp.spmatrix):
+            self.user_item_matrix = X
+            self.user_similarity_matrix = self.similarity_transformer.transform(X)
         else:
-            raise ValueError("Input should be tuple of (DataFrame, DataFrame)")
+            raise ValueError("Input should be scipy.sparse.spmatrix")
 
         return self
 
-    def _get_similar_users(self, user_id: str) -> pd.Series:
-        return (
-            self.similarity_matrix[user_id]
-            .drop(user_id, errors="ignore")
-            .sort_values(ascending=False)
-            .head(self.n_users)
-        )
+    # def _get_similar_users(self, user_id: str) -> pd.Series:
+    #     return (
+    #         self.similarity_matrix[user_id]
+    #         .drop(user_id, errors="ignore")
+    #         .sort_values(ascending=False)
+    #         .head(self.n_users)
+    #     )
 
-    def _get_exclusions(self, user_id: str):
-        single_user_matrix = self.user_item_matrix.loc[user_id]
-        user_rated_items = single_user_matrix[single_user_matrix > 0]
-        return user_rated_items.index.to_list()
+    # def _get_exclusions(self, user_id: str):
+    #     single_user_matrix = self.user_item_matrix.loc[user_id]
+    #     user_rated_items = single_user_matrix[single_user_matrix > 0]
+    #     return user_rated_items.index.to_list()
 
-    def _get_recommendations(self, user_id: str) -> np.array:
-        if not isinstance(user_id, str):
-            raise ValueError("Input items should be str")
-        exclusions = self._get_exclusions(user_id)
-        similar_users = self._get_similar_users(user_id)
-        matrix = self.user_item_matrix.T[similar_users.index]
+    # def _get_recommendations(self, user_id: str) -> np.array:
+    #     if not isinstance(user_id, str):
+    #         raise ValueError("Input items should be str")
+    #     exclusions = self._get_exclusions(user_id)
+    #     similar_users = self._get_similar_users(user_id)
+    #     matrix = self.user_item_matrix.T[similar_users.index]
 
-        user_recommendations = (
-            matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
-            .max(axis=1)
-            .sort_values(ascending=False)
-        )
+    #     user_recommendations = (
+    #         matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
+    #         .max(axis=1)
+    #         .sort_values(ascending=False)
+    #     )
 
-        return np.array(user_recommendations.head(self.n).index)
+    #     return np.array(user_recommendations.head(self.n).index)
 
-    def predict(self, X) -> np.array:
-        """Predicts n item recommendations for each user_id provided.
+    # def predict(self, X) -> np.array:
+    #     """Predicts n item recommendations for each user_id provided.
 
-        Args:
-          X (Sequence): List of user_id
+    #     Args:
+    #       X (Sequence): List of user_id
 
-        Returns:
-          np.array of shape (X.shape[0], n)
-        """
-        return np.array([self._get_recommendations(user_id) for user_id in X])
+    #     Returns:
+    #       np.array of shape (X.shape[0], n)
+    #     """
+    #     return np.array([self._get_recommendations(user_id) for user_id in X])
 
-    def score(self, y_preds, y_test):
-        """Calculates the accuracy score of the recommender.
+    # def score(self, y_preds, y_test):
+    #     """Calculates the accuracy score of the recommender.
 
-        Args:
-            y_preds: Predicted recommendations
-            y_test: Ground truth recommendations
+    #     Args:
+    #         y_preds: Predicted recommendations
+    #         y_test: Ground truth recommendations
 
-        Returns:
-            float: Accuracy score between 0 and 1
-        """
-        scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
-        if len(scores) == 0:
-            return np.nan
-        accuracy = np.mean(scores)
-        return accuracy
+    #     Returns:
+    #         float: Accuracy score between 0 and 1
+    #     """
+    #     scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
+    #     if len(scores) == 0:
+    #         return np.nan
+    #     accuracy = np.mean(scores)
+    #     return accuracy
 
     # def predict_proba(self, X):
     #     raise NotImplementedError("predict_proba not implemented yet")
@@ -296,6 +300,9 @@ class SimilarityRecommender(BaseEstimator):
 
         Returns:
             self: Returns the instance itself.
+
+        Raises:
+            ValueError: If input is not a scipy.sparse.spmatrix
         """
         if isinstance(X, sp.spmatrix):
             self.similarity_matrix = X
