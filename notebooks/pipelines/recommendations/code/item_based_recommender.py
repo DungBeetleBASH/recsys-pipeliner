@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import joblib
 import logging
-from pipeliner.recommendations.recommender import ItemBasedRecommender
+from pipeliner.recommendations.recommender import ItemBasedRecommenderPandas
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,6 +27,6 @@ if __name__ == "__main__":
         index_col="item_id",
     )
 
-    rec = ItemBasedRecommender(5, 5).fit((similarity_matrix, user_item_matrix))
+    rec = ItemBasedRecommenderPandas(5, 5).fit((similarity_matrix, user_item_matrix))
 
     joblib.dump(rec, os.path.join(args.model_dir, "rec.joblib"))

@@ -3,8 +3,8 @@ import numpy as np
 import scipy.sparse as sp
 from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
-    ItemBasedRecommender,
-    UserBasedRecommender,
+    ItemBasedRecommenderPandas,
+    UserBasedRecommenderPandas,
     SimilarityRecommender,
 )
 
@@ -19,7 +19,7 @@ from pipeliner.recommendations.recommender import (
         ([], (0,)),
     ],
 )
-def test_ItemBasedRecommender(
+def test_ItemBasedRecommenderPandas(
     fx_item_similarity_matrix, fx_user_item_matrix, input, output_shape
 ):
     X = (
@@ -27,18 +27,18 @@ def test_ItemBasedRecommender(
         if isinstance(input, str)
         else (fx_item_similarity_matrix, fx_user_item_matrix)
     )
-    rec = ItemBasedRecommender().fit(X)
+    rec = ItemBasedRecommenderPandas().fit(X)
     predictions = rec.predict(input)
     assert predictions.shape == output_shape
 
 
-def test_ItemBasedRecommender_fit_error():
+def test_ItemBasedRecommenderPandas_fit_error():
     with pytest.raises(ValueError):
-        ItemBasedRecommender().fit("cat")
+        ItemBasedRecommenderPandas().fit("cat")
 
 
-def test_ItemBasedRecommender_predict_error(fx_item_similarity_matrix):
-    rec = ItemBasedRecommender().fit(fx_item_similarity_matrix)
+def test_ItemBasedRecommenderPandas_predict_error(fx_item_similarity_matrix):
+    rec = ItemBasedRecommenderPandas().fit(fx_item_similarity_matrix)
     with pytest.raises(ValueError):
         rec.predict([1.3])
 
@@ -52,11 +52,11 @@ def test_ItemBasedRecommender_predict_error(fx_item_similarity_matrix):
         ([], (0,)),
     ],
 )
-def test_UserBasedRecommender(
+def test_UserBasedRecommenderPandas(
     fx_user_similarity_matrix, fx_user_item_matrix, input, output_shape
 ):
     X = (fx_user_similarity_matrix, fx_user_item_matrix)
-    rec = UserBasedRecommender().fit(X)
+    rec = UserBasedRecommenderPandas().fit(X)
     predictions = rec.predict(input)
     assert predictions.shape == output_shape
 
@@ -74,25 +74,25 @@ def test_UserBasedRecommender(
         ([], [], np.nan),
     ],
 )
-def test_UserBasedRecommender_score(
+def test_UserBasedRecommenderPandas_score(
     fx_user_similarity_matrix, fx_user_item_matrix, input, predictions, expected
 ):
     X = (fx_user_similarity_matrix, fx_user_item_matrix)
-    rec = UserBasedRecommender().fit(X)
+    rec = UserBasedRecommenderPandas().fit(X)
     score = rec.score(predictions, input)
     np.testing.assert_equal(score, expected)
 
 
-def test_UserBasedRecommender_fit_error():
+def test_UserBasedRecommenderPandas_fit_error():
     with pytest.raises(ValueError):
-        UserBasedRecommender().fit("cat")
+        UserBasedRecommenderPandas().fit("cat")
 
 
-def test_UserBasedRecommender_predict_error(
+def test_UserBasedRecommenderPandas_predict_error(
     fx_user_similarity_matrix, fx_user_item_matrix
 ):
     X = (fx_user_similarity_matrix, fx_user_item_matrix)
-    rec = UserBasedRecommender().fit(X)
+    rec = UserBasedRecommenderPandas().fit(X)
     with pytest.raises(ValueError):
         rec.predict([1.3])
 

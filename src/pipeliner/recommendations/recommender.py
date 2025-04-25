@@ -4,7 +4,7 @@ import scipy.sparse as sp
 from sklearn.base import BaseEstimator
 
 
-class ItemBasedRecommender(BaseEstimator):
+class ItemBasedRecommenderPandas(BaseEstimator):
     """Item-based collaborative filtering recommender.
 
     Args:
@@ -39,7 +39,7 @@ class ItemBasedRecommender(BaseEstimator):
 
         return self
 
-    def _get_exclusions(self, item_id: str, user_id: str):
+    def _get_exclusions(self, item_id: str, user_id: str | None):
         if user_id is None:
             return [item_id]
         single_user_matrix = self.user_item_matrix.loc[user_id]
@@ -80,7 +80,7 @@ class ItemBasedRecommender(BaseEstimator):
     #     raise NotImplementedError("predict_proba not implemented yet")
 
 
-class UserBasedRecommender(BaseEstimator):
+class UserBasedRecommenderPandas(BaseEstimator):
     """User-based collaborative filtering recommender.
 
     Args:
