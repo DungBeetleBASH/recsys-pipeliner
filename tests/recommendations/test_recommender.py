@@ -5,7 +5,6 @@ from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
     ItemBasedRecommender,
     UserBasedRecommender,
-    SimilarityRecommenderPandas,
     SimilarityRecommender,
 )
 
@@ -96,44 +95,6 @@ def test_UserBasedRecommender_predict_error(
     rec = UserBasedRecommender().fit(X)
     with pytest.raises(ValueError):
         rec.predict([1.3])
-
-
-@pytest.mark.parametrize(
-    "input, expected",
-    [
-        (["I00001"], ["I00002", "I00006", "I00003", "I00005"]),
-        (["I00002"], ["I00001", "I00003", "I00004", "I00006"]),
-        (["I00003"], ["I00002", "I00004", "I00001", "I00005"]),
-        (["I00004"], ["I00003", "I00005", "I00002", "I00006"]),
-        (["I00005"], ["I00004", "I00006", "I00001", "I00003"]),
-        (["I00006"], ["I00001", "I00005", "I00002", "I00004"]),
-    ],
-)
-def test_SimilarityRecommenderPandas(fx_item_similarity_matrix_toy, input, expected):
-    rec = SimilarityRecommenderPandas(5).fit(fx_item_similarity_matrix_toy)
-    predictions = rec.predict(input)[0]
-    np.testing.assert_array_equal(predictions, np.array(expected))
-
-
-@pytest.mark.parametrize(
-    "input, expected",
-    [
-        (["I00001"], [1.0, 0.5, 0.33333, 0.0, 0.33333, 0.5]),
-        (["I00002"], [0.5, 1.0, 0.5, 0.33333, 0.0, 0.33333]),
-        (["I00003"], [0.33333, 0.5, 1.0, 0.5, 0.33333, 0.0]),
-    ],
-)
-def test_SimilarityRecommenderPandas_predict_proba(
-    fx_item_similarity_matrix_toy, input, expected
-):
-    rec = SimilarityRecommenderPandas(5).fit(fx_item_similarity_matrix_toy)
-    probs = rec.predict_proba(input)[0].round(5)
-    np.testing.assert_array_equal(probs, np.array(expected).astype(np.float32).round(5))
-
-
-def test_SimilarityRecommenderPandas_fit_error():
-    with pytest.raises(ValueError, match="Input should be DataFrame"):
-        SimilarityRecommenderPandas().fit("cat")
 
 
 @pytest.mark.parametrize(
