@@ -177,6 +177,103 @@ class UserBasedRecommenderPandas(BaseEstimator):
     #     raise NotImplementedError("predict_proba not implemented yet")
 
 
+class UserBasedRecommender(BaseEstimator):
+    """User-based collaborative filtering recommender.
+
+    Args:
+        n (int): Number of recommendations to generate for each user
+        n_users (int): Number of similar users to consider for recommendations
+    """
+
+    n: int
+    n_users: int
+    similarity_matrix: sp.spmatrix
+    user_item_matrix: sp.spmatrix
+
+    def __init__(self, n=5, n_users=5):
+        self.n = n
+        self.n_users = n_users
+
+    def fit(self, X, y=None):
+        """Fits the recommender to the given data.
+
+        Args:
+            X (tuple[sp.spmatrix, sp.spmatrix]):
+                tuple of (similarity matrix, user/item matrix)
+
+        Returns:
+            self: Returns the instance itself.
+
+        Raises:
+            ValueError: If input is not a tuple of DataFrames
+        """
+        if isinstance(X, tuple):
+            self.similarity_matrix = X[0]
+            self.user_item_matrix = X[1]
+        else:
+            raise ValueError("Input should be tuple of (DataFrame, DataFrame)")
+
+        return self
+
+    def _get_similar_users(self, user_id: str) -> pd.Series:
+        return (
+            self.similarity_matrix[user_id]
+            .drop(user_id, errors="ignore")
+            .sort_values(ascending=False)
+            .head(self.n_users)
+        )
+
+    def _get_exclusions(self, user_id: str):
+        single_user_matrix = self.user_item_matrix.loc[user_id]
+        user_rated_items = single_user_matrix[single_user_matrix > 0]
+        return user_rated_items.index.to_list()
+
+    def _get_recommendations(self, user_id: str) -> np.array:
+        if not isinstance(user_id, str):
+            raise ValueError("Input items should be str")
+        exclusions = self._get_exclusions(user_id)
+        similar_users = self._get_similar_users(user_id)
+        matrix = self.user_item_matrix.T[similar_users.index]
+
+        user_recommendations = (
+            matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
+            .max(axis=1)
+            .sort_values(ascending=False)
+        )
+
+        return np.array(user_recommendations.head(self.n).index)
+
+    def predict(self, X) -> np.array:
+        """Predicts n item recommendations for each user_id provided.
+
+        Args:
+          X (Sequence): List of user_id
+
+        Returns:
+          np.array of shape (X.shape[0], n)
+        """
+        return np.array([self._get_recommendations(user_id) for user_id in X])
+
+    def score(self, y_preds, y_test):
+        """Calculates the accuracy score of the recommender.
+
+        Args:
+            y_preds: Predicted recommendations
+            y_test: Ground truth recommendations
+
+        Returns:
+            float: Accuracy score between 0 and 1
+        """
+        scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
+        if len(scores) == 0:
+            return np.nan
+        accuracy = np.mean(scores)
+        return accuracy
+
+    # def predict_proba(self, X):
+    #     raise NotImplementedError("predict_proba not implemented yet")
+
+
 class SimilarityRecommender(BaseEstimator):
     """Similarity recommender.
 
