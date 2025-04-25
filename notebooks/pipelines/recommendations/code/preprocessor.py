@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import logging
 from pipeliner.recommendations.transformer import (
-    UserItemMatrixTransformer,
-    SimilarityTransformer,
+    UserItemMatrixTransformerPandas,
+    SimilarityTransformerPandas,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -67,12 +67,12 @@ def train_test_split(df):
 
 
 def create_user_item_matrix(df):
-    transformer = UserItemMatrixTransformer()
+    transformer = UserItemMatrixTransformerPandas()
     return transformer.transform(df)
 
 
 def create_similarity_matrix(df, kind="user", metric="cosine"):
-    transformer = SimilarityTransformer(kind=kind, metric=metric)
+    transformer = SimilarityTransformerPandas(kind=kind, metric=metric)
     return transformer.transform(df)
 
 

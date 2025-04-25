@@ -2,12 +2,6 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    mean_squared_error,
-)
 
 
 class ItemBasedRecommender(BaseEstimator):
@@ -183,7 +177,7 @@ class UserBasedRecommender(BaseEstimator):
     #     raise NotImplementedError("predict_proba not implemented yet")
 
 
-class SimilarityRecommender(BaseEstimator):
+class SimilarityRecommenderPandas(BaseEstimator):
     """Similarity recommender.
 
     Args:
@@ -239,7 +233,7 @@ class SimilarityRecommender(BaseEstimator):
         return np.array([self._get_probabilities(item_id) for item_id in X])
 
 
-class SimilarityRecommenderNP(BaseEstimator):
+class SimilarityRecommender(BaseEstimator):
     """Similarity recommender.
 
     Args:

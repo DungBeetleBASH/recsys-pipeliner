@@ -4,8 +4,8 @@ import scipy as sp
 import logging
 import joblib
 from pipeliner.recommendations.transformer import (
-    UserItemMatrixTransformerNP,
-    SimilarityTransformerNP,
+    UserItemMatrixTransformer,
+    SimilarityTransformer,
 )
 from pipeliner.recommendations.encoder import encode_labels
 from pipeliner.recommendations.utils import train_test_split
@@ -30,10 +30,10 @@ if __name__ == "__main__":
 
     user_item_ratings = train_data.to_numpy()
 
-    user_item_matrix_transformer = UserItemMatrixTransformerNP()
+    user_item_matrix_transformer = UserItemMatrixTransformer()
     user_item_matrix = user_item_matrix_transformer.transform(user_item_ratings)
 
-    item_similarity_transformer = SimilarityTransformerNP()
+    item_similarity_transformer = SimilarityTransformer()
     item_similarity_matrix = item_similarity_transformer.transform(user_item_matrix.T)
 
     joblib.dump(user_encoder, f"{base_dir}/output/user_encoder/user_encoder.joblib")

@@ -4,7 +4,7 @@ import pandas as pd
 import scipy as sp
 import joblib
 import logging
-from pipeliner.recommendations.recommender import SimilarityRecommenderNP
+from pipeliner.recommendations.recommender import SimilarityRecommender
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,6 +23,6 @@ if __name__ == "__main__":
         f"{args.input}/data/item_similarity_matrix/item_similarity_matrix.npz"
     )
 
-    rec = SimilarityRecommenderNP(5).fit(item_similarity_matrix)
+    rec = SimilarityRecommender(5).fit(item_similarity_matrix)
 
     joblib.dump(rec, os.path.join(args.model_dir, "rec.joblib"))

@@ -3,10 +3,9 @@ import numpy as np
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import normalize
 
 
-class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
+class UserItemMatrixTransformerPandas(TransformerMixin, BaseEstimator):
     """A custom scikit-learn transformer that accepts a pandas dataframe of user/item interactions
     and returns a user/item matrix.
 
@@ -38,7 +37,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
             return matrix.fillna(0.0).astype(np.float32)
 
 
-class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
+class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     """A custom scikit-learn transformer that accepts a numpy ndarray of user/item ratings
     with 3 columns, user, item, and rating, and returns a sparse user/item matrix.
 
@@ -67,7 +66,7 @@ class UserItemMatrixTransformerNP(TransformerMixin, BaseEstimator):
         return matrix.astype(np.float32)
 
 
-class SimilarityTransformer(TransformerMixin, BaseEstimator):
+class SimilarityTransformerPandas(TransformerMixin, BaseEstimator):
     """A custom scikit-learn transformer that accepts a user/item matrix where user ids are
     the index and item ids are the columns and returns a similarity matrix.
 
@@ -113,7 +112,7 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
         return df.astype(np.float32)
 
 
-class SimilarityTransformerNP(TransformerMixin, BaseEstimator):
+class SimilarityTransformer(TransformerMixin, BaseEstimator):
     """A custom scikit-learn transformer that accepts a sparse user/item matrix.
     It can be used to calculate user-user or item-item similarity.
 
