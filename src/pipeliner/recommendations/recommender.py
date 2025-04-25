@@ -196,7 +196,7 @@ class UserBasedRecommender(BaseEstimator):
     def __init__(self, n=5, n_users=5):
         self.n = n
         self.n_users = n_users
-        self.similarity_transformer = SimilarityTransformer()
+        self._similarity_transformer = SimilarityTransformer()
 
     def fit(self, X, y=None):
         """Fits the recommender to the given data.
@@ -212,8 +212,9 @@ class UserBasedRecommender(BaseEstimator):
             ValueError: If input is not a scipy.sparse.spmatrix
         """
         if isinstance(X, sp.spmatrix):
-            self.user_item_matrix = X
-            self.user_similarity_matrix = self.similarity_transformer.transform(X)
+            self._user_item_matrix = X
+            self._user_similarity_matrix = self._similarity_transformer.transform(X)
+            self._item_similarity_matrix = self._similarity_transformer.transform(X.T)
         else:
             raise ValueError("Input should be scipy.sparse.spmatrix")
 
