@@ -198,7 +198,7 @@ class UserBasedRecommender(BaseEstimator):
         self.n_users = n_users
         self._similarity_transformer = SimilarityTransformer()
 
-    def fit(self, X, y=None):
+    def fit(self, X: sp.spmatrix, y=None):
         """Fits the recommender to the given data.
 
         Args:
