@@ -122,12 +122,12 @@ class UserBasedRecommenderPandas(BaseEstimator):
         return self
 
     def _get_similar_users(self, user_id: str) -> pd.Series:
-        return (
+        sorted_users = (
             self.similarity_matrix[user_id]
             .drop(user_id, errors="ignore")
             .sort_values(ascending=False)
-            .head(self.n_users)
         )
+        return sorted_users[sorted_users > 0].head(self.n_users)
 
     def _get_exclusions(self, user_id: str):
         single_user_matrix = self.user_item_matrix.loc[user_id]
