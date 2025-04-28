@@ -59,7 +59,7 @@ def test_UserItemMatrixTransformer(fx_user_item_ratings_toy_np):
     user_item_matrix = tf.transform(fx_user_item_ratings_toy_np)
 
     assert user_item_matrix.shape == (6, 6)
-    assert isinstance(user_item_matrix, sp.csr_matrix)
+    assert isinstance(user_item_matrix, sp.csr_array)
 
 
 def test_UserItemMatrixTransformerPandas_equality(
@@ -125,7 +125,7 @@ def test_SimilarityTransformer_error():
 
 def test_SimilarityTransformer_input_error():
     transformer = SimilarityTransformer()
-    with pytest.raises(ValueError, match="Input must be a scipy.sparse.spmatrix"):
+    with pytest.raises(ValueError, match="Input must be a scipy.sparse.sparray"):
         transformer.transform([])
 
 

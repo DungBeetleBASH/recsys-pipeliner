@@ -190,33 +190,33 @@ class UserBasedRecommender(BaseEstimator):
 
     n: int
     n_users: int
-    similarity_matrix: sp.spmatrix
-    user_item_matrix: sp.spmatrix
+    similarity_matrix: sp.sparray
+    user_item_matrix: sp.sparray
 
     def __init__(self, n=5, n_users=5):
         self.n = n
         self.n_users = n_users
         self._similarity_transformer = SimilarityTransformer()
 
-    def fit(self, X: sp.spmatrix, y=None):
+    def fit(self, X: sp.sparray, y=None):
         """Fits the recommender to the given data.
 
         Args:
-            X sp.spmatrix:
+            X sp.sparray:
                 user/item matrix
 
         Returns:
             self: Returns the instance itself.
 
         Raises:
-            ValueError: If input is not a scipy.sparse.spmatrix
+            ValueError: If input is not a scipy.sparse.sparray
         """
-        if isinstance(X, sp.spmatrix):
+        if isinstance(X, sp.sparray):
             self._user_item_matrix = X
             self._user_similarity_matrix = self._similarity_transformer.transform(X)
             self._item_similarity_matrix = self._similarity_transformer.transform(X.T)
         else:
-            raise ValueError("Input should be scipy.sparse.spmatrix")
+            raise ValueError("Input should be scipy.sparse.sparray")
 
         return self
 
@@ -287,7 +287,7 @@ class SimilarityRecommender(BaseEstimator):
     """
 
     n: int
-    similarity_matrix: sp.spmatrix
+    similarity_matrix: sp.sparray
 
     def __init__(self, n=5):
         self.n = n
@@ -296,24 +296,24 @@ class SimilarityRecommender(BaseEstimator):
         """Fits the recommender to the given data.
 
         Args:
-            X sp.spmatrix:
+            X sp.sparray:
                 similarity matrix
 
         Returns:
             self: Returns the instance itself.
 
         Raises:
-            ValueError: If input is not a scipy.sparse.spmatrix
+            ValueError: If input is not a scipy.sparse.sparray
         """
-        if isinstance(X, sp.spmatrix):
+        if isinstance(X, sp.sparray):
             self.similarity_matrix = X
         else:
-            raise ValueError("Input should be scipy.sparse.spmatrix")
+            raise ValueError("Input should be scipy.sparse.sparray")
 
         return self
 
     def _get_recommendations(self, id) -> np.array:
-        item_similarity = self.similarity_matrix[id].toarray()
+        item_similarity = self.similarity_matrix[[id], :].toarray()
         mask = (item_similarity > 0) * (np.arange(item_similarity.size) != id)
         sorter = np.argsort(1 - item_similarity, kind="stable")
         sorted_mask = mask[0, sorter]

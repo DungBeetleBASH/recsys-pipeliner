@@ -113,7 +113,7 @@ def test_SimilarityRecommender(fx_item_similarity_matrix_toy, input, expected):
     item_encoder = LabelEncoder()
     item_ids_encoded = item_encoder.fit_transform(item_ids)
     item_similarity_matrix_np = fx_item_similarity_matrix_toy.to_numpy()
-    item_similarity_matrix_np_sparse = sp.csr_matrix(item_similarity_matrix_np)
+    item_similarity_matrix_np_sparse = sp.csr_array(item_similarity_matrix_np)
 
     rec = SimilarityRecommender(5).fit(item_similarity_matrix_np_sparse)
     predictions = rec.predict(item_encoder.transform(input))[0]
@@ -136,7 +136,7 @@ def test_SimilarityRecommender_predict_proba(
     item_encoder = LabelEncoder()
     item_ids_encoded = item_encoder.fit_transform(item_ids)
     item_similarity_matrix_np = fx_item_similarity_matrix_toy.to_numpy()
-    item_similarity_matrix_np_sparse = sp.csr_matrix(item_similarity_matrix_np)
+    item_similarity_matrix_np_sparse = sp.csr_array(item_similarity_matrix_np)
 
     rec = SimilarityRecommender(5).fit(item_similarity_matrix_np_sparse)
     probs = rec.predict_proba(item_encoder.transform(input)).toarray()[0].round(5)
@@ -144,5 +144,5 @@ def test_SimilarityRecommender_predict_proba(
 
 
 def test_SimilarityRecommender_fit_error():
-    with pytest.raises(ValueError, match="Input should be scipy.sparse.spmatrix"):
+    with pytest.raises(ValueError, match="Input should be scipy.sparse.sparray"):
         SimilarityRecommender().fit("cat")

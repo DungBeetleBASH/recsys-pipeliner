@@ -50,7 +50,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     def fit(self, X, y=None):
         return self
 
-    def transform(self, X: np.ndarray) -> sp.spmatrix:
+    def transform(self, X: np.ndarray) -> sp.sparray:
         users, user_pos = np.unique(X[:, 0], return_inverse=True)
         items, item_pos = np.unique(X[:, 1], return_inverse=True)
         matrix_shape = (len(users), len(items))
@@ -59,7 +59,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
             np.unique(X[:, 0:2], axis=0)
         ), "Duplicate user/item pairs found"
 
-        matrix = sp.csr_matrix(
+        matrix = sp.csr_array(
             (X[:, 2], (user_pos, item_pos)), shape=matrix_shape, dtype=np.float32
         )
 
@@ -130,9 +130,9 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
     def fit(self, X, y=None):
         return self
 
-    def transform(self, X: sp.spmatrix) -> sp.spmatrix:
-        if not isinstance(X, sp.spmatrix):
-            raise ValueError("Input must be a scipy.sparse.spmatrix")
+    def transform(self, X: sp.sparray) -> sp.sparray:
+        if not isinstance(X, sp.sparray):
+            raise ValueError("Input must be a scipy.sparse.sparray")
 
         if self.metric == "cosine":
             matrix = cosine_similarity(X, dense_output=False).astype(np.float32)
