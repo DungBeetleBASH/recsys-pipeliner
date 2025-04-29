@@ -58,7 +58,7 @@ def test_UserItemMatrixTransformer(fx_user_item_ratings_toy_np):
     tf = UserItemMatrixTransformer()
     user_item_matrix = tf.transform(fx_user_item_ratings_toy_np)
 
-    assert user_item_matrix.shape == (6, 6)
+    assert user_item_matrix.shape == (12, 12)
     assert isinstance(user_item_matrix, sp.csr_array)
 
 
@@ -102,9 +102,9 @@ def test_SimilarityTransformerPandas_not_implemented_error(
 @pytest.mark.parametrize(
     "kind, metric, normalise, expected_shape",
     [
-        ("user", "cosine", False, (6, 6)),
-        ("user", "cosine", True, (6, 6)),
-        ("item", "cosine", False, (6, 6)),
+        ("user", "cosine", False, (12, 12)),
+        ("user", "cosine", True, (12, 12)),
+        ("item", "cosine", False, (12, 12)),
     ],
 )
 def test_SimilarityTransformerPandas(
