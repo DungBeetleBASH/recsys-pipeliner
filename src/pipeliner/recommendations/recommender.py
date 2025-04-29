@@ -143,7 +143,7 @@ class UserBasedRecommenderPandas(BaseEstimator):
 
         user_recommendations = (
             matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
-            .max(axis=1)
+            .mean(axis=1)
             .sort_values(ascending=False)
         )
 
