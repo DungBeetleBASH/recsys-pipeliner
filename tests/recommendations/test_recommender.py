@@ -95,7 +95,7 @@ def test_SimilarityRecommender_fit_error():
 
 
 def test_UserBasedRecommender_fit(fx_user_item_matrix_np):
-    rec = UserBasedRecommender(5)
+    rec = UserBasedRecommender()
     assert rec == rec.fit(fx_user_item_matrix_np)
 
 
