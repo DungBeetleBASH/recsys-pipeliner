@@ -1,24 +1,18 @@
 import pytest
 from pipeliner.recommendations.transformer import (
-    SimilarityTransformerPandas,
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
-import numpy as np
 import scipy.sparse as sp
 
 
 def test_empty_fit(
-    fx_user_item_ratings_toy,
-    fx_user_item_matrix_toy,
     fx_user_item_ratings_toy_np,
     fx_user_item_matrix_toy_np,
 ):
-    similarity_matrix_tf = SimilarityTransformerPandas()
     user_item_matrix_tf_np = UserItemMatrixTransformer()
     similarity_matrix_tf_np = SimilarityTransformer()
 
-    assert similarity_matrix_tf.fit(fx_user_item_matrix_toy) == similarity_matrix_tf
     assert (
         user_item_matrix_tf_np.fit(fx_user_item_ratings_toy_np)
         == user_item_matrix_tf_np
@@ -35,47 +29,6 @@ def test_UserItemMatrixTransformer(fx_user_item_ratings_toy_np):
 
     assert user_item_matrix.shape == (12, 12)
     assert isinstance(user_item_matrix, sp.csr_array)
-
-
-@pytest.mark.parametrize(
-    "kind, metric",
-    [(None, "cosine"), ("user", None)],
-)
-def test_SimilarityTransformerPandas_error(kind, metric):
-    with pytest.raises(ValueError):
-        SimilarityTransformerPandas(kind=kind, metric=metric)
-
-
-@pytest.mark.parametrize(
-    "kind, metric",
-    [("user", "euclidean"), ("user", "dot")],
-)
-def test_SimilarityTransformerPandas_not_implemented_error(
-    fx_user_item_matrix_toy, kind, metric
-):
-    transformer = SimilarityTransformerPandas(kind=kind, metric=metric)
-
-    with pytest.raises(NotImplementedError):
-        transformer.transform(fx_user_item_matrix_toy)
-
-
-@pytest.mark.parametrize(
-    "kind, metric, normalise, expected_shape",
-    [
-        ("user", "cosine", False, (12, 12)),
-        ("user", "cosine", True, (12, 12)),
-        ("item", "cosine", False, (12, 12)),
-    ],
-)
-def test_SimilarityTransformerPandas(
-    fx_user_item_matrix_toy, kind, metric, normalise, expected_shape
-):
-    transformer = SimilarityTransformerPandas(
-        kind=kind, metric=metric, normalise=normalise
-    )
-    similarity_matrix = transformer.transform(fx_user_item_matrix_toy)
-
-    assert similarity_matrix.shape == expected_shape
 
 
 def test_SimilarityTransformer_error():
@@ -125,31 +78,3 @@ def test_SimilarityTransformer(
     similarity_matrix = transformer.transform(input_matrix)
 
     assert similarity_matrix.shape == expected_shape
-
-
-@pytest.mark.parametrize(
-    "kind",
-    ["user", "item"],
-)
-def test_SimilarityTransformerPandas_equality(
-    fx_user_item_matrix,
-    fx_user_item_matrix_np,
-    kind,
-):
-    """Test that SimilarityTransformerPandas and SimilarityTransformer produce the same results."""
-
-    user_item_matrix = fx_user_item_matrix
-    user_item_matrix_np = fx_user_item_matrix_np
-    if kind == "item":
-        user_item_matrix_np = user_item_matrix_np.T
-
-    # Create transformers
-    transformer = SimilarityTransformerPandas(kind=kind)
-    transformer_np = SimilarityTransformer()
-
-    # Transform data
-    result = transformer.transform(user_item_matrix).to_numpy()
-    result_np = transformer_np.transform(user_item_matrix_np).toarray()
-
-    # Compare results
-    np.testing.assert_array_almost_equal(result, result_np, decimal=6)
