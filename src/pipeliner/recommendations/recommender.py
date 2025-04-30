@@ -99,7 +99,8 @@ class UserBasedRecommender(BaseEstimator):
     def __init__(self, n=5, n_users=5):
         self.n = n
         self.n_users = n_users
-        self._similarity_transformer = SimilarityTransformer()
+        self._user_transformer = SimilarityTransformer()
+        self._item_transformer = SimilarityTransformer()
 
     def fit(self, X: sp.sparray, y=None):
         """Fits the recommender to the given data.
@@ -116,8 +117,8 @@ class UserBasedRecommender(BaseEstimator):
         """
         if isinstance(X, sp.sparray):
             self._user_item_matrix = X
-            self._user_similarity_matrix = self._similarity_transformer.transform(X)
-            self._item_similarity_matrix = self._similarity_transformer.transform(X.T)
+            self._user_similarity_matrix = self._user_transformer.transform(X)
+            # self._item_similarity_matrix = self._item_transformer.transform(X.T)
         else:
             raise ValueError("Input should be scipy.sparse.sparray")
 
