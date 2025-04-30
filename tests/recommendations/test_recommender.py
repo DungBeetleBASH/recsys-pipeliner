@@ -4,6 +4,7 @@ import scipy.sparse as sp
 from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
     ItemBasedRecommenderPandas,
+    UserBasedRecommender,
     SimilarityRecommender,
 )
 
@@ -91,3 +92,13 @@ def test_SimilarityRecommender_predict_proba(
 def test_SimilarityRecommender_fit_error():
     with pytest.raises(ValueError, match="Input should be scipy.sparse.sparray"):
         SimilarityRecommender().fit("cat")
+
+
+def test_UserBasedRecommender_fit(fx_user_item_matrix_np):
+    rec = UserBasedRecommender(5)
+    assert rec == rec.fit(fx_user_item_matrix_np)
+
+
+def test_UserBasedRecommender_fit_error():
+    with pytest.raises(ValueError, match="Input should be scipy.sparse.sparray"):
+        UserBasedRecommender().fit("cat")
