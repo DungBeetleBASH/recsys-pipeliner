@@ -4,7 +4,6 @@ import scipy.sparse as sp
 from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
     ItemBasedRecommenderPandas,
-    UserBasedRecommenderPandas,
     SimilarityRecommender,
 )
 
@@ -39,60 +38,6 @@ def test_ItemBasedRecommenderPandas_fit_error():
 
 def test_ItemBasedRecommenderPandas_predict_error(fx_item_similarity_matrix):
     rec = ItemBasedRecommenderPandas().fit(fx_item_similarity_matrix)
-    with pytest.raises(ValueError):
-        rec.predict([1.3])
-
-
-@pytest.mark.parametrize(
-    "input, output_shape",
-    [
-        (["U1002"], (1, 5)),
-        (["U1002", "U1003"], (2, 5)),
-        (["U1003", "U1003", "U1004"], (3, 5)),
-        ([], (0,)),
-    ],
-)
-def test_UserBasedRecommenderPandas(
-    fx_user_similarity_matrix, fx_user_item_matrix, input, output_shape
-):
-    X = (fx_user_similarity_matrix, fx_user_item_matrix)
-    rec = UserBasedRecommenderPandas().fit(X)
-    predictions = rec.predict(input)
-    assert predictions.shape == output_shape
-
-
-@pytest.mark.parametrize(
-    "input, predictions, expected",
-    [
-        (["U1002"], ["U1002"], 1.0),
-        (["U1002", "U1003"], ["U1002", "U1005"], 0.5),
-        (
-            ["U1002", "U1003", "U1003", "U1004"],
-            ["U1001", "U1003", "U1003", "U1004"],
-            0.75,
-        ),
-        ([], [], np.nan),
-    ],
-)
-def test_UserBasedRecommenderPandas_score(
-    fx_user_similarity_matrix, fx_user_item_matrix, input, predictions, expected
-):
-    X = (fx_user_similarity_matrix, fx_user_item_matrix)
-    rec = UserBasedRecommenderPandas().fit(X)
-    score = rec.score(predictions, input)
-    np.testing.assert_equal(score, expected)
-
-
-def test_UserBasedRecommenderPandas_fit_error():
-    with pytest.raises(ValueError):
-        UserBasedRecommenderPandas().fit("cat")
-
-
-def test_UserBasedRecommenderPandas_predict_error(
-    fx_user_similarity_matrix, fx_user_item_matrix
-):
-    X = (fx_user_similarity_matrix, fx_user_item_matrix)
-    rec = UserBasedRecommenderPandas().fit(X)
     with pytest.raises(ValueError):
         rec.predict([1.3])
 
