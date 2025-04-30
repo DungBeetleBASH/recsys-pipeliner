@@ -5,10 +5,8 @@ from sklearn.preprocessing import LabelEncoder
 
 
 from pipeliner.recommendations.transformer import (
-    UserItemMatrixTransformerPandas,
     UserItemMatrixTransformer,
     SimilarityTransformerPandas,
-    UserItemMatrixTransformer,
     SimilarityTransformer,
 )
 
@@ -83,7 +81,12 @@ def fx_user_item_ratings_np():
 
 @pytest.fixture
 def fx_user_item_matrix(fx_user_item_ratings):
-    yield UserItemMatrixTransformerPandas().transform(fx_user_item_ratings)
+    yield (
+        fx_user_item_ratings.groupby(["user_id", "item_id"])["rating"]
+        .agg("sum")
+        .unstack()
+        .fillna(0.0)
+    )
 
 
 @pytest.fixture

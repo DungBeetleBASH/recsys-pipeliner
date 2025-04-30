@@ -5,38 +5,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-class UserItemMatrixTransformerPandas(TransformerMixin, BaseEstimator):
-    """A custom scikit-learn transformer that accepts a pandas dataframe of user/item interactions
-    and returns a user/item matrix.
-
-    Args:
-        user (str): Column name for user id
-        item (str): Column name for item id
-        rating (float): Column name for user/item rating
-        agg (str): Panadas aggregation function to use when combining duplicate user/item interactions
-        binary (bool): If True, user/item interactions are converted to binary values in the user/item output matrix
-    """
-
-    def __init__(
-        self, user="user_id", item="item_id", rating="rating", agg="sum", binary=False
-    ):
-        self.user = user
-        self.item = item
-        self.rating = rating
-        self.agg = agg
-        self.binary = binary
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X: pd.DataFrame):
-        matrix = X.groupby([self.user, self.item])[self.rating].agg(self.agg).unstack()
-        if self.binary:
-            return (matrix >= 0.5).astype(np.int32)
-        else:
-            return matrix.fillna(0.0).astype(np.float32)
-
-
 class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     """A custom scikit-learn transformer that accepts a numpy ndarray of user/item ratings
     with 3 columns, user, item, and rating, and returns a sparse user/item matrix.
