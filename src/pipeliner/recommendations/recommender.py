@@ -146,9 +146,18 @@ class UserBasedRecommender(BaseEstimator):
     def _get_recommendations(self, id: int) -> np.array:
         excluded_items = self._get_exclusions(id)
         similar_users = self._get_similar_users(id)
-        # matrix = self.user_item_matrix.T[similar_users.index]
 
-        return np.array([])
+        matrix = self._user_item_matrix[similar_users]
+
+        any_ratings = np.nonzero(matrix.sum(axis=0))[0]
+        items_to_use = np.setdiff1d(any_ratings, excluded_items)
+
+        filtered_matrix = matrix[:, items_to_use]
+
+        mean_ratings = filtered_matrix.toarray().T.mean(axis=1)
+        item_sorter = np.argsort(1 - mean_ratings, kind="stable")
+
+        return items_to_use[item_sorter][:self.n]
 
     # def predict(self, X) -> np.array:
     #     """Predicts n item recommendations for each user_id provided.
