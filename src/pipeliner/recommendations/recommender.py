@@ -136,10 +136,12 @@ class UserBasedRecommender(BaseEstimator):
 
         return similar_users
 
-    # def _get_exclusions(self, user_id: str):
-    #     single_user_matrix = self.user_item_matrix.loc[user_id]
-    #     user_rated_items = single_user_matrix[single_user_matrix > 0]
-    #     return user_rated_items.index.to_list()
+    def _get_exclusions(self, id) -> np.array:
+        single_user_ratings = self._user_item_matrix[
+            [id]
+        ]
+        rated = (single_user_ratings > 0).nonzero()[1]
+        return rated
 
     # def _get_recommendations(self, user_id: str) -> np.array:
     #     if not isinstance(user_id, str):
