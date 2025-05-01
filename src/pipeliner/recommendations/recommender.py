@@ -117,6 +117,8 @@ class UserBasedRecommender(BaseEstimator):
         """
         if isinstance(X, sp.sparray):
             self._user_item_matrix = X
+            self._user_indices = np.arange(X.shape[0])
+            self._item_indices = np.arange(X.shape[1])
             self._user_similarity_matrix = self._user_transformer.transform(X)
             # self._item_similarity_matrix = self._item_transformer.transform(X.T)
         else:
@@ -124,13 +126,15 @@ class UserBasedRecommender(BaseEstimator):
 
         return self
 
-    # def _get_similar_users(self, user_id: str) -> pd.Series:
-    #     return (
-    #         self.similarity_matrix[user_id]
-    #         .drop(user_id, errors="ignore")
-    #         .sort_values(ascending=False)
-    #         .head(self.n_users)
-    #     )
+    def _get_similar_users(self, id) -> np.array:
+        matrix = self._user_similarity_matrix[[id]]
+        user_mask = matrix > 0
+        user_mask[[0], [id]] = False
+        user_sorter = np.argsort(1 - matrix.toarray()[0], kind="stable")
+        sorted_mask = user_mask.toarray()[0][user_sorter]
+        similar_users = user_sorter[sorted_mask][:self.n]
+
+        return similar_users
 
     # def _get_exclusions(self, user_id: str):
     #     single_user_matrix = self.user_item_matrix.loc[user_id]
