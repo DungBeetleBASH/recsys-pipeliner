@@ -126,7 +126,7 @@ class UserBasedRecommender(BaseEstimator):
 
         return self
 
-    def _get_similar_users(self, id) -> np.array:
+    def _get_similar_users(self, id: int) -> np.array:
         matrix = self._user_similarity_matrix[[id]]
         user_mask = matrix > 0
         user_mask[[0], [id]] = False
@@ -136,27 +136,19 @@ class UserBasedRecommender(BaseEstimator):
 
         return similar_users
 
-    def _get_exclusions(self, id) -> np.array:
+    def _get_exclusions(self, id: int) -> np.array:
         single_user_ratings = self._user_item_matrix[
             [id]
         ]
         rated = (single_user_ratings > 0).nonzero()[1]
         return rated
 
-    # def _get_recommendations(self, user_id: str) -> np.array:
-    #     if not isinstance(user_id, str):
-    #         raise ValueError("Input items should be str")
-    #     exclusions = self._get_exclusions(user_id)
-    #     similar_users = self._get_similar_users(user_id)
-    #     matrix = self.user_item_matrix.T[similar_users.index]
+    def _get_recommendations(self, id: int) -> np.array:
+        excluded_items = self._get_exclusions(id)
+        similar_users = self._get_similar_users(id)
+        # matrix = self.user_item_matrix.T[similar_users.index]
 
-    #     user_recommendations = (
-    #         matrix[~matrix.index.isin(exclusions) & (matrix > 0).any(axis="columns")]
-    #         .max(axis=1)
-    #         .sort_values(ascending=False)
-    #     )
-
-    #     return np.array(user_recommendations.head(self.n).index)
+        return np.array([])
 
     # def predict(self, X) -> np.array:
     #     """Predicts n item recommendations for each user_id provided.
