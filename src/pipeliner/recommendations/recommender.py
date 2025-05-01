@@ -158,17 +158,18 @@ class UserBasedRecommender(BaseEstimator):
         item_sorter = np.argsort(1 - mean_ratings, kind="stable")
 
         return items_to_use[item_sorter][:self.n]
+    
 
-    # def predict(self, X) -> np.array:
-    #     """Predicts n item recommendations for each user_id provided.
+    def predict(self, X) -> list[np.array]:
+        """Predicts n recommendations for each id provided
 
-    #     Args:
-    #       X (Sequence): List of user_id
+        Args:
+          X (Sequence): List of id
 
-    #     Returns:
-    #       np.array of shape (X.shape[0], n)
-    #     """
-    #     return np.array([self._get_recommendations(user_id) for user_id in X])
+        Returns:
+          list of np.array
+        """
+        return [self._get_recommendations(id) for id in X]
 
     # def score(self, y_preds, y_test):
     #     """Calculates the accuracy score of the recommender.
