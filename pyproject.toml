@@ -33,8 +33,7 @@ jupyter = [
 ]
 
 [tool.setuptools_scm]
-version_file = "pipeliner/_version.py"
-
+write_to = "src/pipeliner/_version.py"
 
 [tool.setuptools.packages.find]
 where = ["src"]
