@@ -10,16 +10,16 @@ def test_empty_fit(
     fx_user_item_ratings_toy_np,
     fx_user_item_matrix_toy_np,
 ):
-    user_item_matrix_tf_np = UserItemMatrixTransformer()
-    similarity_matrix_tf_np = SimilarityTransformer()
+    user_item_matrix_transformer = UserItemMatrixTransformer()
+    similarity_matrix_transformer = SimilarityTransformer()
 
     assert (
-        user_item_matrix_tf_np.fit(fx_user_item_ratings_toy_np)
-        == user_item_matrix_tf_np
+        user_item_matrix_transformer.fit(fx_user_item_ratings_toy_np)
+        == user_item_matrix_transformer
     )
     assert (
-        similarity_matrix_tf_np.fit(fx_user_item_matrix_toy_np)
-        == similarity_matrix_tf_np
+        similarity_matrix_transformer.fit(fx_user_item_matrix_toy_np)
+        == similarity_matrix_transformer
     )
 
 

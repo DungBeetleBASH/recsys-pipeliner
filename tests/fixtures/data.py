@@ -7,7 +7,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
-    SimilarityTransformer,
 )
 
 
@@ -64,19 +63,10 @@ def fx_item_similarity_matrix_toy():
 
 
 @pytest.fixture
-def fx_user_similarity_matrix_toy():
-    yield pd.read_csv(
-        "tests/test_data/user_similarity_matrix_toy.csv",
-        header=0,
-        index_col=["user_id"],
-    ).astype(np.float32)
-
-
-@pytest.fixture
 def fx_user_item_ratings_np():
     yield np.load(
         "tests/test_data/user_item_ratings.npz",
-    )
+    )["ratings"]
 
 
 @pytest.fixture
@@ -87,19 +77,6 @@ def fx_user_item_matrix(fx_user_item_ratings):
         .unstack()
         .fillna(0.0)
     )
-
-
-@pytest.fixture
-def fx_user_similarity_matrix(fx_user_item_matrix):
-    matrix = fx_user_item_matrix
-    df = pd.DataFrame(
-        cosine_similarity(matrix),
-        index=matrix.index,
-        columns=matrix.index,
-    )
-    df = (df - df.min()) / (df.max() - df.min()).round(6)
-
-    yield df.astype(np.float32)
 
 
 @pytest.fixture
@@ -117,15 +94,4 @@ def fx_item_similarity_matrix(fx_user_item_matrix):
 
 @pytest.fixture
 def fx_user_item_matrix_np(fx_user_item_ratings_np):
-    user_item_ratings = fx_user_item_ratings_np["ratings"]
-    yield UserItemMatrixTransformer().transform(user_item_ratings)
-
-
-@pytest.fixture
-def fx_user_similarity_matrix_np(fx_user_item_matrix_np):
-    yield SimilarityTransformer().transform(fx_user_item_matrix_np)
-
-
-@pytest.fixture
-def fx_item_similarity_matrix_np(fx_user_item_matrix_np):
-    yield SimilarityTransformer().transform(fx_user_item_matrix_np)
+    yield UserItemMatrixTransformer().transform(fx_user_item_ratings_np)
