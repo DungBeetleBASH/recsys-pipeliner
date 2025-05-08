@@ -27,4 +27,4 @@ jobs:
       uses: astral-sh/setup-uv@v5
 
     - name: Build distribution package
-      run: uv build
+      run: uv build --no-cache
