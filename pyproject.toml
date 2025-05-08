@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
+requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -37,16 +37,14 @@ version = { attr = "pipeliner.__VERSION__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["tests", "notebooks"]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
-addopts = ["--cov=src", "--cov-report=html", "-s"]
+addopts = ["--cov=src", "--cov-report=html"]
 
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = ["src/pipeliner/recommendations/pipelines.py"]
 
 [tool.coverage.report]
 fail_under = 95
