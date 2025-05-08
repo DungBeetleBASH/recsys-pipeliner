@@ -24,7 +24,7 @@ jobs:
       run: |
         NUM_FILES=$(git diff --name-only | grep -E "(pyproject\.toml|src\/pipeliner\/.*.py)" | wc -l)
         echo "Number of changed files: $NUM_FILES"
-        if $NUM_FILES > 0; then
+        if ["$NUM_FILES" > 0]; then
           echo "has_changes=true" >> $GITHUB_ENV
         else
           echo "has_changes=false" >> $GITHUB_ENV
