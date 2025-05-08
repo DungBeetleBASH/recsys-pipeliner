@@ -21,11 +21,10 @@ jobs:
         enable-cache: true
 
     - name: Install dependencies
-      run: |
-        uv sync --extra testing
+      run: uv sync --extra testing
 
     - name: Test with pytest
-      run: pytest
+      run: uv run pytest
 
     - name: Build distribution package
       run: uv build --no-cache
