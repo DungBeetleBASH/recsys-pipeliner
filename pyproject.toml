@@ -45,6 +45,9 @@ addopts = ["--cov=src", "--cov-report=html"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = [
+    "src/pipeliner/_version.py",
+]
 
 [tool.coverage.report]
 fail_under = 95
