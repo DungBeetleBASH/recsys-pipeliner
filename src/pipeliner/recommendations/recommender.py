@@ -79,9 +79,6 @@ class ItemBasedRecommenderPandas(BaseEstimator):
         """
         return np.array([self._get_recommendations(item) for item in X])
 
-    # def predict_proba(self, X):
-    #     raise NotImplementedError("predict_proba not implemented yet")
-
 
 class UserBasedRecommender(BaseEstimator):
     """User-based collaborative filtering recommender.
@@ -93,14 +90,11 @@ class UserBasedRecommender(BaseEstimator):
 
     n: int
     n_users: int
-    similarity_matrix: sp.sparray
-    user_item_matrix: sp.sparray
 
     def __init__(self, n=5, n_users=5):
         self.n = n
         self.n_users = n_users
         self._user_transformer = SimilarityTransformer()
-        self._item_transformer = SimilarityTransformer()
 
     def fit(self, X: sp.sparray, y=None):
         """Fits the recommender to the given data.
@@ -120,7 +114,6 @@ class UserBasedRecommender(BaseEstimator):
             self._user_indices = np.arange(X.shape[0])
             self._item_indices = np.arange(X.shape[1])
             self._user_similarity_matrix = self._user_transformer.transform(X)
-            # self._item_similarity_matrix = self._item_transformer.transform(X.T)
         else:
             raise ValueError("Input should be scipy.sparse.sparray")
 
@@ -170,25 +163,6 @@ class UserBasedRecommender(BaseEstimator):
           list of np.array
         """
         return [self._get_recommendations(id) for id in X]
-
-    # def score(self, y_preds, y_test):
-    #     """Calculates the accuracy score of the recommender.
-
-    #     Args:
-    #         y_preds: Predicted recommendations
-    #         y_test: Ground truth recommendations
-
-    #     Returns:
-    #         float: Accuracy score between 0 and 1
-    #     """
-    #     scores = np.array([1.0 if t in p else 0.0 for t, p in zip(y_test, y_preds)])
-    #     if len(scores) == 0:
-    #         return np.nan
-    #     accuracy = np.mean(scores)
-    #     return accuracy
-
-    # def predict_proba(self, X):
-    #     raise NotImplementedError("predict_proba not implemented yet")
 
 
 class SimilarityRecommender(BaseEstimator):
