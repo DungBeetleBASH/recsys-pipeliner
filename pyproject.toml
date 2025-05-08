@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -32,8 +32,9 @@ jupyter = [
     "scikit-surprise"
 ]
 
-[tool.setuptools.dynamic]
-version = { attr = "pipeliner.__VERSION__" }
+[tool.setuptools_scm]
+version_file = "pipeliner/_version.py"
+
 
 [tool.setuptools.packages.find]
 where = ["src"]

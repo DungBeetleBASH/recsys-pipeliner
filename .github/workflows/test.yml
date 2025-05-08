@@ -1,9 +1,9 @@
-name: pytest
+name: test
 
 on: [push]
 
 jobs:
-  build:
+  test:
     name: Pytest
     runs-on: ubuntu-latest
 
