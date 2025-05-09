@@ -45,13 +45,13 @@ jobs:
     - name: Check for changes
       id: check_files
       run: |
-        git diff --name-only HEAD^ HEAD > files.txt
-        cat files.txt
         NUM_FILES=$(git diff --name-only HEAD^ HEAD | grep -E "(pyproject\.toml|src\/pipeliner\/.*.py)" | wc -l)
         echo "Number of changed files: $NUM_FILES"
         if ((NUM_FILES > 0)); then
+          echo "Setting has_changes to true"
           echo "has_changes=true" >> $GITHUB_ENV
         else
+          echo "Setting has_changes to false"
           echo "has_changes=false" >> $GITHUB_ENV
         fi
 
