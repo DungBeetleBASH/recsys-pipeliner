@@ -38,6 +38,7 @@ version_scheme = "python-simplified-semver"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["tests", "notebooks"]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
