@@ -49,10 +49,10 @@ jobs:
         echo "Number of changed files: $NUM_FILES"
         if ((NUM_FILES > 0)); then
           echo "Setting has_changes to true"
-          echo "has_changes=true" >> $GITHUB_ENV
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
         else
           echo "Setting has_changes to false"
-          echo "has_changes=false" >> $GITHUB_ENV
+          echo "has_changes=false" >> "$GITHUB_OUTPUT"
         fi
 
   tag_version:
