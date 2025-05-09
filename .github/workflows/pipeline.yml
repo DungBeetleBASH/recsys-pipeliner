@@ -45,7 +45,8 @@ jobs:
     - name: Check for changes
       id: check_files
       run: |
-        echo $(git diff --name-only)
+        CHANGED_FILES=$(git diff --name-only | grep -E "(pyproject\.toml|src\/pipeliner\/.*.py)")
+        echo "Changed files: $CHANGED_FILES"
         NUM_FILES=$(git diff --name-only | grep -E "(pyproject\.toml|src\/pipeliner\/.*.py)" | wc -l)
         echo "Number of changed files: $NUM_FILES"
         if ((NUM_FILES > 0)); then
