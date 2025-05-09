@@ -45,7 +45,7 @@ jobs:
     - name: Check for changes
       id: check_files
       run: |
-        git diff --name-only HEAD^ HEAD &gt; files.txt
+        git diff --name-only > files.txt
         cat files.txt
         NUM_FILES=$(git diff --name-only | grep -E "(pyproject\.toml|src\/pipeliner\/.*.py)" | wc -l)
         echo "Number of changed files: $NUM_FILES"
