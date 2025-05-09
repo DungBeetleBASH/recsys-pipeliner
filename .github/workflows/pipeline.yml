@@ -61,10 +61,15 @@ jobs:
     needs: [test, check_for_changes]
     if: github.ref == 'refs/heads/main' && needs.check_for_changes.outputs.has_changes == 'true'
 
+    permissions:
+      contents: write
+      actions: write
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        fetch-tags: true
 
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v3.2.1
@@ -75,9 +80,14 @@ jobs:
       id: gitversion
       uses: gittools/actions/gitversion/execute@v3.2.1
 
-    - run: |
-        echo "GitVersion.majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-      name: Display GitVersion.majorMinorPatch
+    - name: Tag Version
+      run: |
+        echo "Tagging version: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        git tag ${{ steps.gitversion.outputs.majorMinorPatch }}
+        git push --tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
 
   build_and_publish:
     name: Build and Publish
