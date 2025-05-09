@@ -34,7 +34,7 @@ jupyter = [
 
 [tool.setuptools_scm]
 version_file = "src/pipeliner/_version.py"
-version_scheme = "only-version"
+version_scheme = "python-simplified-semver"
 
 [tool.setuptools.packages.find]
 where = ["src"]
