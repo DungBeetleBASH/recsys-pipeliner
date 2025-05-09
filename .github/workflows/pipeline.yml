@@ -72,12 +72,12 @@ jobs:
         versionSpec: '6.3.x'
 
     - name: Determine Version
-      id: version_step # step id used as a reference for output values
+      id: gitversion
       uses: gittools/actions/gitversion/execute@v3.2.1
 
     - run: |
-        echo "GitVersion.MajorMinorPatch: ${{ env.GitVersion.MajorMinorPatch }}"
-      name: Display GitVersion.MajorMinorPatch
+        echo "GitVersion.majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+      name: Display GitVersion.majorMinorPatch
 
   build_and_publish:
     name: Build and Publish
