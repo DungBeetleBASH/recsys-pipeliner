@@ -29,7 +29,6 @@ jupyter = [
     "sagemaker[local]",
     "seaborn",
     "torch",
-    "scikit-surprise"
 ]
 
 [tool.setuptools_scm]
