@@ -1112,7 +1112,7 @@ requires-dist = [
     { name = "pytest-mock", marker = "extra == 'testing'" },
     { name = "sagemaker", specifier = "~=2.245.0" },
     { name = "sagemaker", extras = ["local"], marker = "extra == 'jupyter'" },
-    { name = "scikit-learn" },
+    { name = "scikit-learn", specifier = "~=1.6.1" },
     { name = "scipy" },
     { name = "seaborn", marker = "extra == 'jupyter'" },
     { name = "torch", marker = "extra == 'jupyter'" },

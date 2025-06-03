@@ -13,7 +13,7 @@ dependencies = [
     "pandas",
     "pydantic",
     "sagemaker~=2.245.0",
-    "scikit-learn",
+    "scikit-learn~=1.6.1",
     "scipy",
 ]
 
