@@ -1104,7 +1104,7 @@ requires-dist = [
     { name = "boto3" },
     { name = "matplotlib", marker = "extra == 'jupyter'" },
     { name = "matspy", marker = "extra == 'jupyter'" },
-    { name = "numpy", specifier = "~=1.26.4" },
+    { name = "numpy" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "pytest", marker = "extra == 'testing'" },
