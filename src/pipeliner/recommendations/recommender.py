@@ -25,47 +25,34 @@ class ItemBasedRecommenderPandas(BaseEstimator):
         """Fits the recommender to the given data.
 
         Args:
-            X tuple[pd.DataFrame, pd.DataFrame]:
-                tuple of (similarity matrix, user/item matrix)
+            X pd.DataFrame
 
         Returns:
             self: Returns the instance itself.
         """
-        if isinstance(X, tuple):
-            self.similarity_matrix = X[0]
-            self.user_item_matrix = X[1]
+        if isinstance(X, pd.DataFrame):
+            self.similarity_matrix = X
         else:
-            raise ValueError("Input should be (DataFrame, DataFrame)")
+            raise ValueError("Input should be pd.DataFrame")
 
         return self
 
-    def _get_exclusions(self, item_id: str, user_id: str):
-        single_user_matrix = self.user_item_matrix.loc[user_id]
-        user_rated_items = single_user_matrix[single_user_matrix > 0]
-        return [item_id] + user_rated_items.index.to_list()
-
-    def _get_recommendations(self, item) -> np.array:
-        if isinstance(item, tuple):
-            item_id, user_id = item[0], item[1]
-        else:
-            raise ValueError("Input items should (str, str)")
-
-        exclusions = self._get_exclusions(item_id, user_id)
+    def _get_recommendations(self, item_id) -> np.array:
+        if not isinstance(item_id, str):
+            raise ValueError("Input should be str")
 
         item_recommendations = (
             self.similarity_matrix[item_id]
-            .drop(exclusions, errors="ignore")
-            .sort_values(ascending=False)
+            .drop([item_id], errors="ignore")
+            .sort_values(ascending=False, kind="stable")
         )
         return np.array(item_recommendations.head(self.n).index)
 
     def predict(self, X) -> np.array:
-        """Predicts n item recommendations for each item_id provided,
-        items previously rated by the user will be excluded from the 
-        recommendations.
+        """Predicts n item recommendations for each item_id provided.
 
         Args:
-          X (Sequence): List of (item_id, user_id)
+          X (Sequence): List of item_id
 
         Returns:
           list of np.array
