@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import pandas as pd
 import scipy.sparse as sp
 from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
@@ -86,6 +87,20 @@ def test_SimilarityRecommender_fit_error():
     with pytest.raises(ValueError, match="Input should be scipy.sparse.sparray"):
         SimilarityRecommender().fit("cat")
 
+
+def test_SimilarityRecommender_omit_input():
+    similarity_matrix = np.array([
+        [1, 0, 1],
+        [0, 1, 0],
+        [1, 0, 1],
+    ])
+    similarity_matrix_sparse = sp.csr_array(similarity_matrix)
+    rec = SimilarityRecommender(5)
+    rec.fit(similarity_matrix_sparse)
+    predictions = rec.predict([0, 1, 2])
+
+    for pred, expected in zip(predictions, [[2], [], [0]]):
+        np.testing.assert_array_equal(pred, expected)
 
 @pytest.mark.parametrize(
     "input, expected",
