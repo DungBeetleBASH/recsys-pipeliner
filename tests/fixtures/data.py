@@ -2,20 +2,11 @@ import pytest
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
 )
-
-
-@pytest.fixture
-def fx_user_item_ratings():
-    yield pd.read_csv(
-        "tests/test_data/user_item_ratings.csv",
-        dtype={"user_id": str, "item_id": str, "rating": np.float32},
-    )
 
 
 @pytest.fixture
@@ -67,29 +58,6 @@ def fx_user_item_ratings_np():
     yield np.load(
         "tests/test_data/user_item_ratings.npz",
     )["ratings"]
-
-
-@pytest.fixture
-def fx_user_item_matrix(fx_user_item_ratings):
-    yield (
-        fx_user_item_ratings.groupby(["user_id", "item_id"])["rating"]
-        .agg("sum")
-        .unstack()
-        .fillna(0.0)
-    )
-
-
-@pytest.fixture
-def fx_item_similarity_matrix(fx_user_item_matrix):
-    matrix = fx_user_item_matrix.T
-    df = pd.DataFrame(
-        cosine_similarity(matrix),
-        index=matrix.index,
-        columns=matrix.index,
-    )
-    df = (df - df.min()) / (df.max() - df.min()).round(6)
-
-    yield df.astype(np.float32)
 
 
 @pytest.fixture

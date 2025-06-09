@@ -12,15 +12,19 @@ from pipeliner.recommendations.recommender import (
 @pytest.mark.parametrize(
     "input, expected",
     [
-        (["I1069"], [['I1029', 'I1077', 'I1057', 'I1010', 'I1025']]),
-        (["I1069", "I1013"], [['I1029', 'I1077', 'I1057', 'I1010', 'I1025'], ['I1029', 'I1077', 'I1057', 'I1043', 'I1069']]),
-    ]
+        (["I00001"], ["I00002", "I00012", "I00003", "I00011", "I00004"]),
+        (["I00002"], ["I00001", "I00003", "I00004", "I00012", "I00005"]),
+        (["I00003"], ["I00002", "I00004", "I00001", "I00005", "I00006"]),
+        (["I00004"], ["I00003", "I00005", "I00002", "I00006", "I00001"]),
+        (["I00005"], ["I00004", "I00006", "I00003", "I00007", "I00002"]),
+        (["I00006"], ["I00005", "I00007", "I00004", "I00008", "I00003"]),
+    ],
 )
 def test_ItemBasedRecommenderPandas(
-    fx_item_similarity_matrix, input, expected
+    fx_item_similarity_matrix_toy, input, expected
 ):
-    rec = ItemBasedRecommenderPandas().fit(fx_item_similarity_matrix)
-    predictions = rec.predict(input)
+    rec = ItemBasedRecommenderPandas().fit(fx_item_similarity_matrix_toy)
+    predictions = rec.predict(input)[0]
     np.testing.assert_array_equal(predictions, expected)
 
 def test_ItemBasedRecommenderPandas_fit_error():
@@ -28,8 +32,8 @@ def test_ItemBasedRecommenderPandas_fit_error():
         ItemBasedRecommenderPandas().fit("cat")
 
 
-def test_ItemBasedRecommenderPandas_predict_error(fx_item_similarity_matrix):
-    rec = ItemBasedRecommenderPandas().fit(fx_item_similarity_matrix)
+def test_ItemBasedRecommenderPandas_predict_error(fx_item_similarity_matrix_toy):
+    rec = ItemBasedRecommenderPandas().fit(fx_item_similarity_matrix_toy)
     with pytest.raises(ValueError):
         rec.predict([1.3])
 
