@@ -96,12 +96,10 @@ class SimilarityRecommender(BaseEstimator):
     """
 
     n: int
-    k: int
     similarity_matrix: sp.sparse.sparray
 
-    def __init__(self, n=5, k=5):
+    def __init__(self, n=5):
         self.n = n
-        self.k = k
 
     def fit(self, X, y=None):
         """Fits the recommender to the given data.
