@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.sparse as sp
+import scipy as sp
 from sklearn.base import BaseEstimator
 from pipeliner.recommendations.transformer import (
     SimilarityTransformer,
@@ -22,11 +22,11 @@ class UserBasedRecommender(BaseEstimator):
         self.n_users = n_users
         self._user_transformer = SimilarityTransformer()
 
-    def fit(self, X: sp.sparray, y=None):
+    def fit(self, X: sp.sparse.sparray, y=None):
         """Fits the recommender to the given data.
 
         Args:
-            X sp.sparray:
+            X sp.sparse.sparray:
                 user/item matrix
 
         Returns:
@@ -35,7 +35,7 @@ class UserBasedRecommender(BaseEstimator):
         Raises:
             ValueError: If input is not a scipy.sparse.sparray
         """
-        if isinstance(X, sp.sparray):
+        if isinstance(X, sp.sparse.sparray):
             self._user_item_matrix = X
             self._user_indices = np.arange(X.shape[0])
             self._item_indices = np.arange(X.shape[1])
@@ -96,16 +96,18 @@ class SimilarityRecommender(BaseEstimator):
     """
 
     n: int
-    similarity_matrix: sp.sparray
+    k: int
+    similarity_matrix: sp.sparse.sparray
 
-    def __init__(self, n=5):
+    def __init__(self, n=5, k=5):
         self.n = n
+        self.k = k
 
     def fit(self, X, y=None):
         """Fits the recommender to the given data.
 
         Args:
-            X sp.sparray:
+            X sp.sparse.sparray:
                 similarity matrix
 
         Returns:
@@ -114,7 +116,7 @@ class SimilarityRecommender(BaseEstimator):
         Raises:
             ValueError: If input is not a scipy.sparse.sparray
         """
-        if isinstance(X, sp.sparray):
+        if isinstance(X, sp.sparse.sparray):
             self.similarity_matrix = X
         else:
             raise ValueError("Input should be scipy.sparse.sparray")

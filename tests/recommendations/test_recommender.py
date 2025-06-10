@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-import scipy.sparse as sp
+import scipy as sp
 from sklearn.preprocessing import LabelEncoder
 from pipeliner.recommendations.recommender import (
     UserBasedRecommender,
@@ -23,7 +23,7 @@ def test_SimilarityRecommender(fx_item_similarity_matrix_toy, input, expected):
     item_ids = fx_item_similarity_matrix_toy.index.to_numpy()
     item_encoder = LabelEncoder().fit(item_ids)
     item_similarity_matrix_np = fx_item_similarity_matrix_toy.to_numpy()
-    item_similarity_matrix_np_sparse = sp.csr_array(item_similarity_matrix_np)
+    item_similarity_matrix_np_sparse = sp.sparse.csr_array(item_similarity_matrix_np)
 
     rec = SimilarityRecommender(5).fit(item_similarity_matrix_np_sparse)
     predictions = rec.recommend(item_encoder.transform(input))[0]
@@ -45,7 +45,7 @@ def test_SimilarityRecommender_predict_proba(
     item_ids = fx_item_similarity_matrix_toy.index.to_numpy()
     item_encoder = LabelEncoder().fit(item_ids)
     item_similarity_matrix_np = fx_item_similarity_matrix_toy.to_numpy()
-    item_similarity_matrix_np_sparse = sp.csr_array(item_similarity_matrix_np)
+    item_similarity_matrix_np_sparse = sp.sparse.csr_array(item_similarity_matrix_np)
 
     rec = SimilarityRecommender(5).fit(item_similarity_matrix_np_sparse)
     probs = rec.predict_proba(item_encoder.transform(input)).toarray()[0].round(5)
@@ -65,7 +65,7 @@ def test_SimilarityRecommender_omit_input():
             [1, 0, 1],
         ]
     )
-    similarity_matrix_sparse = sp.csr_array(similarity_matrix)
+    similarity_matrix_sparse = sp.sparse.csr_array(similarity_matrix)
     rec = SimilarityRecommender(5)
     rec.fit(similarity_matrix_sparse)
     predictions = rec.recommend([0, 1, 2])
@@ -90,7 +90,7 @@ def test_UserBasedRecommender_predict(fx_user_item_matrix_toy, input, expected):
     user_ids = fx_user_item_matrix_toy.index.to_numpy()
     item_encoder = LabelEncoder().fit(item_ids)
     user_encoder = LabelEncoder().fit(user_ids)
-    matrix = sp.csr_array(fx_user_item_matrix_toy.to_numpy())
+    matrix = sp.sparse.csr_array(fx_user_item_matrix_toy.to_numpy())
     rec = UserBasedRecommender().fit(matrix)
 
     input_encoded = user_encoder.transform(input)

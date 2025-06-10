@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import scipy.sparse as sp
+import scipy as sp
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -18,7 +18,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     def fit(self, X, y=None):
         return self
 
-    def transform(self, X: np.ndarray) -> sp.sparray:
+    def transform(self, X: np.ndarray) -> sp.sparse.sparray:
         users, user_pos = np.unique(X[:, 0], return_inverse=True)
         items, item_pos = np.unique(X[:, 1], return_inverse=True)
         matrix_shape = (len(users), len(items))
@@ -27,7 +27,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
             np.unique(X[:, 0:2], axis=0)
         ), "Duplicate user/item pairs found"
 
-        matrix = sp.csr_array(
+        matrix = sp.sparse.csr_array(
             (X[:, 2], (user_pos, item_pos)), shape=matrix_shape, dtype=np.float32
         )
 
@@ -52,8 +52,8 @@ class SimilarityTransformer(TransformerMixin, BaseEstimator):
     def fit(self, X, y=None):
         return self
 
-    def transform(self, X: sp.sparray) -> sp.sparray:
-        if not isinstance(X, sp.sparray):
+    def transform(self, X: sp.sparse.sparray) -> sp.sparse.sparray:
+        if not isinstance(X, sp.sparse.sparray):
             raise ValueError("Input must be a scipy.sparse.sparray")
 
         if self.metric == "cosine":
