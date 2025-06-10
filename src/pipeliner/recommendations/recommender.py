@@ -76,7 +76,7 @@ class UserBasedRecommender(BaseEstimator):
 
         return items_to_use[item_sorter][: self.n]
 
-    def predict(self, X) -> list[np.array]:
+    def recommend(self, X) -> list[np.array]:
         """Predicts n recommendations for each id provided
 
         Args:
@@ -128,7 +128,7 @@ class SimilarityRecommender(BaseEstimator):
         sorted_mask = mask[0, sorter]
         return sorter[sorted_mask][: self.n]
 
-    def predict(self, X) -> list[np.array]:
+    def recommend(self, X) -> list[np.array]:
         """Predicts n recommendations for each id provided
 
         Args:

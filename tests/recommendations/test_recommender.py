@@ -26,7 +26,7 @@ def test_SimilarityRecommender(fx_item_similarity_matrix_toy, input, expected):
     item_similarity_matrix_np_sparse = sp.csr_array(item_similarity_matrix_np)
 
     rec = SimilarityRecommender(5).fit(item_similarity_matrix_np_sparse)
-    predictions = rec.predict(item_encoder.transform(input))[0]
+    predictions = rec.recommend(item_encoder.transform(input))[0]
     predictions_decoded = item_encoder.inverse_transform(predictions)
     np.testing.assert_array_equal(predictions_decoded, expected)
 
@@ -68,7 +68,7 @@ def test_SimilarityRecommender_omit_input():
     similarity_matrix_sparse = sp.csr_array(similarity_matrix)
     rec = SimilarityRecommender(5)
     rec.fit(similarity_matrix_sparse)
-    predictions = rec.predict([0, 1, 2])
+    predictions = rec.recommend([0, 1, 2])
 
     for pred, expected in zip(predictions, [[2], [], [0]]):
         np.testing.assert_array_equal(pred, expected)
@@ -94,7 +94,7 @@ def test_UserBasedRecommender_predict(fx_user_item_matrix_toy, input, expected):
     rec = UserBasedRecommender().fit(matrix)
 
     input_encoded = user_encoder.transform(input)
-    predictions = rec.predict(input_encoded)
+    predictions = rec.recommend(input_encoded)
     predictions_decoded = item_encoder.inverse_transform(predictions[0])
     np.testing.assert_array_equal(predictions_decoded, expected)
 
