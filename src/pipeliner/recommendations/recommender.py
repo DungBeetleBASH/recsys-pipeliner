@@ -146,20 +146,16 @@ class UserBasedRecommender(BaseEstimator):
         print(user_id, item_id)
         _, users, users_ratings = sp.sparse.find(self._user_item_matrix[:, item_id])
 
-        print("users", users)
-        print("users_ratings", users_ratings)
-
         # get the similarities to user_id
-        _, similar_users, user_similarities = sp.sparse.find(self._user_similarity_matrix[user_id, users])
-
-        print("similar_users", similar_users)
-        print("user_similarities", user_similarities)
+        _, _, user_similarities = sp.sparse.find(self._user_similarity_matrix[user_id, users])
 
         # sort by similarity (desc) and get top k
         top_k_mask = np.argsort(1 - user_similarities)[1:self.k+1]
-        print("top_k_mask", top_k_mask)
 
-        top_k_users = users[top_k_mask]
+        if top_k_mask.shape[0] == 0:
+            # no similar users
+            return None
+
         top_k_users_ratings = users_ratings[top_k_mask]
         top_k_users_similarities = np.where(
             user_similarities[top_k_mask] > 0,
@@ -167,13 +163,8 @@ class UserBasedRecommender(BaseEstimator):
             user_similarities[top_k_mask] + self.exp,
         )
 
-        print("top_k_users", top_k_users)
-        print("top_k_users_ratings", top_k_users_ratings)
-        print("top_k_users_similarities", top_k_users_similarities)
-
         # weighted average rating
         predicted_score = np.average(top_k_users_ratings, axis=0, weights=top_k_users_similarities).astype(np.float32).round(6)
-        print("predicted_score", predicted_score)
         return predicted_score
 
 
@@ -255,6 +246,10 @@ class ItemBasedRecommender(BaseEstimator):
 
         # sort by similarity (desc) and get top k
         top_k_mask = np.argsort(1 - item_similarities)[1:self.k+1]
+
+        if top_k_mask.shape[0] == 0:
+            # no similar items
+            return None
 
         top_k_user_ratings = users_ratings[top_k_mask]
         top_k_rated_item_similarities = np.where(
