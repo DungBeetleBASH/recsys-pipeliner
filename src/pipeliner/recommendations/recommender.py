@@ -173,15 +173,36 @@ class ItemBasedRecommender(BaseEstimator):
         """
         if isinstance(X, sp.sparse.sparray):
             self._user_item_matrix = X
-            self._item_similarity_matrix = self._item_transformer.transform(X.T)
         else:
             raise ValueError("Input should be scipy.sparse.sparray")
-        
+
         if self.debias:
             bias = self._user_item_matrix.mean(axis=0)[np.newaxis, :]
             self._user_item_matrix -= bias
 
+        self._item_similarity_matrix = self._item_transformer.transform(
+            self._user_item_matrix.T
+        )
+
         return self
+
+    # def _get_recommendations(self, id: int) -> np.array:
+    #     item_similarity = self._item_similarity_matrix[[id], :].toarray()
+    #     mask = (item_similarity > 0) * (np.arange(item_similarity.size) != id)
+    #     sorter = np.argsort(1 - item_similarity, kind="stable")
+    #     sorted_mask = mask[0, sorter]
+    #     return sorter[sorted_mask][: self.n]
+
+    # def recommend(self, X) -> list[np.array]:
+    #     """Predicts n recommendations for each id provided
+
+    #     Args:
+    #       X (Sequence): List of id
+
+    #     Returns:
+    #       list of np.array
+    #     """
+    #     return [self._get_recommendations(id) for id in X]
 
 
 # class Recommender:
@@ -203,10 +224,10 @@ class ItemBasedRecommender(BaseEstimator):
 
 #     def fit():
 #         pass
-    
+
 #     def _predict_all(self):
 #         pred = np.empty_like(self.user_item_matrix)
-        
+
 #         # Computes the new interaction matrix if needed.
 #         user_item_matrix = self.user_item_matrix
 #         if self.debias:
@@ -220,9 +241,9 @@ class ItemBasedRecommender(BaseEstimator):
 #             pred[:, item_id] /= np.abs(self.item_similarity_matrix[item_id, k_items]).sum() + self.eps
 #         if self.debias:
 #             pred += item_bias
-                
+
 #         return pred.clip(0, 5)
-    
+
 #     def get_top_recomendations(self, item_id, n=6):
 #         sim_row = self.item_similarity_matrix[item_id - 1, :]
 #         # once again, we skip the first item for obviouos reasons.
