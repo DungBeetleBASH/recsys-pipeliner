@@ -170,7 +170,7 @@ def test_SimilarityRecommender_omit_input():
         (["U00006"], ["I00017", "I00009", "I00018", "I00019", "I00020"]),
     ],
 )
-def test_UserBasedRecommender_predict(fx_user_item_matrix_toy, input, expected):
+def test_UserBasedRecommender_recommend(fx_user_item_matrix_toy, input, expected):
     item_ids = fx_user_item_matrix_toy.columns.to_numpy()
     user_ids = fx_user_item_matrix_toy.index.to_numpy()
     item_encoder = LabelEncoder().fit(item_ids)
@@ -202,3 +202,30 @@ def test_ItemBasedRecommender_fit(fx_user_item_matrix_toy_np):
 def test_ItemBasedRecommender_fit_error():
     with pytest.raises(ValueError, match="Input should be scipy.sparse.sparray"):
         ItemBasedRecommender().fit("cat")
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        (["I00001"], ["I00002", "I00023", "I00003", "I00004", "I00006"]),
+        (["I00002"], ["I00001", "I00023", "I00021", "I00022", "I00024"]),
+        (["I00003"], ["I00004", "I00001", "I00005", "I00006", "I00008"]),
+        (["I00004"], ["I00003", "I00001", "I00023", "I00024", "I00008"]),
+        (["I00005"], ["I00006", "I00007", "I00003", "I00008", "I00010"]),
+        (["I00006"], ["I00005", "I00003", "I00001", "I00010", "I00007"]),
+        (["I00007"], ["I00008", "I00009", "I00005", "I00010", "I00012"]),
+        (["I00008"], ["I00007", "I00005", "I00003", "I00012", "I00009"]),
+        (["I00009"], ["I00010", "I00011", "I00007", "I00012", "I00014"]),
+        (["I00010"], ["I00009", "I00007", "I00005", "I00014", "I00006"]),
+    ],
+)
+def test_ItemBasedRecommender_recommend(fx_user_item_matrix_toy, input, expected):
+    item_ids = fx_user_item_matrix_toy.columns.to_numpy()
+    item_encoder = LabelEncoder().fit(item_ids)
+    matrix = sp.sparse.csr_array(fx_user_item_matrix_toy.to_numpy())
+    rec = ItemBasedRecommender().fit(matrix)
+
+    input_encoded = item_encoder.transform(input)
+    predictions = rec.recommend(input_encoded)
+    predictions_decoded = item_encoder.inverse_transform(predictions[0])
+    np.testing.assert_array_equal(predictions_decoded, expected)

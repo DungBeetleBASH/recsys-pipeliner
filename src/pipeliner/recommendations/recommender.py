@@ -186,23 +186,23 @@ class ItemBasedRecommender(BaseEstimator):
 
         return self
 
-    # def _get_recommendations(self, id: int) -> np.array:
-    #     item_similarity = self._item_similarity_matrix[[id], :].toarray()
-    #     mask = (item_similarity > 0) * (np.arange(item_similarity.size) != id)
-    #     sorter = np.argsort(1 - item_similarity, kind="stable")
-    #     sorted_mask = mask[0, sorter]
-    #     return sorter[sorted_mask][: self.n]
+    def _get_recommendations(self, id: int) -> np.array:
+        item_similarity = self._item_similarity_matrix[[id], :].toarray()
+        mask = (item_similarity > 0) * (np.arange(item_similarity.size) != id)
+        sorter = np.argsort(1 - item_similarity, kind="stable")
+        sorted_mask = mask[0, sorter]
+        return sorter[sorted_mask][: self.n]
 
-    # def recommend(self, X) -> list[np.array]:
-    #     """Predicts n recommendations for each id provided
+    def recommend(self, X) -> list[np.array]:
+        """Predicts n recommendations for each id provided
 
-    #     Args:
-    #       X (Sequence): List of id
+        Args:
+          X (Sequence): List of id
 
-    #     Returns:
-    #       list of np.array
-    #     """
-    #     return [self._get_recommendations(id) for id in X]
+        Returns:
+          list of np.array
+        """
+        return [self._get_recommendations(id) for id in X]
 
 
 # class Recommender:
