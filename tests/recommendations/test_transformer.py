@@ -27,7 +27,7 @@ def test_UserItemMatrixTransformer(fx_user_item_ratings_toy_np):
     tf = UserItemMatrixTransformer()
     user_item_matrix = tf.transform(fx_user_item_ratings_toy_np)
 
-    assert user_item_matrix.shape == (12, 12)
+    assert user_item_matrix.shape == (12, 24)
     assert isinstance(user_item_matrix, sp.sparse.csr_array)
 
 
