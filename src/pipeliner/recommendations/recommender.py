@@ -143,7 +143,6 @@ class UserBasedRecommender(BaseEstimator):
         return [self._get_recommendations(id) for id in X]
 
     def predict(self, user_id: int, item_id: int) -> np.float32:
-        print(user_id, item_id)
         _, users, users_ratings = sp.sparse.find(self._user_item_matrix[:, item_id])
 
         # get the similarities to user_id
