@@ -15,14 +15,11 @@ dependencies = [
     "sagemaker~=2.245.0",
     "scikit-learn~=1.6.1",
     "scipy",
+    "surprise",
 ]
 
 [project.optional-dependencies]
-testing = [
-    "pytest",
-    "pytest-cov",
-    "pytest-mock",
-]
+testing = ["pytest", "pytest-cov", "pytest-mock"]
 jupyter = [
     "matplotlib",
     "matspy",
@@ -47,13 +44,9 @@ addopts = ["--cov=src", "--cov-report=html"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = [
-    "src/pipeliner/_version.py",
-]
+omit = ["src/pipeliner/_version.py"]
 
 [tool.coverage.report]
 fail_under = 95
 skip_empty = true
 include_namespace_packages = true
-
-
