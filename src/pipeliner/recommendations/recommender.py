@@ -1,9 +1,64 @@
 import numpy as np
-import scipy.sparse as sp
+import scipy as sp
 from sklearn.base import BaseEstimator
 from pipeliner.recommendations.transformer import (
     SimilarityTransformer,
 )
+
+
+class SimilarityRecommender(BaseEstimator):
+    """Similarity recommender.
+
+    Args:
+        n (int): Number of recommendations to generate.
+    """
+
+    n: int
+    similarity_matrix: sp.sparse.sparray
+
+    def __init__(self, n=5):
+        self.n = n
+
+    def fit(self, X, y=None):
+        """Fits the recommender to the given data.
+
+        Args:
+            X sp.sparse.sparray:
+                similarity matrix
+
+        Returns:
+            self: Returns the instance itself.
+
+        Raises:
+            ValueError: If input is not a scipy.sparse.sparray
+        """
+        if isinstance(X, sp.sparse.sparray):
+            self.similarity_matrix = X
+        else:
+            raise ValueError("Input should be scipy.sparse.sparray")
+
+        return self
+
+    def _get_recommendations(self, id) -> np.array:
+        item_similarity = self.similarity_matrix[[id], :].toarray()
+        mask = (item_similarity > 0) * (np.arange(item_similarity.size) != id)
+        sorter = np.argsort(1 - item_similarity, kind="stable")
+        sorted_mask = mask[0, sorter]
+        return sorter[sorted_mask][: self.n]
+
+    def recommend(self, X) -> list[np.array]:
+        """Predicts n recommendations for each id provided
+
+        Args:
+          X (Sequence): List of id
+
+        Returns:
+          list of np.array
+        """
+        return [self._get_recommendations(id) for id in X]
+
+    def predict_proba(self, X):
+        return self.similarity_matrix[X]
 
 
 class UserBasedRecommender(BaseEstimator):
@@ -11,22 +66,24 @@ class UserBasedRecommender(BaseEstimator):
 
     Args:
         n (int): Number of recommendations to generate for each user
-        n_users (int): Number of similar users to consider for recommendations
+        k (int): Number of similar users to consider for recommendations
     """
 
     n: int
-    n_users: int
+    k: int
 
-    def __init__(self, n=5, n_users=5):
+    def __init__(self, n=5, k=5, exp=1e-6, debias=False):
         self.n = n
-        self.n_users = n_users
+        self.k = k
+        self.exp = exp
+        self.debias = debias
         self._user_transformer = SimilarityTransformer()
 
-    def fit(self, X: sp.sparray, y=None):
+    def fit(self, X: sp.sparse.sparray, y=None):
         """Fits the recommender to the given data.
 
         Args:
-            X sp.sparray:
+            X sp.sparse.sparray:
                 user/item matrix
 
         Returns:
@@ -35,10 +92,8 @@ class UserBasedRecommender(BaseEstimator):
         Raises:
             ValueError: If input is not a scipy.sparse.sparray
         """
-        if isinstance(X, sp.sparray):
+        if isinstance(X, sp.sparse.sparray):
             self._user_item_matrix = X
-            self._user_indices = np.arange(X.shape[0])
-            self._item_indices = np.arange(X.shape[1])
             self._user_similarity_matrix = self._user_transformer.transform(X)
         else:
             raise ValueError("Input should be scipy.sparse.sparray")
@@ -51,7 +106,7 @@ class UserBasedRecommender(BaseEstimator):
         user_mask[[0], [id]] = False
         user_sorter = np.argsort(1 - matrix.toarray()[0], kind="stable")
         sorted_mask = user_mask.toarray()[0][user_sorter]
-        similar_users = user_sorter[sorted_mask][: self.n]
+        similar_users = user_sorter[sorted_mask][: self.k]
 
         return similar_users
 
@@ -76,7 +131,7 @@ class UserBasedRecommender(BaseEstimator):
 
         return items_to_use[item_sorter][: self.n]
 
-    def predict(self, X) -> list[np.array]:
+    def recommend(self, X) -> list[np.array]:
         """Predicts n recommendations for each id provided
 
         Args:
@@ -87,26 +142,54 @@ class UserBasedRecommender(BaseEstimator):
         """
         return [self._get_recommendations(id) for id in X]
 
+    def predict(self, user_id: int, item_id: int) -> np.float32:
+        _, users, users_ratings = sp.sparse.find(self._user_item_matrix[:, item_id])
 
-class SimilarityRecommender(BaseEstimator):
-    """Similarity recommender.
+        # get the similarities to user_id
+        _, _, user_similarities = sp.sparse.find(self._user_similarity_matrix[user_id, users])
+
+        # sort by similarity (desc) and get top k
+        top_k_mask = np.argsort(1 - user_similarities)[1:self.k+1]
+
+        if top_k_mask.shape[0] == 0:
+            # no similar users
+            return None
+
+        top_k_users_ratings = users_ratings[top_k_mask]
+        top_k_users_similarities = np.where(
+            user_similarities[top_k_mask] > 0,
+            user_similarities[top_k_mask],
+            user_similarities[top_k_mask] + self.exp,
+        )
+
+        # weighted average rating
+        predicted_score = np.average(top_k_users_ratings, axis=0, weights=top_k_users_similarities).astype(np.float32).round(6)
+        return predicted_score
+
+
+class ItemBasedRecommender(BaseEstimator):
+    """Item-based collaborative filtering recommender.
 
     Args:
-        n (int): Number of recommendations to generate.
+        n (int): Number of recommendations to generate
+        k (int): Number of similar items to consider for recommendations
     """
 
     n: int
-    similarity_matrix: sp.sparray
+    k: int
 
-    def __init__(self, n=5):
+    def __init__(self, n=5, k=5, exp=1e-6, debias=False):
         self.n = n
+        self.k = k
+        self.exp = exp
+        self.debias = debias
 
-    def fit(self, X, y=None):
+    def fit(self, X: sp.sparse.sparray, y=None):
         """Fits the recommender to the given data.
 
         Args:
-            X sp.sparray:
-                similarity matrix
+            X sp.sparse.sparray:
+                user/item matrix
 
         Returns:
             self: Returns the instance itself.
@@ -114,21 +197,30 @@ class SimilarityRecommender(BaseEstimator):
         Raises:
             ValueError: If input is not a scipy.sparse.sparray
         """
-        if isinstance(X, sp.sparray):
-            self.similarity_matrix = X
+        if isinstance(X, sp.sparse.sparray):
+            self._user_item_matrix = X
         else:
             raise ValueError("Input should be scipy.sparse.sparray")
 
+        # TODO: broadcasting returns np.array
+        # if self.debias:
+        #     self.biases = self._user_item_matrix.mean(axis=0)[np.newaxis, :]
+        #     self._user_item_matrix -= self.biases
+
+        self._item_similarity_matrix = SimilarityTransformer().transform(
+            self._user_item_matrix.T
+        )
+
         return self
 
-    def _get_recommendations(self, id) -> np.array:
-        item_similarity = self.similarity_matrix[[id], :].toarray()
+    def _get_recommendations(self, id: int) -> np.array:
+        item_similarity = self._item_similarity_matrix[[id], :].toarray()
         mask = (item_similarity > 0) * (np.arange(item_similarity.size) != id)
         sorter = np.argsort(1 - item_similarity, kind="stable")
         sorted_mask = mask[0, sorter]
         return sorter[sorted_mask][: self.n]
 
-    def predict(self, X) -> list[np.array]:
+    def recommend(self, X) -> list[np.array]:
         """Predicts n recommendations for each id provided
 
         Args:
@@ -139,5 +231,38 @@ class SimilarityRecommender(BaseEstimator):
         """
         return [self._get_recommendations(id) for id in X]
 
-    def predict_proba(self, X):
-        return self.similarity_matrix[X]
+    def predict(self, user_id: int, item_id: int) -> np.float32:
+        _, users_rated_items, users_ratings = sp.sparse.find(
+            self._user_item_matrix[user_id, :]
+        )
+        # get the similarities to item_id
+        item_similarities = (
+            self._item_similarity_matrix[:, users_rated_items][item_id]
+            .toarray()
+            .astype(np.float32)
+            .round(6)
+        )
+
+        # sort by similarity (desc) and get top k
+        top_k_mask = np.argsort(1 - item_similarities)[1:self.k+1]
+
+        if top_k_mask.shape[0] == 0:
+            # no similar items
+            return None
+
+        top_k_user_ratings = users_ratings[top_k_mask]
+        top_k_rated_item_similarities = np.where(
+            item_similarities[top_k_mask] > 0,
+            item_similarities[top_k_mask],
+            item_similarities[top_k_mask] + self.exp,
+        )
+
+        # weighted average rating
+        predicted_score = (
+            np.average(
+                top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
+            )
+            .astype(np.float32)
+            .round(6)
+        )
+        return predicted_score

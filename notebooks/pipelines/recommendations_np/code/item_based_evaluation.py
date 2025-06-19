@@ -47,7 +47,7 @@ if __name__ == "__main__":
     print("items", items.shape)
     print("y_true", y_true.shape)
 
-    predictions = model.predict(items)
+    predictions = model.recommend(items)
 
     print("predictions", len(predictions))
 
