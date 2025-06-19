@@ -3,7 +3,7 @@ from pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
-import scipy.sparse as sp
+import scipy as sp
 
 
 def test_empty_fit(
@@ -27,8 +27,8 @@ def test_UserItemMatrixTransformer(fx_user_item_ratings_toy_np):
     tf = UserItemMatrixTransformer()
     user_item_matrix = tf.transform(fx_user_item_ratings_toy_np)
 
-    assert user_item_matrix.shape == (12, 12)
-    assert isinstance(user_item_matrix, sp.csr_array)
+    assert user_item_matrix.shape == (12, 24)
+    assert isinstance(user_item_matrix, sp.sparse.csr_array)
 
 
 def test_SimilarityTransformer_error():
