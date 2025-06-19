@@ -15,7 +15,7 @@ dependencies = [
     "sagemaker~=2.245.0",
     "scikit-learn~=1.6.1",
     "scipy",
-    "surprise",
+    "scikit-surprise",
 ]
 
 [project.optional-dependencies]
