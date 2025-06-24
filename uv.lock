@@ -1311,7 +1311,6 @@ dependencies = [
     { name = "pydantic" },
     { name = "sagemaker" },
     { name = "scikit-learn" },
-    { name = "scikit-surprise" },
     { name = "scipy" },
 ]
 
@@ -1343,9 +1342,8 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'testing'" },
     { name = "pytest-mock", marker = "extra == 'testing'" },
     { name = "sagemaker", specifier = "~=2.245.0" },
-    { name = "sagemaker", extras = ["local"], marker = "extra == 'jupyter'" },
+    { name = "sagemaker", extras = ["local"], marker = "extra == 'jupyter'", specifier = "~=2.245.0" },
     { name = "scikit-learn", specifier = "~=1.6.1" },
-    { name = "scikit-surprise" },
     { name = "scipy" },
     { name = "seaborn", marker = "extra == 'jupyter'" },
     { name = "torch", marker = "extra == 'jupyter'" },
@@ -1955,17 +1953,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/58/55856da1adec655bdce77b502e94a267bf40a8c0b89f8622837f89503b5a/scikit_learn-1.6.1-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0650e730afb87402baa88afbf31c07b84c98272622aaba002559b614600ca691", size = 12433852, upload-time = "2025-01-10T08:07:26.817Z" },
     { url = "https://files.pythonhosted.org/packages/ff/4f/c83853af13901a574f8f13b645467285a48940f185b690936bb700a50863/scikit_learn-1.6.1-cp313-cp313t-win_amd64.whl", hash = "sha256:3f59fe08dc03ea158605170eb52b22a105f238a5d512c4470ddeca71feae8e5f", size = 11337256, upload-time = "2025-01-10T08:07:31.084Z" },
 ]
-
-[[package]]
-name = "scikit-surprise"
-version = "1.1.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "joblib" },
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d9/8d/40ac32e703f3808159f9e2b33760cfbd6224cc7783eb663091eddc9581c2/scikit_surprise-1.1.4.tar.gz", hash = "sha256:130c45feaee9de4b8cba0aff413ad9b51b2d5c5c90d41aee4759e00059913752", size = 154434, upload-time = "2024-05-19T14:25:59.527Z" }
 
 [[package]]
 name = "scipy"

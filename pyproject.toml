@@ -23,7 +23,7 @@ testing = ["pytest", "pytest-cov", "pytest-mock"]
 jupyter = [
     "matplotlib",
     "matspy",
-    "sagemaker[local]",
+    "sagemaker[local]~=2.245.0",
     "seaborn",
     "torch",
     "ipykernel",
