@@ -22,7 +22,7 @@ if __name__ == "__main__":
         compression="gzip",
         dtype=data_types,
         parse_dates=["date"],
-    ).sample(n=10000, axis=0) # TODO: remove this
+    )
 
     df, user_encoder, item_encoder = encode_labels(df)
 
@@ -35,7 +35,6 @@ if __name__ == "__main__":
 
     item_similarity_transformer = SimilarityTransformer()
     item_similarity_matrix = item_similarity_transformer.transform(user_item_matrix.T)
-
 
     joblib.dump(user_encoder, f"{base_dir}/output/user_encoder/user_encoder.joblib")
     joblib.dump(item_encoder, f"{base_dir}/output/item_encoder/item_encoder.joblib")

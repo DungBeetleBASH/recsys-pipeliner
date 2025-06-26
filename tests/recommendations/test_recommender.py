@@ -208,7 +208,9 @@ def test_UserBasedRecommender_fit(fx_user_item_matrix_toy_np):
         ("U00003", "I00016", 0.72047),
     ],
 )
-def test_UserBasedRecommender_predict(fx_user_item_matrix_toy, user_id, item_id, expected):
+def test_UserBasedRecommender_predict(
+    fx_user_item_matrix_toy, user_id, item_id, expected
+):
     item_ids = fx_user_item_matrix_toy.columns.to_numpy()
     user_ids = fx_user_item_matrix_toy.index.to_numpy()
     item_encoder = LabelEncoder().fit(item_ids)
@@ -222,6 +224,12 @@ def test_UserBasedRecommender_predict(fx_user_item_matrix_toy, user_id, item_id,
     prediction = rec.predict(user_idx, item_idx)
 
     np.testing.assert_almost_equal(prediction, expected)
+
+
+def test_UserBasedRecommender_predict_none():
+    user_item_matrix = sp.sparse.csr_array([[0, 0, 0], [0, 0, 0]])
+    rec = UserBasedRecommender().fit(user_item_matrix)
+    assert rec.predict(0, 0) is None
 
 
 def test_UserBasedRecommender_fit_error():

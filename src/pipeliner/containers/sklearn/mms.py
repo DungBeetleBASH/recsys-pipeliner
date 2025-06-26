@@ -2,8 +2,7 @@ from subprocess import CalledProcessError
 from retrying import retry
 from sagemaker_inference import model_server, environment
 import logging
-from sklearn_container import handler_service
-
+from pipeliner.containers.sklearn import handler_service
 
 
 logging.basicConfig(level=logging.INFO)
@@ -12,6 +11,7 @@ logging.basicConfig(level=logging.INFO)
 HANDLER_SERVICE = handler_service.__name__ + ":handle"
 
 logging.info(f"HANDLER_SERVICE: {HANDLER_SERVICE}")
+
 
 def _retry_if_error(exception):
     logging.info("_## retry_if_error ##")
