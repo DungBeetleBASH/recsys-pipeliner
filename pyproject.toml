@@ -9,16 +9,16 @@ requires-python = ">= 3.11"
 
 dependencies = [
     "boto3",
+    "multi-model-server>=1.1.11",
     "numpy",
     "pandas~=2.2.3",
     "pydantic",
-    "sagemaker~=2.245.0",
-    "scikit-learn~=1.6.1",
-    "scipy",
-    "multi-model-server>=1.1.11",
     "sagemaker-inference>=1.10.1",
     "sagemaker-training>=5.0.0",
+    "sagemaker~=2.245.0",
+    "scikit-learn~=1.6.1",
     # "scikit-surprise",
+    "scipy",
 ]
 
 [dependency-groups]

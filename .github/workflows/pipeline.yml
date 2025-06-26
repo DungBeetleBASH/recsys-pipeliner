@@ -45,6 +45,8 @@ jobs:
     - name: Check for changes
       id: check_files
       run: |
+        git diff --name-only HEAD^ HEAD
+        git diff --name-only HEAD^ HEAD | grep -E "(pyproject\.toml|uv\.lock|src\/.*.py)"
         NUM_FILES=$(git diff --name-only HEAD^ HEAD | grep -E "(pyproject\.toml|uv\.lock|src\/.*.py)" | wc -l)
         echo "Number of changed files: $NUM_FILES"
         if ((NUM_FILES > 0)); then
