@@ -17,12 +17,14 @@ dependencies = [
     "scipy",
     "multi-model-server>=1.1.11",
     "sagemaker-inference>=1.10.1",
-    # "sagemaker-training>=5.0.0",
+    "sagemaker-training>=5.0.0",
     # "scikit-surprise",
 ]
 
+[dependency-groups]
+dev = ["pytest", "pytest-cov", "pytest-mock"]
+
 [project.optional-dependencies]
-testing = ["pytest", "pytest-cov", "pytest-mock"]
 jupyter = [
     "matplotlib",
     "matspy",
