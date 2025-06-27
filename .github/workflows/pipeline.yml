@@ -117,3 +117,6 @@ jobs:
 
       - name: Build distribution package
         run: uv build --no-cache
+
+      - name: Debug
+        run: ls -la dist/
