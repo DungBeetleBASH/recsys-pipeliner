@@ -95,6 +95,9 @@ jobs:
     if: github.ref == 'refs/heads/main' && needs.check_for_changes.outputs.has_changes == 'true'
     environment:
       name: prod
+      url: https://pypi.org/p/recsys-pipeliner
+    permissions:
+      id-token: write
 
     steps:
       - name: Result
@@ -119,5 +122,5 @@ jobs:
       - name: Build distribution package
         run: uv build --no-cache
 
-      - name: Debug
-        run: ls -la dist/
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
