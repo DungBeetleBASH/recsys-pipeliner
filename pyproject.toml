@@ -21,6 +21,9 @@ dependencies = [
     "scipy",
 ]
 
+[project.scripts]
+serve = "pipeliner.containers.sklearn.serving:main"
+
 [dependency-groups]
 dev = ["pytest", "pytest-cov", "pytest-mock"]
 
