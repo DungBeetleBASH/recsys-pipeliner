@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
 
-from pipeliner.recommendations.transformer import (
+from recsys_pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
 )
 

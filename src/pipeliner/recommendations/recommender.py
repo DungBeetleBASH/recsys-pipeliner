@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 from sklearn.base import BaseEstimator
-from pipeliner.recommendations.transformer import (
+from recsys_pipeliner.recommendations.transformer import (
     SimilarityTransformer,
 )
 
@@ -146,10 +146,12 @@ class UserBasedRecommender(BaseEstimator):
         _, users, users_ratings = sp.sparse.find(self._user_item_matrix[:, item_id])
 
         # get the similarities to user_id
-        _, _, user_similarities = sp.sparse.find(self._user_similarity_matrix[user_id, users])
+        _, _, user_similarities = sp.sparse.find(
+            self._user_similarity_matrix[user_id, users]
+        )
 
         # sort by similarity (desc) and get top k
-        top_k_mask = np.argsort(1 - user_similarities)[1:self.k+1]
+        top_k_mask = np.argsort(1 - user_similarities)[1 : self.k + 1]
 
         if top_k_mask.shape[0] == 0:
             # no similar users
@@ -163,7 +165,11 @@ class UserBasedRecommender(BaseEstimator):
         )
 
         # weighted average rating
-        predicted_score = np.average(top_k_users_ratings, axis=0, weights=top_k_users_similarities).astype(np.float32).round(6)
+        predicted_score = (
+            np.average(top_k_users_ratings, axis=0, weights=top_k_users_similarities)
+            .astype(np.float32)
+            .round(6)
+        )
         return predicted_score
 
 
@@ -244,7 +250,7 @@ class ItemBasedRecommender(BaseEstimator):
         )
 
         # sort by similarity (desc) and get top k
-        top_k_mask = np.argsort(1 - item_similarities)[1:self.k+1]
+        top_k_mask = np.argsort(1 - item_similarities)[1 : self.k + 1]
 
         if top_k_mask.shape[0] == 0:
             # no similar items

@@ -19,13 +19,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
-ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PIPELINER=0.0.1
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_RECSYS_PIPELINER=0.0.1
 
-RUN mkdir -p /app/pipeliner/src
-ADD src /app/pipeliner/src/
-ADD pyproject.toml /app/pipeliner/
-ADD README.md /app/pipeliner/
-WORKDIR /app/pipeliner
+RUN mkdir -p /app/recsys_pipeliner/src
+ADD src /app/recsys_pipeliner/src/
+ADD pyproject.toml /app/recsys_pipeliner/
+ADD README.md /app/recsys_pipeliner/
+WORKDIR /app/recsys_pipeliner
 RUN ls -la
 RUN uv pip install --system .
 
@@ -43,5 +43,5 @@ LABEL com.amazonaws.sagemaker.capabilities.multi-models=true
 # Set a docker label to enable container to use SAGEMAKER_BIND_TO_PORT environment variable if present
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
-ENV SAGEMAKER_TRAINING_MODULE=pipeliner.containers.sklearn.training:main
-ENV SAGEMAKER_SERVING_MODULE=pipeliner.containers.sklearn.serving:main
+ENV SAGEMAKER_TRAINING_MODULE=recsys_pipeliner.containers.sklearn.training:main
+ENV SAGEMAKER_SERVING_MODULE=recsys_pipeliner.containers.sklearn.serving:main

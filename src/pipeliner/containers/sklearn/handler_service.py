@@ -1,5 +1,5 @@
 import logging
-from pipeliner.containers.sklearn.handlers import HandlerService
+from recsys_pipeliner.containers.sklearn.handlers import HandlerService
 
 logging.basicConfig(level=logging.INFO)
 

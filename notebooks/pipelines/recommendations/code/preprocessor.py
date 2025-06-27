@@ -3,12 +3,12 @@ import pandas as pd
 import scipy as sp
 import logging
 import joblib
-from pipeliner.recommendations.transformer import (
+from recsys_pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
-from pipeliner.recommendations.encoder import encode_labels
-from pipeliner.recommendations.utils import train_test_split
+from recsys_pipeliner.recommendations.encoder import encode_labels
+from recsys_pipeliner.recommendations.utils import train_test_split
 
 logging.basicConfig(level=logging.INFO)
 

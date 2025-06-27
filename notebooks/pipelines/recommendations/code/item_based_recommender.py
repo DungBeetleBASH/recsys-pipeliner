@@ -4,7 +4,7 @@ import pandas as pd
 import scipy as sp
 import joblib
 import logging
-from pipeliner.recommendations.recommender import SimilarityRecommender
+from recsys_pipeliner.recommendations.recommender import SimilarityRecommender
 
 logging.basicConfig(level=logging.INFO)
 

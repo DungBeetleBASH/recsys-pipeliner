@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import scipy as sp
 from sklearn.preprocessing import LabelEncoder
-from pipeliner.recommendations.recommender import (
+from recsys_pipeliner.recommendations.recommender import (
     UserBasedRecommender,
     ItemBasedRecommender,
     SimilarityRecommender,

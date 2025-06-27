@@ -1,5 +1,5 @@
 import subprocess
-from pipeliner.containers.sklearn.mms import start_server
+from recsys_pipeliner.containers.sklearn.mms import start_server
 
 
 def main():

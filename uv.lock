@@ -1551,7 +1551,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pipeliner"
+name = "recsys-pipeliner"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },

@@ -3,29 +3,31 @@ import os
 import joblib
 import logging
 import numpy as np
-from pipeliner.recommendations.recommender import SimilarityRecommender
-from pipeliner.recommendations.transformer import (
+from recsys_pipeliner.recommendations.recommender import SimilarityRecommender
+from recsys_pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
 
 logging.basicConfig(level=logging.INFO)
 
-user_item_ratings = np.array([
-    (0, 0, 5),
-    (0, 1, 4),
-    (0, 2, 1),
-    (0, 3, 1),
-    (0, 4, 5),
-    (1, 0, 3),
-    (1, 1, 5),
-    (1, 2, 4),
-    (1, 3, 1),
-    (1, 4, 1),
-    (1, 5, 5),
-    (2, 1, 3),
-    (2, 2, 1),
-])
+user_item_ratings = np.array(
+    [
+        (0, 0, 5),
+        (0, 1, 4),
+        (0, 2, 1),
+        (0, 3, 1),
+        (0, 4, 5),
+        (1, 0, 3),
+        (1, 1, 5),
+        (1, 2, 4),
+        (1, 3, 1),
+        (1, 4, 1),
+        (1, 5, 5),
+        (2, 1, 3),
+        (2, 2, 1),
+    ]
+)
 
 
 if __name__ == "__main__":

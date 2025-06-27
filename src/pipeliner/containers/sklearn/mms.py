@@ -2,7 +2,7 @@ from subprocess import CalledProcessError
 from retrying import retry
 from sagemaker_inference import model_server, environment
 import logging
-from pipeliner.containers.sklearn import handler_service
+from recsys_pipeliner.containers.sklearn import handler_service
 
 
 logging.basicConfig(level=logging.INFO)

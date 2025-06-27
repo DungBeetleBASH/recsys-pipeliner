@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pipeliner"
+name = "recsys-pipeliner"
 dynamic = ["version"]
 requires-python = ">= 3.11"
 
@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.scripts]
-serve = "pipeliner.containers.sklearn.serving:main"
+serve = "recsys_pipeliner.containers.sklearn.serving:main"
 
 [dependency-groups]
 dev = ["pytest", "pytest-cov", "pytest-mock"]
@@ -38,7 +38,7 @@ jupyter = [
 ]
 
 [tool.setuptools_scm]
-version_file = "src/pipeliner/_version.py"
+version_file = "src/recsys_pipeliner/_version.py"
 version_scheme = "python-simplified-semver"
 
 [tool.setuptools.packages.find]
@@ -52,11 +52,11 @@ addopts = ["--cov=src", "--cov-report=html"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = ["src/pipeliner/_version.py"]
+omit = ["src/recsys_pipeliner/_version.py"]
 
 [tool.coverage.report]
 fail_under = 95
 skip_empty = true
 include_namespace_packages = true
-omit = ["src/pipeliner/containers/sklearn/*"]
+omit = ["src/recsys_pipeliner/containers/sklearn/*"]
 exclude_lines = ["if __name__ == .__main__.:"]

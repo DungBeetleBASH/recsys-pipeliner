@@ -1,5 +1,5 @@
 import pytest
-from pipeliner.recommendations.transformer import (
+from recsys_pipeliner.recommendations.transformer import (
     UserItemMatrixTransformer,
     SimilarityTransformer,
 )
