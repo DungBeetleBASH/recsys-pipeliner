@@ -35,6 +35,7 @@ jupyter = [
     "seaborn",
     "torch",
     "ipykernel",
+    "python-dotenv"
 ]
 
 [tool.setuptools_scm]
