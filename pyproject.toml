@@ -14,10 +14,11 @@ dependencies = [
     "pandas~=2.2.3",
     "pydantic",
     "sagemaker-inference>=1.10.1",
-    "sagemaker-training>=5.0.0",
+    # "sagemaker-training>=5.0.0",
+    # TODO: remove this once sagemaker-training 5.0.1 is released
+    "sagemaker-training@git+https://github.com/aws/sagemaker-training-toolkit#egg=fc6f6c0f491a188f4df5e35a794685078b078657",
     "sagemaker~=2.245.0",
     "scikit-learn~=1.6.1",
-    # "scikit-surprise",
     "scipy",
 ]
 
@@ -26,17 +27,15 @@ serve = "recsys_pipeliner.containers.sklearn.serving:main"
 
 [dependency-groups]
 dev = ["pytest", "pytest-cov", "pytest-mock"]
-
-[project.optional-dependencies]
 jupyter = [
     "matplotlib",
     "matspy",
     "sagemaker[local]~=2.245.0",
     "seaborn",
-    "torch",
     "ipykernel",
-    "python-dotenv"
+    "python-dotenv",
 ]
+torch = ["torch"]
 
 [tool.setuptools_scm]
 version_file = "src/recsys_pipeliner/_version.py"
