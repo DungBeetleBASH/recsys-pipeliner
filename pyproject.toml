@@ -14,10 +14,9 @@ dependencies = [
     "pandas~=2.2.3",
     "pydantic",
     "sagemaker-inference>=1.10.1",
-    "sagemaker-training>=5.0.0",
+    # "sagemaker-training>=5.0.0",
     "sagemaker~=2.245.0",
     "scikit-learn~=1.6.1",
-    # "scikit-surprise",
     "scipy",
 ]
 
@@ -33,10 +32,10 @@ jupyter = [
     "matspy",
     "sagemaker[local]~=2.245.0",
     "seaborn",
-    "torch",
     "ipykernel",
-    "python-dotenv"
+    "python-dotenv",
 ]
+torch = ["torch"]
 
 [tool.setuptools_scm]
 version_file = "src/recsys_pipeliner/_version.py"
