@@ -17,11 +17,11 @@ class BaseRecommender(BaseEstimator):
         self._n = n
 
     @abstractmethod
-    def fit(self, X: np.ndarray, y: np.ndarray | None):
+    def fit(self, X: np.ndarray, y: np.ndarray | None = None):
         """Fit the recommender to the data."""
 
     @abstractmethod
-    def predict(self, X: np.ndarray, y: np.ndarray | None) -> np.ndarray:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """Predicts item ratings."""
 
     @abstractmethod

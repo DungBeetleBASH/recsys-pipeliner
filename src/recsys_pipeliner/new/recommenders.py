@@ -46,68 +46,46 @@ class ItemBasedCFRecommender(BaseRecommender):
 
         return self
 
-    def _predict_for_user_item_pair(self, X: np.ndarray) -> np.float32:
-        u, i = X[0], X[1]
-        _, users_rated_items, users_ratings = sp.sparse.find(
-            self._user_item_matrix[u, :]
+    def _predict(self, X: np.ndarray) -> np.float32:
+        user_idx, item_idx = X[0], X[1]
+        
+        _, single_users_rated_items, single_users_ratings = sp.sparse.find(
+            self._user_item_matrix[user_idx, :]
         )
 
-        # get the similarities to item_id
+        # exclude item if already rated
+        users_rated_items = single_users_rated_items[single_users_rated_items != item_idx]
+        users_ratings = single_users_ratings[single_users_rated_items != item_idx]
+
+        # get the item similarities to item_idx
         item_similarities = (
-            self._item_similarity_matrix[:, users_rated_items][i]
+            self._item_similarity_matrix[:, users_rated_items][item_idx]
             .toarray()
             .astype(np.float32)
             .round(6)
         )
 
         # sort by similarity (desc) and get top k
-        top_k_mask = np.argsort(1 - item_similarities)[1 : self._k + 1]
+        top_k_mask = np.argsort(1 - item_similarities)[:self._k]
         top_k_user_ratings = users_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
 
         # weighted average rating
-        predicted_score = (
-            np.average(
-                top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
-            )
-            .astype(np.float32)
-            .round(6)
+        return np.average(
+            top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
         )
-        return predicted_score
 
-    def _predict_for_item(self, i) -> np.float32:
-        # get the similarities to item_id
-        item_similarities = self._item_similarity_matrix[i].mean(axis=0)
-        item_similarities2 = self._item_similarity_matrix[i].mean(axis=1)
-
-        print("item_similarities", item_similarities.shape)
-        print("item_similarities2", item_similarities2.shape)
-
-        return np.float32(1.0)
-
-        # # sort by similarity (desc) and get top k
-        # top_k_mask = np.argsort(1 - item_similarities)[1 : self._k + 1]
-        # top_k_ratings = self._user_item_matrix[:, top_k_mask]
-        # top_k_item_similarities = item_similarities[top_k_mask]
-
-        # # weighted average rating
-        # predicted_score = (
-        #     np.average(top_k_item_similarities, axis=0).astype(np.float32).round(6)
-        # )
-        # return predicted_score
-
-    def predict(self, X: np.ndarray, y=None) -> np.ndarray:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """Predicts the ratings for the given data.
 
         Args:
-            X: np.ndarray of shape (n,) or (n, 2)
+            X: np.ndarray of shape (n, 2)
 
         Returns:
             np.ndarray: predicted ratings of shape (n,)
         """
-        if X.ndim == 1:
-            return np.vectorize(self._predict_for_item)(X)
-        elif X.ndim == 2:
-            return np.apply_along_axis(self._predict_for_user_item_pair, 1, X)
-        else:
-            raise ValueError("X should be a 1D or 2D array")
+        return (
+            np.apply_along_axis(self._predict, 1, X)
+            .astype(np.float32)
+            .round(6)
+        )
