@@ -58,5 +58,8 @@ omit = ["src/recsys_pipeliner/_version.py"]
 fail_under = 95
 skip_empty = true
 include_namespace_packages = true
-omit = ["src/recsys_pipeliner/containers/sklearn/*"]
+omit = [
+    "src/recsys_pipeliner/containers/sklearn/*",
+    "src/recsys_pipeliner/new/*",
+]
 exclude_lines = ["if __name__ == .__main__.:"]

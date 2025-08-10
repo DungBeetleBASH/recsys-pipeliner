@@ -1,7 +1,7 @@
 from typing import Any, Sequence
 import numpy as np
 import scipy as sp
-from recsys_pipeliner.base import BaseRecommender
+from recsys_pipeliner.new.base import BaseRecommender
 from recsys_pipeliner.recommendations.transformer import SimilarityTransformer
 
 

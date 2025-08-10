@@ -58,7 +58,8 @@ class SimilarityRecommender(BaseEstimator):
         return [self._get_recommendations(id) for id in X]
 
     def predict_proba(self, X):
-        return self.similarity_matrix[X]
+        # TODO: implement correctly
+        return self._similarity_matrix[X]
 
 
 class UserBasedRecommender(BaseEstimator):
@@ -75,7 +76,7 @@ class UserBasedRecommender(BaseEstimator):
     def __init__(self, n=5, k=5, exp=1e-6, debias=False):
         self.n = n
         self.k = k
-        self.exp = exp
+        self._exp = exp
         self.debias = debias
         self._user_transformer = SimilarityTransformer()
 
@@ -161,7 +162,7 @@ class UserBasedRecommender(BaseEstimator):
         top_k_users_similarities = np.where(
             user_similarities[top_k_mask] > 0,
             user_similarities[top_k_mask],
-            user_similarities[top_k_mask] + self.exp,
+            user_similarities[top_k_mask] + self._exp,
         )
 
         # weighted average rating
@@ -264,7 +265,7 @@ class ItemBasedRecommender(BaseEstimator):
         top_k_rated_item_similarities = np.where(
             item_similarities[top_k_mask] > 0,
             item_similarities[top_k_mask],
-            item_similarities[top_k_mask] + self.exp,
+            item_similarities[top_k_mask] + self._exp,
         )
 
         # weighted average rating

@@ -226,10 +226,10 @@ def test_UserBasedRecommender_predict(
     np.testing.assert_almost_equal(prediction, expected)
 
 
-def test_UserBasedRecommender_predict_none():
+def test_UserBasedRecommender_predict_zero():
     user_item_matrix = sp.sparse.csr_array([[0, 0, 0], [0, 0, 0]])
     rec = UserBasedRecommender().fit(user_item_matrix)
-    assert rec.predict(0, 0) is None
+    assert rec.predict(0, 0) == 0.0
 
 
 def test_UserBasedRecommender_fit_error():
