@@ -76,16 +76,38 @@ class ItemBasedCFRecommender(BaseRecommender):
         )
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """Predicts the ratings for the given data.
+        """Predicts the rating for each user/item pair
 
         Args:
-            X: np.ndarray of shape (n, 2)
+            X: np.ndarray of user/item pairs
 
         Returns:
-            np.ndarray: predicted ratings of shape (n,)
+            np.ndarray: predicted ratings
         """
         return (
             np.apply_along_axis(self._predict, 1, X)
             .astype(np.float32)
             .round(6)
         )
+
+    # TODO: is this the right approach?
+    # def _recommend(self, X: np.ndarray) -> np.array:
+    #     user_idx, item_idx = X[0], X[1]
+    #     item_similarity = self._item_similarity_matrix[[user_idx], :].toarray()
+    #     mask = (item_similarity > 0) * (np.arange(item_similarity.size) != item_idx)
+    #     sorter = np.argsort(1 - item_similarity, kind="stable")
+    #     sorted_mask = mask[0, sorter]
+    #     recommendations = sorter[sorted_mask][: self._n]
+    #     defaults = np.full(self._n - recommendations.shape[0], -1)
+    #     return np.concatenate([recommendations, defaults])
+
+    # def recommend(self, X: np.ndarray) -> list[np.array]:
+    #     """Recommend n items for each user/item pair
+
+    #     Args:
+    #         X: np.ndarray of user/item pairs
+
+    #     Returns:
+    #       list of np.array
+    #     """
+    #     return np.apply_along_axis(self._recommend, 1, X)
