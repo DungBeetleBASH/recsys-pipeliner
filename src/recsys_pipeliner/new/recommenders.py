@@ -1,4 +1,3 @@
-from typing import Any, Sequence
 import numpy as np
 import scipy as sp
 from recsys_pipeliner.new.base import BaseRecommender
@@ -88,25 +87,33 @@ class ItemBasedCFRecommender(BaseRecommender):
         """
         return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
-    # TODO: is this the right approach?
-    # we need to exclude items the user has already rated
-    # if we are provided a user_id too
-    def _recommend(self, item_id) -> np.array:
-        item_similarity = self._item_similarity_matrix[[item_id], :].toarray()
-        mask = (item_similarity > 0) * (np.arange(item_similarity.size) != item_id)
-        sorter = np.argsort(1 - item_similarity, kind="stable")
-        sorted_mask = mask[0, sorter]
-        recommendations = sorter[sorted_mask][: self._n]
+    def _recommend(self, X: np.ndarray) -> np.array:
+        user_idx, item_idx = X[0], X[1]
+
+        _, users_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
+
+        # exclude items already rated and the item itself
+        candidates = np.setdiff1d(
+            np.arange(self._item_similarity_matrix.shape[0]),
+            np.concatenate([[item_idx], users_rated_items]),
+        )
+        candidate_similarity_matrix = self._item_similarity_matrix[item_idx, candidates]
+
+        _, item_indices, item_similarities = sp.sparse.find(candidate_similarity_matrix)
+        similar_items = candidates[item_indices]
+
+        sorter = np.argsort(1 - item_similarities, kind="stable")
+        recommendations = similar_items[sorter][: self._n]
         defaults = np.full(self._n - recommendations.shape[0], -1)
-        return np.concatenate([recommendations, defaults]).astype(np.int32)
+        return np.concatenate([recommendations, defaults])
 
     def recommend(self, X: np.ndarray) -> np.ndarray:
-        """Recommend n items for each item
+        """Recommend n items for each user/item pair
 
         Args:
-            X: np.ndarray of items
+            X: np.ndarray of user/item pairs
 
         Returns:
-          2d np.array of recommendations
+          np.ndarray
         """
         return np.apply_along_axis(self._recommend, 1, X)
