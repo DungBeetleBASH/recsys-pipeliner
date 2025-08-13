@@ -97,6 +97,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         """
         return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
+    # TODO: add an item_id only option
     def _recommend(self, X: np.ndarray) -> np.array:
         user_idx, item_idx = X[0], X[1]
 
