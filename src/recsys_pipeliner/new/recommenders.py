@@ -70,10 +70,20 @@ class ItemBasedCFRecommender(BaseRecommender):
         top_k_mask = np.argsort(1 - item_similarities)[: self._k]
         top_k_user_ratings = users_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
+        # should this be:
+        # top_k_rated_item_similarities = np.where(
+        #     item_similarities[top_k_mask] > 0,
+        #     item_similarities[top_k_mask],
+        #     item_similarities[top_k_mask] + self._exp,
+        # )
 
         # weighted average rating
-        return np.average(
-            top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
+        return (
+            np.average(
+                top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
+            )
+            .astype(np.float32)
+            .round(6)
         )
 
     def predict(self, X: np.ndarray) -> np.ndarray:
