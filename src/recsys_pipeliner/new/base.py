@@ -25,5 +25,5 @@ class BaseRecommender(BaseEstimator):
         """Predicts item ratings."""
 
     @abstractmethod
-    def recommend(self, X: np.ndarray) -> Sequence[Any]:
+    def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommends items."""

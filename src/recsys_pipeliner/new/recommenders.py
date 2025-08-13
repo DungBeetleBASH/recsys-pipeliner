@@ -48,13 +48,15 @@ class ItemBasedCFRecommender(BaseRecommender):
 
     def _predict(self, X: np.ndarray) -> np.float32:
         user_idx, item_idx = X[0], X[1]
-        
+
         _, single_users_rated_items, single_users_ratings = sp.sparse.find(
             self._user_item_matrix[user_idx, :]
         )
 
         # exclude item if already rated
-        users_rated_items = single_users_rated_items[single_users_rated_items != item_idx]
+        users_rated_items = single_users_rated_items[
+            single_users_rated_items != item_idx
+        ]
         users_ratings = single_users_ratings[single_users_rated_items != item_idx]
 
         # get the item similarities to item_idx
@@ -66,7 +68,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         )
 
         # sort by similarity (desc) and get top k
-        top_k_mask = np.argsort(1 - item_similarities)[:self._k]
+        top_k_mask = np.argsort(1 - item_similarities)[: self._k]
         top_k_user_ratings = users_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
 
@@ -84,30 +86,27 @@ class ItemBasedCFRecommender(BaseRecommender):
         Returns:
             np.ndarray: predicted ratings
         """
-        return (
-            np.apply_along_axis(self._predict, 1, X)
-            .astype(np.float32)
-            .round(6)
-        )
+        return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
     # TODO: is this the right approach?
-    # def _recommend(self, X: np.ndarray) -> np.array:
-    #     user_idx, item_idx = X[0], X[1]
-    #     item_similarity = self._item_similarity_matrix[[user_idx], :].toarray()
-    #     mask = (item_similarity > 0) * (np.arange(item_similarity.size) != item_idx)
-    #     sorter = np.argsort(1 - item_similarity, kind="stable")
-    #     sorted_mask = mask[0, sorter]
-    #     recommendations = sorter[sorted_mask][: self._n]
-    #     defaults = np.full(self._n - recommendations.shape[0], -1)
-    #     return np.concatenate([recommendations, defaults])
+    # we need to exclude items the user has already rated
+    # if we are provided a user_id too
+    def _recommend(self, item_id) -> np.array:
+        item_similarity = self._item_similarity_matrix[[item_id], :].toarray()
+        mask = (item_similarity > 0) * (np.arange(item_similarity.size) != item_id)
+        sorter = np.argsort(1 - item_similarity, kind="stable")
+        sorted_mask = mask[0, sorter]
+        recommendations = sorter[sorted_mask][: self._n]
+        defaults = np.full(self._n - recommendations.shape[0], -1)
+        return np.concatenate([recommendations, defaults]).astype(np.int32)
 
-    # def recommend(self, X: np.ndarray) -> list[np.array]:
-    #     """Recommend n items for each user/item pair
+    def recommend(self, X: np.ndarray) -> np.ndarray:
+        """Recommend n items for each item
 
-    #     Args:
-    #         X: np.ndarray of user/item pairs
+        Args:
+            X: np.ndarray of items
 
-    #     Returns:
-    #       list of np.array
-    #     """
-    #     return np.apply_along_axis(self._recommend, 1, X)
+        Returns:
+          2d np.array of recommendations
+        """
+        return np.apply_along_axis(self._recommend, 1, X)
