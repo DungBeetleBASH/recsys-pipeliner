@@ -37,6 +37,10 @@ jupyter = [
 ]
 torch = ["torch"]
 
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+default = true
+
 [tool.setuptools_scm]
 version_file = "src/recsys_pipeliner/_version.py"
 version_scheme = "python-simplified-semver"
