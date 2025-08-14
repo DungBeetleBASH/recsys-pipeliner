@@ -1,6 +1,6 @@
 import numpy as np
 import scipy as sp
-from recsys_pipeliner.new.base import BaseRecommender
+from recsys_pipeliner.algorithms.base import BaseRecommender
 from recsys_pipeliner.recommendations.transformer import SimilarityTransformer
 
 

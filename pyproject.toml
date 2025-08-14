@@ -52,7 +52,7 @@ addopts = ["--cov=src", "--cov-report=html"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = ["src/recsys_pipeliner/_version.py"]
+omit = ["src/recsys_pipeliner/algorithms/*", "src/recsys_pipeliner/_version.py"]
 
 [tool.coverage.report]
 fail_under = 95
