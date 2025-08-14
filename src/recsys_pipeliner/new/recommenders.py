@@ -97,8 +97,21 @@ class ItemBasedCFRecommender(BaseRecommender):
         """
         return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
-    # TODO: add an item_id only option
-    def _recommend(self, X: np.ndarray) -> np.array:
+    # TODO: refactor this to reuse code
+    def _recommend_similar_items(self, X: np.ndarray) -> np.array:
+        item_idx = X[0]
+        _, item_indices, item_similarities = sp.sparse.find(
+            self._item_similarity_matrix[item_idx, :]
+        )
+        sorter = np.argsort(1 - item_similarities, kind="stable")
+        sorted_item_indices = item_indices[sorter]
+        sorted_item_similarities = item_similarities[sorter]
+        sorted_mask = (sorted_item_similarities > 0) * (sorted_item_indices != item_idx)
+        recommendations = sorted_item_indices[sorted_mask][: self._n]
+        defaults = np.full(self._n - recommendations.shape[0], -1)
+        return np.concatenate([recommendations, defaults])
+
+    def _recommend_personalised(self, X: np.ndarray) -> np.array:
         user_idx, item_idx = X[0], X[1]
 
         _, users_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
@@ -119,12 +132,22 @@ class ItemBasedCFRecommender(BaseRecommender):
         return np.concatenate([recommendations, defaults])
 
     def recommend(self, X: np.ndarray) -> np.ndarray:
-        """Recommend n items for each user/item pair
+        """Recommend n items
+
+        If X is a 2D array of user/item ids, the recommender will recommend n personalised similar items for each user.
+        If X is a 1D array of item ids, the recommender will recommend n similar items for each item.
 
         Args:
-            X: np.ndarray of user/item pairs
+            X: np.ndarray
 
         Returns:
           np.ndarray
         """
-        return np.apply_along_axis(self._recommend, 1, X)
+        if X.ndim == 1:
+            return np.apply_along_axis(
+                self._recommend_similar_items, 1, X[np.newaxis, :]
+            )
+        elif X.ndim == 2:
+            return np.apply_along_axis(self._recommend_personalised, 1, X)
+        else:
+            raise ValueError("X must be a 1D or 2D array")
