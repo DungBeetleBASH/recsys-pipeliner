@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 from sklearn.preprocessing import LabelEncoder
+from recsys_pipeliner.recommendations.transformer import (
+    UserItemMatrixTransformer,
+)
 
 
 class RatingsDataset:
@@ -28,10 +31,23 @@ class RatingsDataset:
         ratings.loc[:, "user_id"] = self._user_encoder.fit_transform(ratings["user_id"])
         ratings.loc[:, "item_id"] = self._item_encoder.fit_transform(ratings["item_id"])
         self._dataset = ratings.to_numpy()
+        self._user_item_matrix = UserItemMatrixTransformer().transform(self._dataset)
 
     @property
     def dataset(self) -> np.ndarray:
         return self._dataset
+
+    # @property
+    # def anti_testset(self) -> np.ndarray:
+    #     users, items, _ = sp.sparse.find(self._user_item_matrix)
+    #     unique_users = np.unique(users)
+    #     unique_items = np.unique(items)
+    #     anti_testset = []
+
+    #     for user in unique_users:
+    #         user_ratings = self._dataset[users == user]
+    #         if len(user_ratings) < self._min_ratings:
+    #             continue
 
     def leave_one_out(self, **kwargs):
         return LeaveOneOutDataset(self, **kwargs)
@@ -50,11 +66,13 @@ class LeaveOneOutDataset:
         dataset: RatingsDataset,
         n_splits: int = 1,
         min_ratings: int = 5,
+        random_seed: int | None = None,
     ):
         self._dataset = dataset.dataset
         self._n_splits = n_splits
         self._min_ratings = min_ratings
         self._current_split = 0
+        self._random_seed = random_seed
 
     def __iter__(self):
         return self
@@ -69,15 +87,20 @@ class LeaveOneOutDataset:
 
     def _split(self):
         users = self._dataset[:, 0]
-        unique_users = np.unique(self._dataset[:, 0])
+        unique_users = np.unique(users)
         trainset = []
         testset = []
+
+        if self._random_seed is not None:
+            rand = np.random.RandomState(self._random_seed)
+        else:
+            rand = np.random
 
         for user in unique_users:
             user_ratings = self._dataset[users == user]
             if len(user_ratings) < self._min_ratings:
                 continue
-            test_rating_idx = np.random.randint(0, len(user_ratings))
+            test_rating_idx = rand.randint(0, len(user_ratings))
             test_rating = user_ratings[test_rating_idx]
             testset.append(test_rating)
             train_ratings = np.delete(user_ratings, test_rating_idx, axis=0)
