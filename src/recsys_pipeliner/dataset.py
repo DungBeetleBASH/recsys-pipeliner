@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 from sklearn.preprocessing import LabelEncoder
-from recsys_pipeliner.recommendations.transformer import (
-    UserItemMatrixTransformer,
-)
 
 
 class RatingsDataset:
@@ -31,23 +28,27 @@ class RatingsDataset:
         ratings.loc[:, "user_id"] = self._user_encoder.fit_transform(ratings["user_id"])
         ratings.loc[:, "item_id"] = self._item_encoder.fit_transform(ratings["item_id"])
         self._dataset = ratings.to_numpy()
-        self._user_item_matrix = UserItemMatrixTransformer().transform(self._dataset)
+        self._anti_testset = None
 
     @property
     def dataset(self) -> np.ndarray:
         return self._dataset
 
-    # @property
-    # def anti_testset(self) -> np.ndarray:
-    #     users, items, _ = sp.sparse.find(self._user_item_matrix)
-    #     unique_users = np.unique(users)
-    #     unique_items = np.unique(items)
-    #     anti_testset = []
+    @property
+    def anti_testset(self) -> np.ndarray:
+        if self._anti_testset is None:
+            users, items = self._dataset[:, 0], self._dataset[:, 1]
+            unique_users = np.unique(users)
+            unique_items = np.unique(items)
+            anti_testset = []
 
-    #     for user in unique_users:
-    #         user_ratings = self._dataset[users == user]
-    #         if len(user_ratings) < self._min_ratings:
-    #             continue
+            for user in unique_users:
+                rated_items = items[users == user]
+                unrated_items = np.setdiff1d(unique_items, rated_items)[np.newaxis, :].T
+                anti_testset.append(np.insert(unrated_items, 0, user, axis=1))
+
+            self._anti_testset = np.concatenate(anti_testset, axis=0).astype(np.int32)
+        return self._anti_testset
 
     def leave_one_out(self, **kwargs):
         return LeaveOneOutDataset(self, **kwargs)
