@@ -40,6 +40,15 @@ def fx_user_item_matrix_toy():
 
 
 @pytest.fixture
+def fx_user_item_matrix_toy_encoders(fx_user_item_matrix_toy):
+    item_ids = fx_user_item_matrix_toy.columns.to_numpy()
+    user_ids = fx_user_item_matrix_toy.index.to_numpy()
+    item_encoder = LabelEncoder().fit(item_ids)
+    user_encoder = LabelEncoder().fit(user_ids)
+    yield item_encoder, user_encoder
+
+
+@pytest.fixture
 def fx_user_item_matrix_toy_np(fx_user_item_ratings_toy_np):
     yield UserItemMatrixTransformer().transform(fx_user_item_ratings_toy_np)
 

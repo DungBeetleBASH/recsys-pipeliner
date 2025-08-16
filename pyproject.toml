@@ -57,7 +57,6 @@ addopts = ["--cov=src", "--cov-report=html"]
 branch = true
 source = ["src"]
 omit = [
-    "src/recsys_pipeliner/algorithms/*",
     "src/recsys_pipeliner/dataset.py",
     "src/recsys_pipeliner/_version.py",
 ]
@@ -68,6 +67,5 @@ skip_empty = true
 include_namespace_packages = true
 omit = [
     "src/recsys_pipeliner/containers/sklearn/*",
-    "src/recsys_pipeliner/new/*",
 ]
 exclude_lines = ["if __name__ == .__main__.:"]
