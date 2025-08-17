@@ -41,8 +41,8 @@ def test_RatingsDataset_leave_one_out_random_seed(mocker, fx_user_item_ratings_t
 
     assert isinstance(leave_one_out, LeaveOneOutDataset)
 
-    for _ in leave_one_out:
-        mock_randint.assert_called()
+    next(leave_one_out)
+    mock_randint.assert_called()
 
 def test_RatingsDataset_leave_one_out_min_ratings_error(fx_user_item_ratings_toy):
     dataset = RatingsDataset(fx_user_item_ratings_toy)
