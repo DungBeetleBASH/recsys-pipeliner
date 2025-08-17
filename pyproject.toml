@@ -57,7 +57,6 @@ addopts = ["--cov=src", "--cov-report=html"]
 branch = true
 source = ["src"]
 omit = [
-    "src/recsys_pipeliner/dataset.py",
     "src/recsys_pipeliner/_version.py",
 ]
 

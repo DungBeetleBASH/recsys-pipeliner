@@ -60,6 +60,9 @@ class LeaveOneOutDataset:
 
     Args:
         dataset: RatingsDataset
+        n_splits: Number of cross-validation splits.
+        min_ratings: Minimum number of ratings per user.
+        random_seed: Random seed.
     """
 
     def __init__(
@@ -106,5 +109,8 @@ class LeaveOneOutDataset:
             testset.append(test_rating)
             train_ratings = np.delete(user_ratings, test_rating_idx, axis=0)
             trainset.append(train_ratings)
+
+        if len(trainset) == 0 or len(testset) == 0:
+            raise ValueError("No users with enough ratings to split")
 
         return np.vstack(trainset), np.vstack(testset)
