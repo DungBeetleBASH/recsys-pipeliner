@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Any, Sequence
 from sklearn.base import BaseEstimator
 import numpy as np
 
@@ -19,11 +18,14 @@ class BaseRecommender(BaseEstimator):
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray | None = None):
         """Fit the recommender to the data."""
+        raise NotImplementedError("Subclasses must implement this method")
 
     @abstractmethod
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Predicts item ratings."""
-
+        raise NotImplementedError("Subclasses must implement this method")
+    
     @abstractmethod
     def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommends items."""
+        raise NotImplementedError("Subclasses must implement this method")

@@ -71,6 +71,16 @@ def test_ItemBasedCFRecommender_recommend_item_only(fx_user_item_matrix_toy, fx_
     np.testing.assert_array_equal(predictions_decoded, expected)
 
 
+def test_ItemBasedCFRecommender_recommend_error(fx_user_item_matrix_toy):
+    matrix = sp.sparse.csr_array(fx_user_item_matrix_toy.to_numpy())
+    rec = ItemBasedCFRecommender().fit(matrix)
+    
+    input = np.array([[1, 1, 1]])
+
+    with pytest.raises(ValueError, match="X must be a 1D or 2D array"):
+        rec.recommend(input)
+
+
 def test_ItemBasedCFRecommender_predict(
     fx_user_item_matrix_toy, fx_user_item_matrix_toy_encoders
 ): 

@@ -147,7 +147,7 @@ class ItemBasedCFRecommender(BaseRecommender):
             return np.apply_along_axis(
                 self._recommend_similar_items, 1, X[np.newaxis, :]
             )
-        elif X.ndim == 2:
+        elif X.ndim == 2 and X.shape[1] == 2:
             return np.apply_along_axis(self._recommend_personalised, 1, X)
         else:
             raise ValueError("X must be a 1D or 2D array")
