@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
-import scipy as sp
 from sklearn.preprocessing import LabelEncoder
 
 
-class RatingsDataset:
+class EvaluationDataset:
     """
     Dataset for recommender systems.
 
@@ -16,50 +15,66 @@ class RatingsDataset:
     """
 
     _ratings_df: pd.DataFrame
-    _dataset: np.ndarray
+    _ratings: np.ndarray
     _user_encoder: LabelEncoder
     _item_encoder: LabelEncoder
 
-    def __init__(self, ratings_df: pd.DataFrame):
+    def __init__(self, ratings_df: pd.DataFrame, min_user_ratings: int = 5, min_item_ratings: int = 5):
         self._ratings_df = ratings_df
         self._user_encoder = LabelEncoder()
         self._item_encoder = LabelEncoder()
         ratings = self._ratings_df[["user_id", "item_id", "rating"]].copy()
         ratings.loc[:, "user_id"] = self._user_encoder.fit_transform(ratings["user_id"])
         ratings.loc[:, "item_id"] = self._item_encoder.fit_transform(ratings["item_id"])
-        self._dataset = ratings.to_numpy()
-        self._anti_testset = None
+        self._ratings = ratings.to_numpy()
+
+        self._create_usable_ratings(min_user_ratings, min_item_ratings)
+        self._create_anti_testset()
+
+    def _create_usable_ratings(self, min_user_ratings, min_item_ratings):
+        users, items = self._ratings[:, 0], self._ratings[:, 1]
+        unique_users, unique_user_counts = np.unique(users, return_counts=True)
+        unique_items, unique_item_counts = np.unique(items, return_counts=True)
+        usable_users = unique_users[unique_user_counts >= min_user_ratings]
+        usable_items = unique_items[unique_item_counts >= min_item_ratings]
+        self._usable_ratings = self._ratings[np.isin(users, usable_users) & np.isin(items, usable_items)]
+    
+    def _create_anti_testset(self):
+        users, items = self._ratings[:, 0], self._ratings[:, 1]
+        unique_users = np.unique(users)
+        unique_items = np.unique(items)
+        anti_testset = []
+
+        for user in unique_users:
+            rated_items = items[users == user]
+            unrated_items = np.setdiff1d(unique_items, rated_items)[np.newaxis, :].T
+            anti_testset.append(np.insert(unrated_items, 0, user, axis=1))
+
+        self._anti_testset = np.concatenate(anti_testset, axis=0).astype(np.int32)
 
     @property
-    def dataset(self) -> np.ndarray:
-        return self._dataset
+    def full(self) -> np.ndarray:
+        return self._ratings
+
+    @property
+    def usable(self) -> np.ndarray:
+        return self._usable_ratings
 
     @property
     def anti_testset(self) -> np.ndarray:
-        if self._anti_testset is None:
-            users, items = self._dataset[:, 0], self._dataset[:, 1]
-            unique_users = np.unique(users)
-            unique_items = np.unique(items)
-            anti_testset = []
-
-            for user in unique_users:
-                rated_items = items[users == user]
-                unrated_items = np.setdiff1d(unique_items, rated_items)[np.newaxis, :].T
-                anti_testset.append(np.insert(unrated_items, 0, user, axis=1))
-
-            self._anti_testset = np.concatenate(anti_testset, axis=0).astype(np.int32)
         return self._anti_testset
+        
 
     def leave_one_out(self, **kwargs):
-        return LeaveOneOutDataset(self, **kwargs)
+        return LeaveOneOutIterator(self, **kwargs)
 
 
-class LeaveOneOutDataset:
+class LeaveOneOutIterator:
     """
     Dataset for leave-one-out cross-validation.
 
     Args:
-        dataset: RatingsDataset
+        dataset: EvaluationDataset
         n_splits: Number of cross-validation splits.
         min_ratings: Minimum number of ratings per user.
         random_seed: Random seed.
@@ -67,14 +82,12 @@ class LeaveOneOutDataset:
 
     def __init__(
         self,
-        dataset: RatingsDataset,
+        dataset: EvaluationDataset,
         n_splits: int = 1,
-        min_ratings: int = 5,
         random_seed: int | None = None,
     ):
-        self._dataset = dataset.dataset
+        self._ratings = dataset.usable
         self._n_splits = n_splits
-        self._min_ratings = min_ratings
         self._current_split = 0
         self._random_seed = random_seed
 
@@ -90,7 +103,7 @@ class LeaveOneOutDataset:
             raise StopIteration
 
     def _split(self):
-        users = self._dataset[:, 0]
+        users = self._ratings[:, 0]
         unique_users = np.unique(users)
         trainset = []
         testset = []
@@ -101,9 +114,7 @@ class LeaveOneOutDataset:
             rand = np.random
 
         for user in unique_users:
-            user_ratings = self._dataset[users == user]
-            if len(user_ratings) < self._min_ratings:
-                continue
+            user_ratings = self._ratings[users == user]
             test_rating_idx = rand.randint(0, len(user_ratings))
             test_rating = user_ratings[test_rating_idx]
             testset.append(test_rating)

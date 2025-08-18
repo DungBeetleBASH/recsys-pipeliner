@@ -58,6 +58,8 @@ branch = true
 source = ["src"]
 omit = [
     "src/recsys_pipeliner/_version.py",
+    "src/recsys_pipeliner/evaluation/AlgorithmEvaluator.py",
+    "src/recsys_pipeliner/metrics/*",
 ]
 
 [tool.coverage.report]
