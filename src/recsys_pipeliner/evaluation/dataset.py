@@ -8,25 +8,15 @@ class EvaluationDataset:
     Dataset for recommender systems.
 
     Args:
-        ratings_df: DataFrame with columns "user_id", "item_id", "rating"
-
-    Attributes:
-        dataset: numpy array of shape (n_ratings, 3)
+        ratings: np.ndarray with columns "user_id", "item_id", "rating"
+        min_user_ratings: Minimum number of ratings per user.
+        min_item_ratings: Minimum number of ratings per item.
     """
 
-    _ratings_df: pd.DataFrame
     _ratings: np.ndarray
-    _user_encoder: LabelEncoder
-    _item_encoder: LabelEncoder
 
-    def __init__(self, ratings_df: pd.DataFrame, min_user_ratings: int = 5, min_item_ratings: int = 5):
-        self._ratings_df = ratings_df
-        self._user_encoder = LabelEncoder()
-        self._item_encoder = LabelEncoder()
-        ratings = self._ratings_df[["user_id", "item_id", "rating"]].copy()
-        ratings.loc[:, "user_id"] = self._user_encoder.fit_transform(ratings["user_id"])
-        ratings.loc[:, "item_id"] = self._item_encoder.fit_transform(ratings["item_id"])
-        self._ratings = ratings.to_numpy()
+    def __init__(self, ratings: np.ndarray, min_user_ratings: int = 5, min_item_ratings: int = 5):
+        self._ratings = ratings
 
         self._create_usable_ratings(min_user_ratings, min_item_ratings)
         self._create_anti_testset()
@@ -76,7 +66,6 @@ class LeaveOneOutIterator:
     Args:
         dataset: EvaluationDataset
         n_splits: Number of cross-validation splits.
-        min_ratings: Minimum number of ratings per user.
         random_seed: Random seed.
     """
 
