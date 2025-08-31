@@ -2,7 +2,9 @@ import pytest
 import numpy as np
 import scipy as sp
 from recsys_pipeliner.algorithms.recommenders import (
-    ItemBasedCFRecommender
+    ItemBasedCFRecommender,
+    RandomRecommender
+
 )
 
 
@@ -113,3 +115,52 @@ def test_ItemBasedCFRecommender_predict(
     predictions = rec.predict(input)
 
     np.testing.assert_almost_equal(predictions, expected)
+
+
+def test_RandomRecommender_fit(fx_user_item_matrix_toy_np):
+    rec = RandomRecommender()
+    assert rec == rec.fit(fx_user_item_matrix_toy_np)
+
+def test_RandomRecommender_predict(fx_user_item_matrix_toy_np):
+    rec = RandomRecommender(n=10, random_seed=42).fit(fx_user_item_matrix_toy_np.toarray())
+    users, items = np.arange(10), np.arange(10)
+    input = np.vstack([users, items]).T
+
+    predictions = rec.predict(input)
+
+    expected = [
+        0.37454,
+        0.950714,
+        0.731994,
+        0.598658,
+        0.156019,
+        0.155995,
+        0.058084,
+        0.866176,
+        0.601115,
+        0.708073
+    ]
+
+    np.testing.assert_almost_equal(predictions, expected)
+
+def test_RandomRecommender_recommend(fx_user_item_matrix_toy_np):
+    rec = RandomRecommender(n=10, random_seed=42).fit(fx_user_item_matrix_toy_np.toarray())
+    users, items = np.arange(10), np.arange(10)
+    input = np.vstack([users, items]).T
+
+    recommendations = rec.recommend(input)
+
+    expected = np.array([
+        [ 6, 19, 14, 10,  7, 20,  6, 18, 22, 10],
+        [10, 23, 20,  3,  7, 23,  2, 21, 20,  1],
+        [23, 11,  5,  1, 20,  0, 11, 21, 11, 16],
+        [ 9, 15, 14, 14, 18, 11, 22, 19,  2,  4],
+        [18,  6, 20,  8,  6, 17,  3, 13, 17,  8],
+        [20,  1, 19, 14,  6, 11,  7, 14,  2, 13],
+        [16,  3, 17,  7,  3,  1,  5, 21,  9,  3],
+        [21, 17, 11,  1,  9,  3, 13, 15, 14,  7],
+        [13, 22,  7, 20, 15, 12, 17, 14, 20, 23],
+        [12,  8, 14, 12,  0,  6,  8, 23,  0, 11]
+    ]).astype(np.int32)
+
+    np.testing.assert_array_equal(recommendations, expected)

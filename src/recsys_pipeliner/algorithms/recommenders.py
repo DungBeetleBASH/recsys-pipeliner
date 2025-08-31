@@ -4,6 +4,67 @@ from recsys_pipeliner.algorithms.base import BaseRecommender
 from recsys_pipeliner.recommendations.transformer import SimilarityTransformer
 
 
+class RandomRecommender(BaseRecommender):
+    """Random recommender.
+
+    Args:
+        n: Number of recommendations to generate.
+    """
+
+    _n: int
+
+    def __init__(self, n: int = 5, random_seed: int|None = None):
+        super().__init__(n)
+        self._random_seed = random_seed
+
+    def fit(self, X: np.ndarray, y=None):
+        """Fits the recommender to the given data.
+
+        Args:
+            X np.ndarray:
+                user/item matrix of shape (n_users, n_items)
+
+        Returns:
+            self
+        """
+        self._user_item_matrix = X
+
+        return self
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Random predictions
+
+        Args:
+            X: np.ndarray of user/item pairs
+
+        Returns:
+            np.ndarray: random ratings
+        """
+
+        if self._random_seed is not None:
+            rand = np.random.RandomState(self._random_seed)
+        else:
+            rand = np.random
+
+        return rand.rand(X.shape[0]).astype(np.float32).round(6)
+
+    def recommend(self, X: np.ndarray) -> np.ndarray:
+        """Recommend n random items
+
+        Args:
+            X: np.ndarray
+
+        Returns:
+          np.ndarray
+        """
+        if self._random_seed is not None:
+            rand = np.random.RandomState(self._random_seed)
+        else:
+            rand = np.random
+        return rand.choice(np.arange(self._user_item_matrix.shape[1]), size=(X.shape[0], self._n))
+
+
+
 class ItemBasedCFRecommender(BaseRecommender):
     """Item-based collaborative filtering recommender.
 

@@ -1,5 +1,9 @@
 from recsys_pipeliner.metrics import Accuracy, TopN
 import logging
+from collections import namedtuple
+
+AccuracyMetrics = namedtuple("AccuracyMetrics", ["rmse", "mae"])
+TopNMetrics = namedtuple("TopNMetrics", ["hit_rate"])
 
 
 class AlgorithmEvaluator:
@@ -16,7 +20,7 @@ class AlgorithmEvaluator:
 
     def evaluate(
         self, evaluation_dataset, n=10, top_n_metrics=True
-    ):
+    ) -> AccuracyMetrics | tuple[AccuracyMetrics, TopNMetrics]:
         self._logger.info(f"Evaluating: {self._name}")
         
         self._algorithm.fit(evaluation_dataset.trainset)
@@ -24,7 +28,16 @@ class AlgorithmEvaluator:
         rmse = Accuracy.rmse(predictions)
         mae = Accuracy.mae(predictions)
 
-        pass
+        accuracy = AccuracyMetrics(rmse, mae)
+
+        if not top_n_metrics:
+            return accuracy
+
+        hit_rate = TopN.hit_rate(predictions)
+        top_n = TopNMetrics(hit_rate)
+
+        return accuracy, top_n
+
 
     @property
     def name(self):
