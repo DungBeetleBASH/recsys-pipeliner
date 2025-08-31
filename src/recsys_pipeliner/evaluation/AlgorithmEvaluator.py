@@ -22,21 +22,21 @@ class AlgorithmEvaluator:
         self, evaluation_dataset, n=10, top_n_metrics=True
     ) -> AccuracyMetrics | tuple[AccuracyMetrics, TopNMetrics]:
         self._logger.info(f"Evaluating: {self._name}")
-        
-        self._algorithm.fit(evaluation_dataset.trainset)
-        predictions = self._algorithm.test(evaluation_dataset.testset)
-        rmse = Accuracy.rmse(predictions)
-        mae = Accuracy.mae(predictions)
 
-        accuracy = AccuracyMetrics(rmse, mae)
+        # self._algorithm.fit(evaluation_dataset.full)
+        # predictions = self._algorithm.predict(evaluation_dataset.full)
+        # rmse = Accuracy.rmse(predictions)
+        # mae = Accuracy.mae(predictions)
 
-        if not top_n_metrics:
-            return accuracy
+        # accuracy = AccuracyMetrics(rmse, mae)
 
-        hit_rate = TopN.hit_rate(predictions)
-        top_n = TopNMetrics(hit_rate)
+        # if not top_n_metrics:
+        #     return accuracy
 
-        return accuracy, top_n
+        # hit_rate = TopN.hit_rate(predictions)
+        # top_n = TopNMetrics(hit_rate)
+
+        # return accuracy, top_n
 
 
     @property

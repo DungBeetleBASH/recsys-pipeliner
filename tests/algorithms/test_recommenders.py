@@ -164,3 +164,14 @@ def test_RandomRecommender_recommend(fx_user_item_matrix_toy_np):
     ]).astype(np.int32)
 
     np.testing.assert_array_equal(recommendations, expected)
+
+def test_RandomRecommender_recommend_no_seed(fx_user_item_matrix_toy_np):
+    rec = RandomRecommender(n=10).fit(fx_user_item_matrix_toy_np.toarray())
+    users, items = np.arange(10), np.arange(10)
+    input = np.vstack([users, items]).T
+
+    predictions = rec.predict(input)
+    recommendations = rec.recommend(input)
+
+    assert predictions.shape == (10,)
+    assert recommendations.shape == (10, 10)
