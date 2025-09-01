@@ -45,8 +45,5 @@ def test_EvaluationDataset_leave_one_out_random_seed(mocker, fx_user_item_rating
     mock_randint.assert_called()
 
 def test_EvaluationDataset_leave_one_out_min_ratings_error(fx_user_item_ratings_toy_np):
-    dataset = EvaluationDataset(fx_user_item_ratings_toy_np, min_user_ratings=20, min_item_ratings=20)
-    leave_one_out = dataset.leave_one_out()
-
     with pytest.raises(ValueError, match="No users with enough ratings to split"):
-        next(leave_one_out)
+        EvaluationDataset(fx_user_item_ratings_toy_np, min_user_ratings=20, min_item_ratings=20)

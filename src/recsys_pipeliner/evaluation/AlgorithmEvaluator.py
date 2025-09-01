@@ -1,9 +1,10 @@
 from recsys_pipeliner.metrics import Accuracy, TopN
 import logging
 from collections import namedtuple
+import numpy as np
 
 AccuracyMetrics = namedtuple("AccuracyMetrics", ["rmse", "mae"])
-TopNMetrics = namedtuple("TopNMetrics", ["hit_rate"])
+TopNMetrics = namedtuple("TopNMetrics", ["HR", "cHR", "ARHR"])
 
 
 class AlgorithmEvaluator:
@@ -19,24 +20,45 @@ class AlgorithmEvaluator:
         self._logger.setLevel(logging.INFO if verbose else logging.WARNING)
 
     def evaluate(
-        self, evaluation_dataset, n=10, top_n_metrics=True
+        self, evaluation_dataset, top_n: int | None = None
     ) -> AccuracyMetrics | tuple[AccuracyMetrics, TopNMetrics]:
         self._logger.info(f"Evaluating: {self._name}")
 
-        # self._algorithm.fit(evaluation_dataset.full)
-        # predictions = self._algorithm.predict(evaluation_dataset.full)
-        # rmse = Accuracy.rmse(predictions)
-        # mae = Accuracy.mae(predictions)
+        self._algorithm.fit(evaluation_dataset.trainset)
 
-        # accuracy = AccuracyMetrics(rmse, mae)
+        testset = evaluation_dataset.testset
+        predictions = self._algorithm.predict(testset)
+        y_true = testset[:, 2]
 
-        # if not top_n_metrics:
-        #     return accuracy
+        rmse = np.round(Accuracy.rmse(predictions, y_true), 6)
+        mae = np.round(Accuracy.mae(predictions, y_true), 6)
 
-        # hit_rate = TopN.hit_rate(predictions)
-        # top_n = TopNMetrics(hit_rate)
+        accuracy_metrics = AccuracyMetrics(rmse, mae)
 
-        # return accuracy, top_n
+        if not top_n:
+            return accuracy_metrics
+        
+        anti_testset = evaluation_dataset.anti_testset
+        anti_test_predictions = self._algorithm.predict(
+            anti_testset
+        )
+        
+        top_n = TopN(
+            testset=testset,
+            predictions=predictions,
+            anti_testset=anti_testset,
+            anti_test_predictions=anti_test_predictions,
+            n=top_n, 
+            minimum_rating=self._minimum_rating
+        )
+
+        top_n_metrics = TopNMetrics(
+            HR=top_n.hit_rate,
+            cHR=top_n.cumulative_hit_rate,
+            ARHR=top_n.average_reciprocal_hit_rank
+        )
+
+        return accuracy_metrics, top_n_metrics
 
 
     @property
