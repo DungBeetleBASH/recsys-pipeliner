@@ -1,6 +1,4 @@
-import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
 
 
 class EvaluationDataset:
@@ -15,7 +13,13 @@ class EvaluationDataset:
 
     _ratings: np.ndarray
 
-    def __init__(self, ratings: np.ndarray, min_user_ratings: int = 5, min_item_ratings: int = 5,random_seed: int | None = None):
+    def __init__(
+        self,
+        ratings: np.ndarray,
+        min_user_ratings: int = 5,
+        min_item_ratings: int = 5,
+        random_seed: int | None = None,
+    ):
         self._ratings = ratings
         self._random_seed = random_seed
 
@@ -24,7 +28,9 @@ class EvaluationDataset:
         self._create_anti_testset()
 
     def _create_train_test_split(self):
-        self._trainset, self._testset = next(self.leave_one_out(random_seed=self._random_seed))
+        self._trainset, self._testset = next(
+            self.leave_one_out(random_seed=self._random_seed)
+        )
 
     def _create_usable_ratings(self, min_user_ratings, min_item_ratings):
         users, items = self._ratings[:, 0], self._ratings[:, 1]
@@ -32,8 +38,10 @@ class EvaluationDataset:
         unique_items, unique_item_counts = np.unique(items, return_counts=True)
         usable_users = unique_users[unique_user_counts >= min_user_ratings]
         usable_items = unique_items[unique_item_counts >= min_item_ratings]
-        self._usable_ratings = self._ratings[np.isin(users, usable_users) & np.isin(items, usable_items)]
-    
+        self._usable_ratings = self._ratings[
+            np.isin(users, usable_users) & np.isin(items, usable_items)
+        ]
+
     def _create_anti_testset(self):
         users, items = self._ratings[:, 0], self._ratings[:, 1]
         unique_users = np.unique(users)
@@ -54,11 +62,11 @@ class EvaluationDataset:
     @property
     def usable(self) -> np.ndarray:
         return self._usable_ratings
-    
+
     @property
     def trainset(self) -> np.ndarray:
         return self._trainset
-    
+
     @property
     def testset(self) -> np.ndarray:
         return self._testset
@@ -66,7 +74,6 @@ class EvaluationDataset:
     @property
     def anti_testset(self) -> np.ndarray:
         return self._anti_testset
-        
 
     def leave_one_out(self, **kwargs):
         return LeaveOneOutIterator(self, **kwargs)

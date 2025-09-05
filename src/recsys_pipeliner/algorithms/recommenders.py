@@ -13,7 +13,7 @@ class RandomRecommender(BaseRecommender):
 
     _n: int
 
-    def __init__(self, n: int = 5, random_seed: int|None = None):
+    def __init__(self, n: int = 5, random_seed: int | None = None):
         super().__init__(n)
         self._random_seed = random_seed
 
@@ -40,13 +40,11 @@ class RandomRecommender(BaseRecommender):
         Returns:
             np.ndarray: random ratings
         """
-
         if self._random_seed is not None:
             rand = np.random.RandomState(self._random_seed)
+            return rand.rand(X.shape[0]).astype(np.float32).round(6)
         else:
-            rand = np.random
-
-        return rand.rand(X.shape[0]).astype(np.float32).round(6)
+            return np.random.rand(X.shape[0]).astype(np.float32).round(6)
 
     def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommend n random items
@@ -59,10 +57,14 @@ class RandomRecommender(BaseRecommender):
         """
         if self._random_seed is not None:
             rand = np.random.RandomState(self._random_seed)
-        else:
-            rand = np.random
-        return rand.choice(np.arange(self._user_item_matrix.shape[1]), size=(X.shape[0], self._n))
 
+            return rand.choice(
+                np.arange(self._user_item_matrix.shape[1]), size=(X.shape[0], self._n)
+            )
+        else:
+            return np.random.choice(
+                np.arange(self._user_item_matrix.shape[1]), size=(X.shape[0], self._n)
+            )
 
 
 class ItemBasedCFRecommender(BaseRecommender):
@@ -159,7 +161,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
     # TODO: refactor this to reuse code
-    def _recommend_similar_items(self, X: np.ndarray) -> np.array:
+    def _recommend_similar_items(self, X: np.ndarray) -> np.ndarray:
         item_idx = X[0]
         _, item_indices, item_similarities = sp.sparse.find(
             self._item_similarity_matrix[item_idx, :]
@@ -172,7 +174,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         defaults = np.full(self._n - recommendations.shape[0], -1)
         return np.concatenate([recommendations, defaults])
 
-    def _recommend_personalised(self, X: np.ndarray) -> np.array:
+    def _recommend_personalised(self, X: np.ndarray) -> np.ndarray:
         user_idx, item_idx = X[0], X[1]
 
         _, users_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])

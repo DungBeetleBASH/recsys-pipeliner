@@ -1,15 +1,22 @@
 import pytest
-from recsys_pipeliner.evaluation import AccuracyMetrics, AlgorithmEvaluator, EvaluationDataset, TopNMetrics
-from recsys_pipeliner.algorithms.recommenders import RandomRecommender
+from recsys_pipeliner.evaluation import (
+    AccuracyMetrics,
+    AlgorithmEvaluator,
+    EvaluationDataset,
+    TopNMetrics,
+)
+from recsys_pipeliner.algorithms.recommenders import (
+    RandomRecommender,
+    ItemBasedCFRecommender,
+)
 
 
-@pytest.mark.parametrize("name, expected", [
-    (None, "RandomRecommender"),
-    ("Random", "Random")
-])
+@pytest.mark.parametrize(
+    "name, expected", [(None, "RandomRecommender"), ("Random", "Random")]
+)
 def test_AlgorithmEvaluator(name, expected):
     rec = RandomRecommender(random_seed=42)
-    
+
     if name is None:
         evaluator = AlgorithmEvaluator(rec)
     else:
@@ -18,21 +25,42 @@ def test_AlgorithmEvaluator(name, expected):
     assert evaluator.algorithm == rec
     assert evaluator.name == expected
 
-def test_AlgorithmEvaluator_evaluate(fx_user_item_ratings_toy_np):
+
+@pytest.mark.parametrize(
+    "rec, top_n, expected",
+    [
+        (
+            RandomRecommender(random_seed=42),
+            None,
+            AccuracyMetrics(rmse=0.437034, mae=0.299027),
+        ),
+        (
+            RandomRecommender(random_seed=42),
+            5,
+            (
+                AccuracyMetrics(rmse=0.437034, mae=0.299027),
+                TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
+            ),
+        ),
+        # (
+        #     ItemBasedCFRecommender(),
+        #     None,
+        #     AccuracyMetrics(rmse=0.437034, mae=0.299027),
+        # ),
+        # (
+        #     ItemBasedCFRecommender(),
+        #     5,
+        #     (
+        #         AccuracyMetrics(rmse=0.437034, mae=0.299027),
+        #         TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
+        #     ),
+        # ),
+    ],
+)
+def test_AlgorithmEvaluator_evaluate(fx_user_item_ratings_toy_np, rec, top_n, expected):
     dataset = EvaluationDataset(fx_user_item_ratings_toy_np, random_seed=42)
-    rec = RandomRecommender(random_seed=42)
     evaluator = AlgorithmEvaluator(rec)
 
-    result = evaluator.evaluate(dataset, top_n=None)
-    
-    assert result == AccuracyMetrics(rmse=0.437034, mae=0.299027)
+    result = evaluator.evaluate(dataset, top_n=top_n)
 
-def test_AlgorithmEvaluator_evaluate_top_n_metrics(fx_user_item_ratings_toy_np):
-    dataset = EvaluationDataset(fx_user_item_ratings_toy_np, random_seed=42)
-    rec = RandomRecommender(random_seed=42)
-    evaluator = AlgorithmEvaluator(rec)
-
-    accuracy_metrics, top_n_metrics = evaluator.evaluate(dataset, top_n=5)
-
-    assert accuracy_metrics == AccuracyMetrics(rmse=0.437034, mae=0.299027)
-    assert top_n_metrics == TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667)
+    assert result == expected
