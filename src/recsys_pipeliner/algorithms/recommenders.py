@@ -158,7 +158,8 @@ class ItemBasedCFRecommender(BaseRecommender):
         Returns:
             np.ndarray: predicted ratings
         """
-        return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
+        user_item_pairs = X[:,[0,1]].astype(np.int32)
+        return np.apply_along_axis(self._predict, 1, user_item_pairs).astype(np.float32).round(6)
 
     # TODO: refactor this to reuse code
     def _recommend_similar_items(self, X: np.ndarray) -> np.ndarray:

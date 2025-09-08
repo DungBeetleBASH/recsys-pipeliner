@@ -36,12 +36,7 @@ class TopN:
             # # TODO: confirm this is correct
 
             user_top_n_predictions = self._top_n_predictions[self._top_n_predictions[:, 0] == uid]
-            print("user_top_n_predictions", user_top_n_predictions)
-            print("iid", iid)
-            print(user_top_n_predictions[:, 1] == iid)
             rank = self._n - np.argmin(user_top_n_predictions[:, 1] == iid)
-
-            print("rank", rank)
 
             if rank is not None:
                 hits += 1

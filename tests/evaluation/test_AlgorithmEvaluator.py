@@ -9,6 +9,9 @@ from recsys_pipeliner.algorithms.recommenders import (
     RandomRecommender,
     ItemBasedCFRecommender,
 )
+from recsys_pipeliner.recommendations.transformer import (
+    UserItemMatrixTransformer,
+)
 
 
 @pytest.mark.parametrize(
@@ -61,6 +64,13 @@ def test_AlgorithmEvaluator_evaluate(fx_user_item_ratings_toy_np, rec, top_n, ex
     dataset = EvaluationDataset(fx_user_item_ratings_toy_np, random_seed=42)
     evaluator = AlgorithmEvaluator(rec)
 
-    result = evaluator.evaluate(dataset, top_n=top_n)
+
+    user_item_matrix_transformer = UserItemMatrixTransformer()
+
+    user_item_matrix = user_item_matrix_transformer.transform(
+        dataset.trainset,
+    )
+
+    result = evaluator.evaluate(user_item_matrix, dataset.testset, dataset.anti_testset, top_n=top_n)
 
     assert result == expected

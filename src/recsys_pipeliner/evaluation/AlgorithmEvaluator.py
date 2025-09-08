@@ -20,13 +20,12 @@ class AlgorithmEvaluator:
         self._logger.setLevel(logging.INFO if verbose else logging.WARNING)
 
     def evaluate(
-        self, evaluation_dataset, top_n: int | None = None
+        self, trainset: np.ndarray, testset: np.ndarray, anti_testset: np.ndarray, top_n: int | None = None
     ) -> AccuracyMetrics | tuple[AccuracyMetrics, TopNMetrics]:
         self._logger.info(f"Evaluating: {self._name}")
 
-        self._algorithm.fit(evaluation_dataset.trainset)
+        self._algorithm.fit(trainset)
 
-        testset = evaluation_dataset.testset
         predictions = self._algorithm.predict(testset)
         y_true = testset[:, 2]
 
@@ -38,7 +37,7 @@ class AlgorithmEvaluator:
         if not top_n:
             return accuracy_metrics
         
-        anti_testset = evaluation_dataset.anti_testset
+        anti_testset = anti_testset
         anti_test_predictions = self._algorithm.predict(
             anti_testset
         )
