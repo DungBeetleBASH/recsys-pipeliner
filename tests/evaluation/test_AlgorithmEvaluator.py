@@ -35,35 +35,39 @@ def test_AlgorithmEvaluator(name, expected):
         (
             RandomRecommender(random_seed=42),
             None,
-            AccuracyMetrics(rmse=0.437034, mae=0.299027),
+            AccuracyMetrics(rmse=0.342165, mae=0.252982),
         ),
         (
             RandomRecommender(random_seed=42),
             5,
             (
-                AccuracyMetrics(rmse=0.437034, mae=0.299027),
+                AccuracyMetrics(rmse=0.342165, mae=0.252982),
                 TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
             ),
         ),
-        # (
-        #     ItemBasedCFRecommender(),
-        #     None,
-        #     AccuracyMetrics(rmse=0.437034, mae=0.299027),
-        # ),
-        # (
-        #     ItemBasedCFRecommender(),
-        #     5,
-        #     (
-        #         AccuracyMetrics(rmse=0.437034, mae=0.299027),
-        #         TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
-        #     ),
-        # ),
+        (
+            ItemBasedCFRecommender(),
+            None,
+            AccuracyMetrics(rmse=0.3305, mae=0.2694),
+        ),
+        (
+            ItemBasedCFRecommender(),
+            5,
+            (
+                AccuracyMetrics(rmse=0.3305, mae=0.2694),
+                TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
+            ),
+        ),
     ],
 )
 def test_AlgorithmEvaluator_evaluate(fx_user_item_ratings_toy_np, rec, top_n, expected):
-    dataset = EvaluationDataset(fx_user_item_ratings_toy_np, random_seed=42)
+    dataset = EvaluationDataset(
+        fx_user_item_ratings_toy_np,
+        min_user_ratings=2,
+        min_item_ratings=2,
+        random_seed=42,
+    )
     evaluator = AlgorithmEvaluator(rec)
-
 
     user_item_matrix_transformer = UserItemMatrixTransformer()
 
@@ -71,6 +75,8 @@ def test_AlgorithmEvaluator_evaluate(fx_user_item_ratings_toy_np, rec, top_n, ex
         dataset.trainset,
     )
 
-    result = evaluator.evaluate(user_item_matrix, dataset.testset, dataset.anti_testset, top_n=top_n)
+    result = evaluator.evaluate(
+        user_item_matrix, dataset.testset, dataset.anti_testset, top_n=top_n
+    )
 
     assert result == expected
