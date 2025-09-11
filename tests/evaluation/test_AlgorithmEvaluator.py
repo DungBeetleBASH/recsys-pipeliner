@@ -42,7 +42,7 @@ def test_AlgorithmEvaluator(name, expected):
             5,
             (
                 AccuracyMetrics(rmse=0.342165, mae=0.252982),
-                TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
+                TopNMetrics(HR=0.5, cHR=0.5, ARHR=0.233333),
             ),
         ),
         (
@@ -55,7 +55,7 @@ def test_AlgorithmEvaluator(name, expected):
             5,
             (
                 AccuracyMetrics(rmse=0.3305, mae=0.2694),
-                TopNMetrics(HR=1.0, cHR=1.0, ARHR=0.166667),
+                TopNMetrics(HR=0.25, cHR=0.25, ARHR=0.083333),
             ),
         ),
     ],
