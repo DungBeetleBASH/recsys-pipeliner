@@ -130,7 +130,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         )
 
         # sort by similarity (desc) and get top k
-        top_k_mask = np.argsort(1 - item_similarities)[: self._k]
+        top_k_mask = np.argsort(1 - item_similarities, kind="stable")[: self._k]
         top_k_user_ratings = users_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
         # should this be:
@@ -162,7 +162,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         return np.apply_along_axis(self._predict, 1, user_item_pairs).astype(np.float32).round(6)
 
     # TODO: refactor this to reuse code
-    def _recommend_similar_items(self, X: np.ndarray) -> np.ndarray:
+    def _recommend(self, X: np.ndarray) -> np.ndarray:
         item_idx = X[0]
         _, item_indices, item_similarities = sp.sparse.find(
             self._item_similarity_matrix[item_idx, :]
@@ -209,7 +209,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         """
         if X.ndim == 1:
             return np.apply_along_axis(
-                self._recommend_similar_items, 1, X[np.newaxis, :]
+                self._recommend, 1, X[np.newaxis, :]
             )
         elif X.ndim == 2 and X.shape[1] == 2:
             return np.apply_along_axis(self._recommend_personalised, 1, X)
