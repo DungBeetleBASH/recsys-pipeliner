@@ -198,8 +198,8 @@ class ItemBasedCFRecommender(BaseRecommender):
     def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommend n items
 
-        If X is a 2D array of user/item ids, the recommender will recommend n personalised similar items for each user.
-        If X is a 1D array of item ids, the recommender will recommend n similar items for each item.
+        If X is a 2D array of user/item ids, the recommender will recommend n personalised items for each user/item pair.
+        If X is a 2D array of item ids, the recommender will recommend n items for each item.
 
         Args:
             X: np.ndarray
@@ -207,11 +207,9 @@ class ItemBasedCFRecommender(BaseRecommender):
         Returns:
           np.ndarray
         """
-        if X.ndim == 1:
-            return np.apply_along_axis(
-                self._recommend, 1, X[np.newaxis, :]
-            )
+        if X.ndim == 2 and X.shape[1] == 1:
+            return np.apply_along_axis(self._recommend, 1, X)
         elif X.ndim == 2 and X.shape[1] == 2:
             return np.apply_along_axis(self._recommend_personalised, 1, X)
         else:
-            raise ValueError("X must be a 1D or 2D array")
+            raise ValueError("X must be a 2D array with 1 or 2 columns")

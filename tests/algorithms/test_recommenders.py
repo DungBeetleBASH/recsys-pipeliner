@@ -20,12 +20,27 @@ def test_ItemBasedCFRecommender_fit_error():
 @pytest.mark.parametrize(
     "input, expected",
     [
-        (["U00001", "I00001"], ["I00016", "I00002", "I00004"]),
-        (["U00001", "I00002"], ["I00009", "I00001", "I00019"]),
-        (["U00001", "I00003"], ["I00014", "I00006", "I00022"]),
-        (["U00001", "I00004"], ["I00006", "I00016", "I00003"]),
-        (["U00001", "I00005"], ["I00001", "I00002", "I00016"]),
-        (["U00001", "I00006"], ["I00004", "I00003", "I00016"]),
+        ([["U00001", "I00001"]], [["I00016", "I00002", "I00004"]]),
+        ([["U00001", "I00002"]], [["I00009", "I00001", "I00019"]]),
+        ([["U00001", "I00003"]], [["I00014", "I00006", "I00022"]]),
+        ([["U00001", "I00004"]], [["I00006", "I00016", "I00003"]]),
+        ([["U00001", "I00005"]], [["I00001", "I00002", "I00016"]]),
+        ([["U00001", "I00006"]], [["I00004", "I00003", "I00016"]]),
+        ([
+            ["U00001", "I00001"],
+            ["U00001", "I00002"],
+            ["U00001", "I00003"],
+            ["U00001", "I00004"],
+            ["U00001", "I00005"],
+            ["U00001", "I00006"]
+        ], [
+            ["I00016", "I00002", "I00004"],
+            ["I00009", "I00001", "I00019"],
+            ["I00014", "I00006", "I00022"],
+            ["I00006", "I00016", "I00003"],
+            ["I00001", "I00002", "I00016"],
+            ["I00004", "I00003", "I00016"],
+        ]),
     ],
 )
 def test_ItemBasedCFRecommender_recommend(
@@ -35,30 +50,53 @@ def test_ItemBasedCFRecommender_recommend(
     matrix = sp.sparse.csr_array(fx_user_item_matrix_toy.to_numpy())
     rec = ItemBasedCFRecommender(n=3).fit(matrix)
 
-    user, item = [input[0]], [input[1]]
+    input_np = np.array(input)
+    users, items = input_np[:, 0], input_np[:, 1]
 
-    input_encoded = np.array(
-        [[user_encoder.transform(user)[0], item_encoder.transform(item)[0]]]
-    )
+    users_encoded, items_encoded = user_encoder.transform(users), item_encoder.transform(items)
+    input_encoded = np.stack([users_encoded, items_encoded], axis=1)
 
     predictions = rec.recommend(input_encoded)
-    predictions_decoded = item_encoder.inverse_transform(predictions[0])
+    predictions_decoded = np.apply_along_axis(item_encoder.inverse_transform, 1, predictions)
     np.testing.assert_array_equal(predictions_decoded, expected)
 
 
 @pytest.mark.parametrize(
     "input, expected",
     [
-        (["I00001"], ["I00016", "I00024", "I00005", "I00002", "I00013"]),
-        (["I00002"], ["I00009", "I00015", "I00001", "I00023", "I00019"]),
-        (["I00003"], ["I00011", "I00014", "I00006", "I00022", "I00018"]),
-        (["I00004"], ["I00006", "I00016", "I00011", "I00024", "I00003"]),
-        (["I00005"], ["I00024", "I00023", "I00001", "I00013", "I00002"]),
-        (["I00006"], ["I00004", "I00011", "I00003", "I00016", "I00014"]),
-        (["I00007"], ["I00015", "I00009", "I00008", "I00021", "I00024"]),
-        (["I00008"], ["I00019", "I00009", "I00015", "I00007", "I00013"]),
-        (["I00009"], ["I00019", "I00008", "I00002", "I00007", "I00018"]),
-        (["I00010"], ["I00012", "I00003", "I00020", "I00002", "I00011"]),
+        ([["I00001"]], [["I00016", "I00024", "I00005", "I00002", "I00013"]]),
+        ([["I00002"]], [["I00009", "I00015", "I00001", "I00023", "I00019"]]),
+        ([["I00003"]], [["I00011", "I00014", "I00006", "I00022", "I00018"]]),
+        ([["I00004"]], [["I00006", "I00016", "I00011", "I00024", "I00003"]]),
+        ([["I00005"]], [["I00024", "I00023", "I00001", "I00013", "I00002"]]),
+        ([["I00006"]], [["I00004", "I00011", "I00003", "I00016", "I00014"]]),
+        ([["I00007"]], [["I00015", "I00009", "I00008", "I00021", "I00024"]]),
+        ([["I00008"]], [["I00019", "I00009", "I00015", "I00007", "I00013"]]),
+        ([["I00009"]], [["I00019", "I00008", "I00002", "I00007", "I00018"]]),
+        ([["I00010"]], [["I00012", "I00003", "I00020", "I00002", "I00011"]]),
+        ([
+            ["I00001"],
+            ["I00002"],
+            ["I00003"],
+            ["I00004"],
+            ["I00005"],
+            ["I00006"],
+            ["I00007"],
+            ["I00008"],
+            ["I00009"],
+            ["I00010"],
+        ], [
+            ["I00016", "I00024", "I00005", "I00002", "I00013"],
+            ["I00009", "I00015", "I00001", "I00023", "I00019"],
+            ["I00011", "I00014", "I00006", "I00022", "I00018"],
+            ["I00006", "I00016", "I00011", "I00024", "I00003"],
+            ["I00024", "I00023", "I00001", "I00013", "I00002"],
+            ["I00004", "I00011", "I00003", "I00016", "I00014"],
+            ["I00015", "I00009", "I00008", "I00021", "I00024"],
+            ["I00019", "I00009", "I00015", "I00007", "I00013"],
+            ["I00019", "I00008", "I00002", "I00007", "I00018"],
+            ["I00012", "I00003", "I00020", "I00002", "I00011"],
+        ]),
     ],
 )
 def test_ItemBasedCFRecommender_recommend_item_only(
@@ -68,10 +106,11 @@ def test_ItemBasedCFRecommender_recommend_item_only(
     matrix = sp.sparse.csr_array(fx_user_item_matrix_toy.to_numpy())
     rec = ItemBasedCFRecommender().fit(matrix)
 
-    input_encoded = item_encoder.transform(input)
+    input_np = np.array(input)
+    input_encoded = np.apply_along_axis(item_encoder.transform, 1, input_np)
 
     predictions = rec.recommend(input_encoded)
-    predictions_decoded = item_encoder.inverse_transform(predictions[0])
+    predictions_decoded = np.apply_along_axis(item_encoder.inverse_transform, 1, predictions)
     np.testing.assert_array_equal(predictions_decoded, expected)
 
 
@@ -81,7 +120,7 @@ def test_ItemBasedCFRecommender_recommend_error(fx_user_item_matrix_toy):
 
     input = np.array([[1, 1, 1]])
 
-    with pytest.raises(ValueError, match="X must be a 1D or 2D array"):
+    with pytest.raises(ValueError, match="X must be a 2D array with 1 or 2 columns"):
         rec.recommend(input)
 
 
