@@ -112,8 +112,8 @@ class UserBasedRecommender(BaseEstimator):
         return similar_users
 
     def _get_exclusions(self, id: int) -> np.array:
-        single_user_ratings = self._user_item_matrix[[id]]
-        rated = (single_user_ratings > 0).nonzero()[1]
+        target_user_ratings = self._user_item_matrix[[id]]
+        rated = (target_user_ratings > 0).nonzero()[1]
         return rated
 
     def _get_recommendations(self, id: int) -> np.array:
@@ -246,19 +246,18 @@ class ItemBasedRecommender(BaseEstimator):
         return [self._get_recommendations(id) for id in X]
 
     def predict(self, user_id: int, item_id: int) -> np.float32:
-        _, single_users_rated_items, single_users_ratings = sp.sparse.find(
+        _, target_user_rated_items, target_user_ratings = sp.sparse.find(
             self._user_item_matrix[user_id, :]
         )
 
-        # exclude item if already rated
-        users_rated_items = single_users_rated_items[
-            single_users_rated_items != item_id
-        ]
-        users_ratings = single_users_ratings[single_users_rated_items != item_id]
+        # exclude item_id if already rated by target user
+        item_mask = target_user_rated_items != item_id
+        target_user_rated_items = target_user_rated_items[item_mask]
+        target_user_ratings = target_user_ratings[item_mask]
 
         # get the similarities to item_id
         item_similarities = (
-            self._item_similarity_matrix[:, users_rated_items][item_id]
+            self._item_similarity_matrix[item_id, target_user_rated_items]
             .toarray()
             .astype(np.float32)
             .round(6)
@@ -266,19 +265,13 @@ class ItemBasedRecommender(BaseEstimator):
 
         # sort by similarity (desc) and get top k
         top_k_mask = np.argsort(1 - item_similarities)[: self._k]
-        top_k_user_ratings = users_ratings[top_k_mask]
+        top_k_target_user_ratings = target_user_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
-        # should this be:
-        # top_k_rated_item_similarities = np.where(
-        #     item_similarities[top_k_mask] > 0,
-        #     item_similarities[top_k_mask],
-        #     item_similarities[top_k_mask] + self._exp,
-        # )
 
         # weighted average rating
         return (
             np.average(
-                top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
+                top_k_target_user_ratings, axis=0, weights=top_k_rated_item_similarities
             )
             .astype(np.float32)
             .round(6)

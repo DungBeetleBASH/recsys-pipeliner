@@ -111,19 +111,18 @@ class ItemBasedCFRecommender(BaseRecommender):
     def _predict(self, X: np.ndarray) -> np.float32:
         user_idx, item_idx = X[0], X[1]
 
-        _, single_users_rated_items, single_users_ratings = sp.sparse.find(
+        _, target_user_rated_items, target_user_ratings = sp.sparse.find(
             self._user_item_matrix[user_idx, :]
         )
 
-        # exclude item if already rated
-        users_rated_items = single_users_rated_items[
-            single_users_rated_items != item_idx
-        ]
-        users_ratings = single_users_ratings[single_users_rated_items != item_idx]
+        # exclude item_idx if already rated by target user
+        item_mask = target_user_rated_items != item_idx
+        target_user_rated_items = target_user_rated_items[item_mask]
+        target_user_ratings = target_user_ratings[item_mask]
 
         # get the item similarities to item_idx
         item_similarities = (
-            self._item_similarity_matrix[:, users_rated_items][item_idx]
+            self._item_similarity_matrix[item_idx, target_user_rated_items]
             .toarray()
             .astype(np.float32)
             .round(6)
@@ -131,19 +130,13 @@ class ItemBasedCFRecommender(BaseRecommender):
 
         # sort by similarity (desc) and get top k
         top_k_mask = np.argsort(1 - item_similarities, kind="stable")[: self._k]
-        top_k_user_ratings = users_ratings[top_k_mask]
+        top_k_target_user_ratings = target_user_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
-        # should this be:
-        # top_k_rated_item_similarities = np.where(
-        #     item_similarities[top_k_mask] > 0,
-        #     item_similarities[top_k_mask],
-        #     item_similarities[top_k_mask] + self._exp,
-        # )
 
         # weighted average rating
         return (
             np.average(
-                top_k_user_ratings, axis=0, weights=top_k_rated_item_similarities
+                top_k_target_user_ratings, axis=0, weights=top_k_rated_item_similarities
             )
             .astype(np.float32)
             .round(6)
@@ -178,13 +171,15 @@ class ItemBasedCFRecommender(BaseRecommender):
     def _recommend_personalised(self, X: np.ndarray) -> np.ndarray:
         user_idx, item_idx = X[0], X[1]
 
-        _, users_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
+        _, target_user_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
 
         # exclude items already rated and the item itself
         candidates = np.setdiff1d(
             np.arange(self._item_similarity_matrix.shape[0]),
-            np.concatenate([[item_idx], users_rated_items]),
+            np.concatenate([[item_idx], target_user_rated_items]),
         )
+
+        # TODO: confirm if this is correct. Are we working with incorrect indices?
         candidate_similarity_matrix = self._item_similarity_matrix[item_idx, candidates]
 
         _, item_indices, item_similarities = sp.sparse.find(candidate_similarity_matrix)
