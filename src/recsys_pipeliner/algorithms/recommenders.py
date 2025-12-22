@@ -176,8 +176,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         similar_items = candidates[item_indices]
 
         sorter = np.argsort(1 - item_similarities, kind="stable")
-        sorted_item_indices = similar_items[sorter]
-        recommendations = sorted_item_indices[: self._n]
+        recommendations = similar_items[sorter][: self._n]
 
         defaults = np.full(self._n - recommendations.shape[0], -1)
 
