@@ -154,41 +154,35 @@ class ItemBasedCFRecommender(BaseRecommender):
         user_item_pairs = X[:,[0,1]].astype(np.int32)
         return np.apply_along_axis(self._predict, 1, user_item_pairs).astype(np.float32).round(6)
 
-    # TODO: refactor this to reuse code
+
     def _recommend(self, X: np.ndarray) -> np.ndarray:
-        item_idx = X[0]
-        _, item_indices, item_similarities = sp.sparse.find(
-            self._item_similarity_matrix[item_idx, :]
-        )
-        sorter = np.argsort(1 - item_similarities, kind="stable")
-        sorted_item_indices = item_indices[sorter]
-        sorted_item_similarities = item_similarities[sorter]
-        sorted_mask = (sorted_item_similarities > 0) * (sorted_item_indices != item_idx)
-        recommendations = sorted_item_indices[sorted_mask][: self._n]
-        defaults = np.full(self._n - recommendations.shape[0], -1)
-        return np.concatenate([recommendations, defaults])
+        if X.shape[0] == 2:
+            user_idx, item_idx = X[0], X[1]
+        else:
+            user_idx, item_idx = None, X[0]
 
-    def _recommend_personalised(self, X: np.ndarray) -> np.ndarray:
-        user_idx, item_idx = X[0], X[1]
+        if user_idx is None:
+            items = np.arange(self._item_similarity_matrix.shape[0])
+            candidates = items[items != item_idx]
+        else:
+            _, target_user_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
+            candidates = np.setdiff1d(
+                np.arange(self._item_similarity_matrix.shape[0]),
+                np.concatenate([[item_idx], target_user_rated_items]),
+            )
 
-        _, target_user_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
-
-        # exclude items already rated and the item itself
-        candidates = np.setdiff1d(
-            np.arange(self._item_similarity_matrix.shape[0]),
-            np.concatenate([[item_idx], target_user_rated_items]),
-        )
-
-        # TODO: confirm if this is correct. Are we working with incorrect indices?
         candidate_similarity_matrix = self._item_similarity_matrix[item_idx, candidates]
-
         _, item_indices, item_similarities = sp.sparse.find(candidate_similarity_matrix)
         similar_items = candidates[item_indices]
 
         sorter = np.argsort(1 - item_similarities, kind="stable")
-        recommendations = similar_items[sorter][: self._n]
+        sorted_item_indices = similar_items[sorter]
+        recommendations = sorted_item_indices[: self._n]
+
         defaults = np.full(self._n - recommendations.shape[0], -1)
+
         return np.concatenate([recommendations, defaults])
+
 
     def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommend n items
@@ -202,9 +196,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         Returns:
           np.ndarray
         """
-        if X.ndim == 2 and X.shape[1] == 1:
+        if X.ndim == 2 and X.shape[1] in (1, 2):
             return np.apply_along_axis(self._recommend, 1, X)
-        elif X.ndim == 2 and X.shape[1] == 2:
-            return np.apply_along_axis(self._recommend_personalised, 1, X)
         else:
             raise ValueError("X must be a 2D array with 1 or 2 columns")
