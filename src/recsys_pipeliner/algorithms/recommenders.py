@@ -188,8 +188,8 @@ class ItemBasedCFRecommender(BaseRecommender):
     def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommend n items
 
-        If X is a 2D array of user/item ids, the recommender will recommend n personalised items for each user/item pair.
-        If X is a 2D array of item ids, the recommender will recommend n items for each item.
+        If X is a 2D array of user/item ids, recommend n personalised items for each user/item pair.
+        If X is a 2D array of item ids, recommend n items for each item.
 
         Args:
             X: np.ndarray
