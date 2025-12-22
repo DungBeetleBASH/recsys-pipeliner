@@ -175,8 +175,8 @@ class ItemBasedCFRecommender(BaseRecommender):
         _, item_indices, item_similarities = sp.sparse.find(candidate_similarity_matrix)
         similar_items = candidates[item_indices]
 
-        sorter = np.argsort(1 - item_similarities, kind="stable")
-        recommendations = similar_items[sorter][: self._n]
+        top_n_mask = np.argsort(1 - item_similarities, kind="stable")[: self._n]
+        recommendations = similar_items[top_n_mask]
 
         defaults = np.full(self._n - recommendations.shape[0], -1)
 
