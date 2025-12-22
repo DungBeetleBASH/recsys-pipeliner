@@ -178,9 +178,11 @@ class ItemBasedCFRecommender(BaseRecommender):
         top_n_mask = np.argsort(1 - item_similarities, kind="stable")[: self._n]
         recommendations = similar_items[top_n_mask]
 
-        defaults = np.full(self._n - recommendations.shape[0], -1)
-
-        return np.concatenate([recommendations, defaults])
+        if recommendations.shape[0] < self._n:
+            defaults = np.full(self._n - recommendations.shape[0], -1)
+            return np.concatenate([recommendations, defaults])
+        else:
+            return recommendations
 
 
     def recommend(self, X: np.ndarray) -> np.ndarray:
