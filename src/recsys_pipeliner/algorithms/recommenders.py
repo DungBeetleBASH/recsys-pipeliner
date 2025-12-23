@@ -9,6 +9,7 @@ class RandomRecommender(BaseRecommender):
 
     Args:
         n: Number of recommendations to generate.
+        random_seed: Random seed for reproducibility.
     """
 
     _n: int
