@@ -128,13 +128,13 @@ class ItemBasedCFRecommender(BaseRecommender):
 
         # sort by similarity (desc) and get top k
         top_k_mask = np.argsort(1 - item_similarities, kind="stable")[: self._k]
-        top_k_target_user_ratings = user_ratings[top_k_mask]
-        top_k_rated_item_similarities = item_similarities[top_k_mask]
+        top_k_user_ratings = user_ratings[top_k_mask]
+        top_k_item_similarities = item_similarities[top_k_mask]
 
         # weighted average rating
         return (
             np.average(
-                top_k_target_user_ratings, axis=0, weights=top_k_rated_item_similarities
+                top_k_user_ratings, axis=0, weights=top_k_item_similarities
             )
             .astype(np.float32)
             .round(6)
