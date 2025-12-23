@@ -111,18 +111,16 @@ class ItemBasedCFRecommender(BaseRecommender):
     def _predict(self, X: np.ndarray) -> np.float32:
         user_idx, item_idx = X[0], X[1]
 
-        _, target_user_rated_items, target_user_ratings = sp.sparse.find(
-            self._user_item_matrix[user_idx, :]
+        # get the user's rated items
+        items = np.setdiff1d(np.arange(self._user_item_matrix.shape[1]), item_idx)
+        _, rated_item_indices, user_ratings = sp.sparse.find(
+            self._user_item_matrix[user_idx, items]
         )
+        rated_items = items[rated_item_indices]
 
-        # exclude item_idx if already rated by target user
-        item_mask = target_user_rated_items != item_idx
-        target_user_rated_items = target_user_rated_items[item_mask]
-        target_user_ratings = target_user_ratings[item_mask]
-
-        # get the item similarities to item_idx
+        # get the user's rated items' similarities to item_idx
         item_similarities = (
-            self._item_similarity_matrix[item_idx, target_user_rated_items]
+            self._item_similarity_matrix[item_idx, rated_items]
             .toarray()
             .astype(np.float32)
             .round(6)
@@ -130,7 +128,7 @@ class ItemBasedCFRecommender(BaseRecommender):
 
         # sort by similarity (desc) and get top k
         top_k_mask = np.argsort(1 - item_similarities, kind="stable")[: self._k]
-        top_k_target_user_ratings = target_user_ratings[top_k_mask]
+        top_k_target_user_ratings = user_ratings[top_k_mask]
         top_k_rated_item_similarities = item_similarities[top_k_mask]
 
         # weighted average rating
@@ -151,8 +149,7 @@ class ItemBasedCFRecommender(BaseRecommender):
         Returns:
             np.ndarray: predicted ratings
         """
-        user_item_pairs = X[:,[0,1]].astype(np.int32)
-        return np.apply_along_axis(self._predict, 1, user_item_pairs).astype(np.float32).round(6)
+        return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
 
     def _recommend(self, X: np.ndarray) -> np.ndarray:

@@ -26,8 +26,10 @@ class AlgorithmEvaluator:
 
         self._algorithm.fit(trainset)
 
-        predictions = self._algorithm.predict(testset)
-        y_true = testset[:, 2]
+        X = testset[:,[0,1]].astype(np.int32)
+        y_true = testset[:, 2].astype(np.float32)
+
+        predictions = self._algorithm.predict(X)
 
         rmse = np.round(Accuracy.rmse(predictions, y_true), 6)
         mae = np.round(Accuracy.mae(predictions, y_true), 6)
