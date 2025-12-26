@@ -199,3 +199,29 @@ class ItemBasedCFRecommender(BaseRecommender):
             return np.apply_along_axis(self._recommend, 1, X)
         else:
             raise ValueError("X must be a 2D array with 1 or 2 columns")
+
+
+class ItemBasedHybridRecommender(ItemBasedCFRecommender):
+    """Item-based hybrid recommender.
+
+    Args:
+        n: Number of recommendations to generate.
+        k: Number of similar items to consider.
+        exp: Regularization parameter.
+    """
+
+    def __init__(self, n: int = 5, k: int = 5, exp: float = 1e-6):
+        super().__init__(n, k, exp)
+
+    def fit(self, X: tuple[sp.sparse.sparray, sp.sparse.sparray], y=None):
+        item_feature_matrix, user_item_matrix = X
+        
+        if isinstance(item_feature_matrix, sp.sparse.sparray) and isinstance(user_item_matrix, sp.sparse.sparray):
+            self._user_item_matrix = user_item_matrix
+            self._item_similarity_matrix = SimilarityTransformer().transform(
+                item_feature_matrix
+            )
+        else:
+            raise ValueError("Input should be tuple[sp.sparse.sparray, scipy.sparse.sparray]")
+
+        return self

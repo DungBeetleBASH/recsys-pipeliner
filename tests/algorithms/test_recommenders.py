@@ -4,6 +4,7 @@ import scipy as sp
 from recsys_pipeliner.algorithms.recommenders import (
     ItemBasedCFRecommender,
     RandomRecommender,
+    ItemBasedHybridRecommender,
 )
 
 
@@ -240,3 +241,10 @@ def test_RandomRecommender_recommend_no_seed(fx_user_item_matrix_toy_np):
 
     assert predictions.shape == (10,)
     assert recommendations.shape == (10, 10)
+
+def test_ItemBasedHybridRecommender_fit(fx_user_item_matrix_toy_np, fx_item_features_toy_np, fx_item_features_toy_encoder):
+
+    item_feature_matrix = sp.sparse.csr_array(fx_item_features_toy_np)
+
+    rec = ItemBasedHybridRecommender(k=5, n=5)
+    assert rec == rec.fit((item_feature_matrix, fx_user_item_matrix_toy_np))
