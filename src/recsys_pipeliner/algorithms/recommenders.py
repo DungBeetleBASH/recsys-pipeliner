@@ -210,17 +210,35 @@ class ItemBasedHybridRecommender(ItemBasedCFRecommender):
         exp: Regularization parameter.
     """
 
+    _n: int
+    _k: int
+    _exp: float
+
     def __init__(self, n: int = 5, k: int = 5, exp: float = 1e-6):
         super().__init__(n, k, exp)
 
     def fit(self, X: tuple[sp.sparse.sparray, sp.sparse.sparray], y=None):
-        item_feature_matrix, user_item_matrix = X
-        
-        if isinstance(item_feature_matrix, sp.sparse.sparray) and isinstance(user_item_matrix, sp.sparse.sparray):
-            self._user_item_matrix = user_item_matrix
+        """Fits the recommender to the given data.
+
+        Args:
+            X: tuple[sp.sparse.sparray, sp.sparse.sparray]
+
+        Returns:
+            self
+
+        Raises:
+            ValueError: If input is not a tuple[sp.sparse.sparray, scipy.sparse.sparray]
+        """
+        if (
+            isinstance(X, tuple) and
+            len(X) == 2 and
+            isinstance(X[0], sp.sparse.sparray) and
+            isinstance(X[1], sp.sparse.sparray)
+        ):
             self._item_similarity_matrix = SimilarityTransformer().transform(
-                item_feature_matrix
+                X[0]
             )
+            self._user_item_matrix = X[1]
         else:
             raise ValueError("Input should be tuple[sp.sparse.sparray, scipy.sparse.sparray]")
 

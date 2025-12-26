@@ -248,3 +248,15 @@ def test_ItemBasedHybridRecommender_fit(fx_user_item_matrix_toy_np, fx_item_feat
 
     rec = ItemBasedHybridRecommender(k=5, n=5)
     assert rec == rec.fit((item_feature_matrix, fx_user_item_matrix_toy_np))
+
+@pytest.mark.parametrize(
+    "input",
+    [
+        "cat",
+        ([], "cat"),
+        ([], [], []),
+    ],
+)
+def test_ItemBasedHybridRecommender_fit_error(input):
+    with pytest.raises(ValueError, match=r"Input should be tuple\[sp\.sparse\.sparray, scipy\.sparse\.sparray\]"):
+        ItemBasedHybridRecommender().fit(input)
