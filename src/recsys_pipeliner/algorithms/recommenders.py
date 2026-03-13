@@ -134,9 +134,7 @@ class ItemBasedCFRecommender(BaseRecommender):
 
         # weighted average rating
         return (
-            np.average(
-                top_k_user_ratings, axis=0, weights=top_k_item_similarities
-            )
+            np.average(top_k_user_ratings, axis=0, weights=top_k_item_similarities)
             .astype(np.float32)
             .round(6)
         )
@@ -152,7 +150,6 @@ class ItemBasedCFRecommender(BaseRecommender):
         """
         return np.apply_along_axis(self._predict, 1, X).astype(np.float32).round(6)
 
-
     def _recommend(self, X: np.ndarray) -> np.ndarray:
         if X.shape[0] == 2:
             user_idx, item_idx = X[0], X[1]
@@ -163,7 +160,9 @@ class ItemBasedCFRecommender(BaseRecommender):
             items = np.arange(self._item_similarity_matrix.shape[0])
             candidates = items[items != item_idx]
         else:
-            _, target_user_rated_items, _ = sp.sparse.find(self._user_item_matrix[user_idx, :])
+            _, target_user_rated_items, _ = sp.sparse.find(
+                self._user_item_matrix[user_idx, :]
+            )
             candidates = np.setdiff1d(
                 np.arange(self._item_similarity_matrix.shape[0]),
                 np.concatenate([[item_idx], target_user_rated_items]),
@@ -181,7 +180,6 @@ class ItemBasedCFRecommender(BaseRecommender):
             return np.concatenate([recommendations, defaults])
         else:
             return recommendations
-
 
     def recommend(self, X: np.ndarray) -> np.ndarray:
         """Recommend n items
@@ -230,16 +228,16 @@ class ItemBasedHybridRecommender(ItemBasedCFRecommender):
             ValueError: If input is not a tuple[sp.sparse.sparray, scipy.sparse.sparray]
         """
         if (
-            isinstance(X, tuple) and
-            len(X) == 2 and
-            isinstance(X[0], sp.sparse.sparray) and
-            isinstance(X[1], sp.sparse.sparray)
+            isinstance(X, tuple)
+            and len(X) == 2
+            and isinstance(X[0], sp.sparse.sparray)
+            and isinstance(X[1], sp.sparse.sparray)
         ):
-            self._item_similarity_matrix = SimilarityTransformer().transform(
-                X[0]
-            )
+            self._item_similarity_matrix = SimilarityTransformer().transform(X[0])
             self._user_item_matrix = X[1]
         else:
-            raise ValueError("Input should be tuple[sp.sparse.sparray, scipy.sparse.sparray]")
+            raise ValueError(
+                "Input should be tuple[sp.sparse.sparray, scipy.sparse.sparray]"
+            )
 
         return self
