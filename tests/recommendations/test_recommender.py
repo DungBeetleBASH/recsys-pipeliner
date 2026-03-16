@@ -196,16 +196,16 @@ def test_UserBasedRecommender_fit(fx_user_item_matrix_toy_np):
 @pytest.mark.parametrize(
     "user_id, item_id, expected",
     [
-        ("U00003", "I00007", 0.67),
-        ("U00003", "I00008", 0.713238),
-        ("U00003", "I00009", 0.87),
-        ("U00003", "I00010", 0.524629),
+        ("U00003", "I00007", 0.799500),
+        ("U00003", "I00008", 0.679003),
+        ("U00003", "I00009", 0.471385),
+        ("U00003", "I00010", 0.499164),
         ("U00003", "I00011", 0.591182),
-        ("U00003", "I00012", 0.634922),
-        ("U00003", "I00013", 0.519954),
+        ("U00003", "I00012", 0.696494),
+        ("U00003", "I00013", 0.569821),
         ("U00003", "I00014", 0.642335),
-        ("U00003", "I00015", 0.648502),
-        ("U00003", "I00016", 0.72047),
+        ("U00003", "I00015", 0.627502),
+        ("U00003", "I00016", 0.720470),
     ],
 )
 def test_UserBasedRecommender_predict(
@@ -226,10 +226,10 @@ def test_UserBasedRecommender_predict(
     np.testing.assert_almost_equal(prediction, expected)
 
 
-def test_UserBasedRecommender_predict_none():
+def test_UserBasedRecommender_predict_zero():
     user_item_matrix = sp.sparse.csr_array([[0, 0, 0], [0, 0, 0]])
     rec = UserBasedRecommender().fit(user_item_matrix)
-    assert rec.predict(0, 0) is None
+    assert rec.predict(0, 0) == 0.0
 
 
 def test_UserBasedRecommender_fit_error():
@@ -277,15 +277,15 @@ def test_ItemBasedRecommender_recommend(fx_user_item_matrix_toy, input, expected
 @pytest.mark.parametrize(
     "user_id, item_id, expected",
     [
-        ("U00003", "I00007", 0.756353),
-        ("U00003", "I00008", 0.836384),
-        ("U00003", "I00009", 0.820002),
-        ("U00003", "I00010", 0.836961),
+        ("U00003", "I00007", 0.694382),
+        ("U00003", "I00008", 0.738779),
+        ("U00003", "I00009", 0.644923),
+        ("U00003", "I00010", 0.852358),
         ("U00003", "I00011", 0.891748),
-        ("U00003", "I00012", 0.721764),
-        ("U00003", "I00013", 0.849971),
+        ("U00003", "I00012", 0.739046),
+        ("U00003", "I00013", 0.782644),
         ("U00003", "I00014", 0.817382),
-        ("U00003", "I00015", 0.761754),
+        ("U00003", "I00015", 0.775919),
         ("U00003", "I00016", 0.812887),
     ],
 )

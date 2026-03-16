@@ -18,7 +18,7 @@ class UserItemMatrixTransformer(TransformerMixin, BaseEstimator):
     def fit(self, X, y=None):
         return self
 
-    def transform(self, X: np.ndarray) -> sp.sparse.sparray:
+    def transform(self, X: np.ndarray) -> sp.sparse.csr_array:
         users, user_pos = np.unique(X[:, 0], return_inverse=True)
         items, item_pos = np.unique(X[:, 1], return_inverse=True)
         matrix_shape = (len(users), len(items))

@@ -40,6 +40,15 @@ def fx_user_item_matrix_toy():
 
 
 @pytest.fixture
+def fx_user_item_matrix_toy_encoders(fx_user_item_matrix_toy):
+    item_ids = fx_user_item_matrix_toy.columns.to_numpy()
+    user_ids = fx_user_item_matrix_toy.index.to_numpy()
+    item_encoder = LabelEncoder().fit(item_ids)
+    user_encoder = LabelEncoder().fit(user_ids)
+    yield item_encoder, user_encoder
+
+
+@pytest.fixture
 def fx_user_item_matrix_toy_np(fx_user_item_ratings_toy_np):
     yield UserItemMatrixTransformer().transform(fx_user_item_ratings_toy_np)
 
@@ -63,3 +72,23 @@ def fx_user_item_ratings_np():
 @pytest.fixture
 def fx_user_item_matrix_np(fx_user_item_ratings_np):
     yield UserItemMatrixTransformer().transform(fx_user_item_ratings_np)
+
+
+@pytest.fixture
+def fx_item_features_toy():
+    yield pd.read_csv(
+        "tests/test_data/item_features_toy.csv",
+        header=0,
+        index_col=0,
+    ).astype(np.float32)
+
+@pytest.fixture
+def fx_item_features_toy_np(fx_item_features_toy):
+    yield fx_item_features_toy.to_numpy().astype(np.float32)
+
+
+@pytest.fixture
+def fx_item_features_toy_encoder(fx_item_features_toy):
+    item_ids = fx_item_features_toy.index.to_numpy()
+    item_encoder = LabelEncoder().fit(item_ids)
+    yield item_encoder
